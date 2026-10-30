@@ -271,6 +271,22 @@ a.btn{text-decoration:none;}
 .gh i{background:var(--ac);}
 .gr .ft img{width:100%;height:100%;object-fit:cover;display:block;}
 @media (max-width:759px){ .cap span{display:none;} .cap{justify-content:center;} }
+.tvw{overflow-x:auto;}
+.tv{border-collapse:collapse;width:100%;}
+.tv th{padding:4px 2px;font-weight:600;font-size:11.5px;text-align:center;position:sticky;top:56px;background:var(--bg);z-index:2;}
+.tv th i{display:flex;width:30px;height:30px;border-radius:50%;margin:0 auto 2px;color:#fff;font-style:normal;font-weight:700;align-items:center;justify-content:center;}
+.tv td{padding:2px;border-top:1px solid var(--line);text-align:center;}
+.tv tr.et td{border:0;text-align:left;padding:12px 0 2px;font-family:Fraunces,Georgia,serif;font-weight:600;font-size:17px;}
+.tv .nn2{text-align:left;white-space:nowrap;}
+.tv .nn2 .mi{display:inline-block;width:30px;height:30px;border-radius:8px;overflow:hidden;vertical-align:middle;margin-right:6px;}
+.tv .nn2 .mi img{width:100%;height:100%;object-fit:cover;display:block;}
+.tv .nn2 span{font-size:14px;vertical-align:middle;}
+.vc{width:56px;height:40px;border-radius:10px;border:1px dashed var(--line);background:var(--card);font-size:22px;font-weight:700;}
+.vc.on{border-style:solid;background:#fff;}
+.rl{font-size:13.5px;line-height:1.5;color:#4a403a;} .rl span{font-weight:700;} .rl.dim{color:var(--dim);font-size:12.5px;}
+.atre{margin-top:8px;padding:9px 11px;border-radius:12px;background:#F6E9EE;font-size:13.5px;line-height:1.4;}
+.favs.mini{gap:6px;margin-top:4px;} .favs.mini>div{width:56px;font-size:11px;} .favs.mini .im{width:46px;height:46px;border-radius:11px;}
+.gs button.no{opacity:.6;}
 </style></head><body><div id="app"></div><script>
 /* ==================================================================
    CONFIGURACIÓN — lo único que hay que tocar
@@ -505,73 +521,146 @@ function oscuro(h){ const r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),1
 
 function mix2(a, b, q){ const c = i=>Math.round(parseInt(a.slice(i,i+2),16)*(1-q)+parseInt(b.slice(i,i+2),16)*q).toString(16).padStart(2,'0'); return '#'+c(1)+c(3)+c(5); }
 /* ==================================================================
-   MODO GRUPAL: la pantalla se divide, cada niña tiene su esqueleto precargado (fijas)
-   y reparte a mano las gotas libres que le quedan
+   MODO GRUPAL (papel + pantalla)
+   1) votan en papel o en pantalla  2) resumen: receta sugerida por niña (65% favoritas, 35% libre)
+   3) cargan a mano las gotas que pusieron  4) imagen final
    ================================================================== */
-function armarEsqueletoG(s){
-  const r = esqueleto2(s), F = CONFIG.FIJAS;
-  const repF = reparto(Object.assign({}, r.rep), F);
-  s.fijo = {}; ETS.forEach(e=>s.fijo[e] = minimos(reparto(Object.assign({}, r.sel[e]), repF[e]), repF[e]));
-  s.ext = {}; s.vis = {}; s.sug = r.sug; s.por = r.por;
-  s.ref = JSON.parse(JSON.stringify(s.fijo));
+const FAV_PCT = .65;
+function atrevida(s){
+  const v = id => s.v[id]==null ? 1 : s.v[id];
+  let base = NOTAS.filter(n=>v(n.id)===3).map(n=>n.id); if(!base.length) base = NOTAS.filter(n=>v(n.id)===2).map(n=>n.id);
+  const dentro = id => ETS.some(e=>s.fav[e][id]);
+  let cand = NOTAS.filter(n=>v(n.id)===0 && !dentro(n.id)).map(n=>n.id);
+  if(!cand.length) cand = NOTAS.filter(n=>v(n.id)===1 && !dentro(n.id)).map(n=>n.id);
+  if(!cand.length || !base.length) return null;
+  const pt = id => base.reduce((a,b)=>a+liftDe(id,b),0)/base.length + (SIN.some(([ids])=>ids.includes(id) && ids.some(i=>base.includes(i))) ? .5 : 0);
+  const id = cand.sort((a,b)=>pt(b)-pt(a))[0];
+  return {id, g:10};
+}
+function armarRecetaG(s){
+  const v = id => s.v[id]==null ? 1 : s.v[id];
+  const amo = NOTAS.filter(n=>v(n.id)===3).map(n=>n.id);
+  const r = esqueleto2(s);
+  const cuenta = e => amo.filter(id=>N[id].et===e).length + NOTAS.filter(n=>n.et===e && v(n.id)===2).length*.4 + .6;
+  const tot = ETS.reduce((a,e)=>a+cuenta(e),0), w = {};
+  ETS.forEach(e=>w[e] = .7*REPARTO_DEF[e]/CONFIG.GOTAS + .3*cuenta(e)/tot);
+  s.rep = reparto(w, CONFIG.GOTAS); s.fav = {}; s.libre = {}; s.jug = {};
+  ETS.forEach(e=>{ const f = Math.round(s.rep[e]*FAV_PCT); s.libre[e] = s.rep[e] - f;
+    s.fav[e] = minimos(reparto(Object.assign({}, r.sel[e]), f), f);
+    const ya = id => s.fav[e][id];
+    s.jug[e] = POOL[e].filter(id=>!ya(id) && v(id)===2).concat(POOL[e].filter(id=>!ya(id) && v(id)===1)).slice(0,4); });
+  s.atre = atrevida(s);
+  s.ref = JSON.parse(JSON.stringify(s.fav));
+  s.por = [`Libres: ${ETS.map(e=>ET[e]+' '+s.libre[e]).join(', ')}.` + (s.atre ? ` Atrevida: ${nm(s.atre.id)} ${s.atre.g} gotas.` : '')];
+  s.carga = s.carga || {}; s.vis = s.vis || {}; s.fase = 'armar';
   aplicarG(s);
 }
 function aplicarG(s){
-  s.sel = {}; s.rep = {};
-  ETS.forEach(e=>{ const o = Object.assign({}, s.fijo[e]); POOL[e].forEach(id=>{ if(s.ext[id]>0) o[id] = (o[id]||0) + s.ext[id]; }); s.sel[e] = o; s.rep[e] = suma(o); });
+  s.sel = {}; ETS.forEach(e=>{ const o = {}; POOL[e].forEach(id=>{ if(s.carga[id]>0) o[id] = s.carga[id]; }); s.sel[e] = o; });
 }
-const libresG = s => CONFIG.GOTAS - CONFIG.FIJAS - Object.values(s.ext||{}).reduce((a,b)=>a+(b||0),0);
-function setExtG(k, id, val){
-  const s = M.ninas[k]; val = Math.max(0, Math.floor(+val || 0));
-  const otros = Object.entries(s.ext).filter(([i])=>i!==id).reduce((a,[,b])=>a+b,0), max = CONFIG.GOTAS - CONFIG.FIJAS - otros;
-  if(val > max){ val = max; aviso('Ya usaste todas tus gotas libres'); }
-  s.ext[id] = val; aplicarG(s); guardar(); refrescarG(k); guardarReg(s, 'Armando', 2500);
+const totalG = s => ETS.reduce((a,e)=>a+suma(s.sel[e]),0);
+function perfilDe(sel){
+  const acc = {}; ETS.forEach(e=>Object.entries(sel[e]||{}).forEach(([id,g])=>acc[N[id].fam] = (acc[N[id].fam]||0)+g));
+  const o = Object.keys(acc).sort((a,b)=>acc[b]-acc[a]); if(!o.length) return null;
+  return {a1: FAMILIAS[o[0]].a, a2: o[1] ? FAMILIAS[o[1]].a : ''};
 }
-const stepG = (k, id, d) => setExtG(k, id, (M.ninas[k].ext[id]||0) + d);
+/* ---------- carga de votos del papel ---------- */
+const SIGLO = {3:['♥','#B3577A'], 2:['✦','#B08D57'], 1:['◦','#8a7a6e'], 0:['✕','#a3423a']};
+const SIG_SIG = {3:2, 2:1, 1:0};
+function ciclarVoto(k, id){
+  const s = M.ninas[k], v = s.v[id], nv = v==null ? 3 : SIG_SIG[v];
+  if(nv==null) delete s.v[id]; else s.v[id] = nv;
+  guardar(); const b = document.getElementById(`vc${k}-${id}`); if(b){ const g = SIGLO[s.v[id]]; b.textContent = g ? g[0] : ''; b.style.color = g ? g[1] : ''; b.classList.toggle('on', !!g); }
+  const f = document.getElementById('vfalta'); if(f) f.textContent = faltanVotos();
+}
+const faltanVotos = () => { const n = M.ninas.reduce((a,s)=>a+NOTAS.filter(x=>s.v[x.id]==null).length,0); return n ? `Sin marcar: ${n} (se cuentan como "un poquito")` : 'Todo marcado ✓'; };
+function irCarga(){ if(!okMesa()) return; M.ninas.forEach(s=>s.nombre = s.nombre.trim()); M.inicio = M.inicio || Date.now(); M.cata = 'en curso'; M.fase = 'carga'; guardar(); pintar(); window.scrollTo(0,0); }
+function vCarga(){
+  const ns = M.ninas; let et = '';
+  const filas = NOTAS.map(n=>{ let h = '';
+    if(n.et!==et){ et = n.et; h = `<tr class="et"><td colspan="${ns.length+1}" style="color:${HEX[n.et]}">${ET[n.et]}</td></tr>`; }
+    return h + `<tr><td class="nn2"><div class="mi">${foto(n.id)}</div><span>${esc(n.n)}</span></td>${ns.map((s,k)=>{ const g = SIGLO[s.v[n.id]]; return `<td><button class="vc ${g?'on':''}" id="vc${k}-${n.id}" style="${g?'color:'+g[1]:''}" onclick="ciclarVoto(${k},'${n.id}')">${g?g[0]:''}</button></td>`; }).join('')}</tr>`; }).join('');
+  return `<div class="top"><button class="back" onclick="aMesa()" aria-label="Atrás">←</button><div class="tt">Cargar votos del papel</div><div class="cnt">${new Date().toLocaleDateString('es-AR')}</div></div>
+    <div class="pad"><p class="hint">Tocá cada casillero hasta que aparezca lo que marcó en el papel: ♥ me encanta · ✦ me gusta · ◦ un poquito · ✕ no es para mí. Un toque más lo borra.</p>
+    <div class="tvw"><table class="tv"><thead><tr><th></th>${ns.map((s,k)=>`<th><i style="background:${AVC[k%AVC.length]}">${esc(s.nombre.trim().charAt(0).toUpperCase())}</i><small>${esc(s.nombre)}</small></th>`).join('')}</tr></thead><tbody>${filas}</tbody></table></div>
+    <div class="falta" id="vfalta" style="margin:10px 0">${faltanVotos()}</div>
+    <button class="btn" onclick="finCata()">Ver las recetas</button></div>`;
+}
+/* ---------- resumen: la receta sugerida de cada niña ---------- */
+function listaEt(o){ return lista(o).map(([id,g])=>`${esc(nm(id))} <b>${g}</b>`).join(' · '); }
+function rCard(s, k){
+  const col = AVC[k%AVC.length], pr = perfil(s), top = pr.fams[0] ? FAMILIAS[pr.fams[0].f] : null;
+  const favT = ETS.reduce((a,e)=>a+suma(s.fav[e]),0), libT = ETS.reduce((a,e)=>a+s.libre[e],0);
+  const amo = NOTAS.filter(n=>s.v[n.id]===3);
+  return `<div class="gc" style="--ac:${col}"><div class="gh"><i>${esc((s.nombre||'?').trim().charAt(0).toUpperCase())}</i><b>${esc(s.nombre)}</b></div>
+    <div class="gp">${top?esc(top.a):'—'}<small>${top?esc(top.t):''}</small></div>
+    <div class="etq" style="margin:6px 0 0">Te encantan</div>
+    ${amo.length ? `<div class="favs mini">${amo.map(n=>`<div><div class="im">${foto(n.id)}</div><span>${esc(n.n)}</span></div>`).join('')}</div>` : `<p class="nota-p">Ninguna con ♥: armamos con las que más te gustaron.</p>`}
+    <div class="etq" style="margin:6px 0 0">Tu frasco: 350 gotas</div>
+    <div class="gb">${ETS.map(e=>`<div style="flex:${s.rep[e]};background:${HEX[e]}">${ET[e]} ${s.rep[e]}</div>`).join('')}</div>
+    <div class="etq" style="margin:8px 0 0">1 · Tus favoritas · ${favT} gotas</div>
+    ${ETS.map(e=>`<div class="rl"><span style="color:${HEX[e]}">${ET[e]}</span> ${listaEt(s.fav[e])}</div>`).join('')}
+    <div class="etq" style="margin:8px 0 0">2 · Libres para jugar · ${libT} gotas</div>
+    <div class="rl">${ETS.map(e=>`<span style="color:${HEX[e]}">${ET[e]}</span> <b>${s.libre[e]}</b>`).join(' &nbsp;·&nbsp; ')}</div>
+    ${ETS.map(e=>s.jug[e].length ? `<div class="rl dim"><span style="color:${HEX[e]}">${ET[e]}</span> podés usar: ${s.jug[e].map(id=>esc(nm(id))).join(', ')}</div>` : '').join('')}
+    ${s.atre ? `<div class="atre">🎲 Animate: probá <b>${s.atre.g} gotas de ${esc(nm(s.atre.id))}</b>${s.v[s.atre.id]===0?', aunque no te haya gustado,':''} y mirá cómo cambia tu perfume.</div>` : ''}
+  </div>`;
+}
+function vResumen(){
+  const ns = M.ninas;
+  return `<div class="top"><div class="tt">Recetas sugeridas</div><div class="cnt">${new Date().toLocaleDateString('es-AR')}</div></div>
+    <div class="gq n${ns.length}">${ns.map(rCard).join('')}</div>
+    <div class="gfoot"><p class="hint" style="text-align:center">Con esto trabajan en el papel: charlan, prueban y me preguntan. Cuando tengan su fórmula, la cargan en la pantalla siguiente.</p>
+      <button class="btn" onclick="M.fase='grupo';guardar();pintar();window.scrollTo(0,0)">Cargar las fórmulas</button>
+      <button class="btn ghost" onclick="M.fase='carga';guardar();pintar();window.scrollTo(0,0)">Cambiar votos</button></div>${pie()}`;
+}
+/* ---------- carga de la fórmula final a mano ---------- */
+function setCargaG(k, id, val){
+  const s = M.ninas[k]; val = Math.max(0, Math.floor(+val || 0)); s.carga[id] = val; aplicarG(s); guardar(); refrescarG(k); guardarReg(s, 'Armando', 2500);
+}
+const stepG = (k, id, d) => setCargaG(k, id, (M.ninas[k].carga[id]||0) + d);
 function sumarG(k, id){ M.ninas[k].vis[id] = 1; guardar(); pintar(true); }
-function quitarG(k, id){ const s = M.ninas[k]; if(!(s.ext[id]>0)){ delete s.vis[id]; delete s.ext[id]; } guardar(); pintar(true); }
-function listoG(k){ const s = M.ninas[k]; s.fase = 'listo'; s.enviado = true; guardarReg(s, 'Terminó'); abrir(k); }
+function quitarG(k, id){ const s = M.ninas[k]; delete s.vis[id]; delete s.carga[id]; aplicarG(s); guardar(); pintar(true); guardarReg(s, 'Armando', 2500); }
+function listoG(k){ const s = M.ninas[k]; if(totalG(s)<=0){ aviso('Cargá al menos una nota'); return; } s.fase = 'listo'; s.enviado = true; guardarReg(s, 'Terminó'); abrir(k); }
 function finCata(){
-  if(MODO==='celu'){ M.act = 0; M.fase = 'nina'; guardar(); M.ninas.forEach(x=>guardarReg(x,'Votó')); }
-  else { M.ninas.forEach(s=>{ armarEsqueletoG(s); s.fase = 'armar'; }); M.fase = 'grupo'; guardar(); M.ninas.forEach(x=>guardarReg(x,'Votó')); }
+  if(MODO==='celu'){ M.cata = 'lista'; M.act = 0; M.fase = 'nina'; guardar(); M.ninas.forEach(x=>guardarReg(x,'Votó')); }
+  else { M.cata = 'lista'; M.ninas.forEach(armarRecetaG); M.fase = 'resumen'; guardar(); M.ninas.forEach(x=>guardarReg(x,'Votó')); }
   pintar(); window.scrollTo(0,0);
 }
-const gLib = s => { const l = libresG(s); return l===0 ? '✓ repartiste todo' : `Te quedan ${l} gotas libres`; };
-const gPer = s => { const p = perfilVivo(s); return esc(p.a1) + (p.a2 ? `<small>con un toque ${esc(p.a2.toLowerCase())}</small>` : ''); };
-const gBar = s => ETS.map(e=>`<div style="flex:${Math.max(1,s.rep[e])};background:${HEX[e]}">${s.rep[e]}</div>`).join('');
+const gLib = s => { const t = totalG(s), d = CONFIG.GOTAS - t; return !t ? `0 de ${CONFIG.GOTAS} gotas` : d===0 ? `✓ ${CONFIG.GOTAS} gotas` : d>0 ? `Van ${t} · faltan ${d}` : `Van ${t} · te pasaste ${-d}`; };
+const gPer = s => { const p = perfilDe(s.sel) || perfilDe(s.fav) || {a1:'—',a2:''}; return esc(p.a1) + (p.a2 ? `<small>con un toque ${esc(p.a2.toLowerCase())}</small>` : '') + (totalG(s)? '' : '<small>(según la receta sugerida)</small>'); };
+const gBar = s => { const src = totalG(s) ? ETS.map(e=>suma(s.sel[e])) : ETS.map(e=>s.rep[e]);
+  return ETS.map((e,i)=>`<div style="flex:${Math.max(1,src[i])};background:${HEX[e]}">${src[i]}</div>`).join(''); };
 function gEtapa(s, k, e){
-  const ids = POOL[e].filter(id=>s.fijo[e][id] || s.vis[id]).sort((a,b)=>(s.fijo[e][b]||0)-(s.fijo[e][a]||0));
-  const sug = (s.sug[e]||[]).filter(id=>!(s.fijo[e][id] || s.vis[id]));
-  return `<div class="ge" style="color:${HEX[e]}">${ET[e]}<small id="se${k}-${e}">${s.rep[e]} gotas</small></div>
-    ${ids.map(id=>{ const f = s.fijo[e][id]||0, x = s.ext[id]||0; return `<div class="gr"><div class="ft">${foto(id)}</div>
-      <div class="gn"><b>${esc(nm(id))}</b><small>${f ? 'fijas: '+f : 'tu extra'}</small></div>
+  const listados = POOL[e].filter(id=>s.fav[e][id] || s.vis[id] || s.carga[id]>0).sort((a,b)=>(s.fav[e][b]||0)-(s.fav[e][a]||0));
+  const otras = POOL[e].filter(id=>!listados.includes(id)).sort((a,b)=>(s.jug[e].includes(b)?1:0)-(s.jug[e].includes(a)?1:0));
+  return `<div class="ge" style="color:${HEX[e]}">${ET[e]}<small id="se${k}-${e}">${suma(s.sel[e])} gotas · sugerido ${s.rep[e]}</small></div>
+    ${listados.map(id=>{ const f = s.fav[e][id]||0, x = s.carga[id]||0; return `<div class="gr"><div class="ft">${foto(id)}</div>
+      <div class="gn"><b>${esc(nm(id))}</b><small>${f ? 'sugerida: '+f : 'la sumaste vos'}</small></div>
       <button onclick="stepG(${k},'${id}',-1)" aria-label="Menos">−</button>
-      <input type="number" inputmode="numeric" min="0" id="x${k}-${id}" value="${x}" oninput="setExtG(${k},'${id}',this.value)" aria-label="Gotas extra de ${esc(nm(id))}">
-      <button onclick="stepG(${k},'${id}',1)" aria-label="Más">+</button>
-      <span class="gt" id="t${k}-${id}">${f+x}</span>${f ? '' : `<button class="x" onclick="quitarG(${k},'${id}')" aria-label="Sacar">✕</button>`}</div>`; }).join('')}
-    ${sug.length ? `<div class="gs">Podés sumar: ${sug.map(id=>`<button onclick="sumarG(${k},'${id}')">${esc(nm(id))}</button>`).join('')}</div>` : ''}`;
+      <input type="number" inputmode="numeric" min="0" id="x${k}-${id}" value="${x||''}" placeholder="${f||0}" oninput="setCargaG(${k},'${id}',this.value)" aria-label="Gotas de ${esc(nm(id))}">
+      <button onclick="stepG(${k},'${id}',1)" aria-label="Más">+</button>${f ? '' : `<button class="x" onclick="quitarG(${k},'${id}')" aria-label="Sacar">✕</button>`}</div>`; }).join('')}
+    ${otras.length ? `<div class="gs">Sumar otra: ${otras.map(id=>`<button class="${s.v[id]===0?'no':''}" onclick="sumarG(${k},'${id}')">${esc(nm(id))}</button>`).join('')}</div>` : ''}`;
 }
 function gCard(s, k){
   const col = AVC[k%AVC.length], listo = s.fase==='listo';
-  return `<div class="gc" style="--ac:${col}"><div class="gh"><i>${esc((s.nombre||'?').trim().charAt(0).toUpperCase())}</i><b>${esc(s.nombre)}</b><span class="gl ${libresG(s)===0?'cero':''}" id="gl${k}">${gLib(s)}</span></div>
+  return `<div class="gc" style="--ac:${col}"><div class="gh"><i>${esc((s.nombre||'?').trim().charAt(0).toUpperCase())}</i><b>${esc(s.nombre)}</b><span class="gl ${totalG(s)===CONFIG.GOTAS?'cero':''}" id="gl${k}">${gLib(s)}</span></div>
     <div class="gp" id="gp${k}">${gPer(s)}</div><div class="gb" id="gb${k}">${gBar(s)}</div>
-    <input class="gpn" maxlength="32" placeholder="Ponele nombre a tu perfume (opcional)" value="${esc(s.pn)}" oninput="M.ninas[${k}].pn=this.value;guardar();guardarReg(M.ninas[${k}],'Armando',2500)">
+    <input class="gpn" maxlength="32" placeholder="Nombre de tu perfume (opcional)" value="${esc(s.pn)}" oninput="M.ninas[${k}].pn=this.value;guardar();guardarReg(M.ninas[${k}],'Armando',2500)">
     ${ETS.map(e=>gEtapa(s,k,e)).join('')}
     <button class="btn" onclick="listoG(${k})">${listo ? 'Ver mi imagen' : 'Listo · ver mi imagen'}</button></div>`;
 }
 function refrescarG(k){
   const s = M.ninas[k], $$ = q => document.getElementById(q); if(!$$('gl'+k)) return;
-  const l = $$('gl'+k); l.textContent = gLib(s); l.classList.toggle('cero', libresG(s)===0);
+  const l = $$('gl'+k); l.textContent = gLib(s); l.classList.toggle('cero', totalG(s)===CONFIG.GOTAS);
   $$('gp'+k).innerHTML = gPer(s); $$('gb'+k).innerHTML = gBar(s);
-  ETS.forEach(e=>{ const t = $$(`se${k}-${e}`); if(t) t.textContent = s.rep[e]+' gotas'; });
-  ETS.forEach(e=>Object.keys(s.sel[e]).forEach(id=>{ const t = $$(`t${k}-${id}`); if(t) t.textContent = s.sel[e][id];
-    const i = $$(`x${k}-${id}`); if(i && document.activeElement!==i) i.value = s.ext[id]||0; }));
+  ETS.forEach(e=>{ const t = $$(`se${k}-${e}`); if(t) t.textContent = suma(s.sel[e])+' gotas · sugerido '+s.rep[e]; });
 }
 function vGrupo(){
   const ns = M.ninas;
-  return `<div class="top"><div class="tt">Mesa · armando</div><div class="cnt">${new Date().toLocaleDateString('es-AR')}</div></div>
+  return `<div class="top"><div class="tt">Cargar las fórmulas</div><button class="back" style="width:auto;padding:0 12px;border-radius:18px;font-size:12px" onclick="M.fase='resumen';guardar();pintar();window.scrollTo(0,0)">Ver recetas</button><div class="cnt">${new Date().toLocaleDateString('es-AR')}</div></div>
     <div class="gq n${ns.length}">${ns.map((s,k)=>gCard(s,k)).join('')}</div>
-    <div class="gfoot"><p class="hint" style="text-align:center">Cada una pone en su frasco las gotas fijas y reparte a mano las libres. Cargá acá cuántas puso de cada nota.</p><button class="btn ghost" onclick="nuevaMesaConf()">Mesa nueva</button></div>${pie()}`;
+    <div class="gfoot"><p class="hint" style="text-align:center">Cargá cuántas gotas puso de cada nota. En gris ves lo que se sugería.</p><button class="btn ghost" onclick="nuevaMesaConf()">Mesa nueva</button></div>${pie()}`;
 }
 
 /* el frasco siempre cierra en 350: lo que crece una nota lo ceden las otras de su etapa */
@@ -753,7 +842,7 @@ function vMesa(){
             ${M.cata==='no' && MODO!=='celu'?`<button onclick="M.ninas.splice(${k},1);guardar();pintar()" aria-label="Sacar">✕</button>`:''}</div>`).join('')}</div>
         ${lleno || M.cata!=='no' ?'':`<button class="btn ghost" onclick="M.ninas.push(nuevaNina(''));guardar();pintar();setTimeout(()=>{const l=document.querySelectorAll('.nombres input');l[l.length-1]&&l[l.length-1].focus()},50)">＋ Sumar una perfumista</button>`}
         <div class="sp" style="min-height:20px"></div>
-        <button class="btn go" ${okMesa()?'':'disabled'} onclick="empezarCata()">${M.cata==='no'?'Empezar a oler':'Seguir oliendo · aroma '+(M.i+1)+' de '+NOTAS.length}</button>
+        <button class="btn go" ${okMesa()?'':'disabled'} onclick="empezarCata()">${M.cata==='no'?'Empezar a oler en pantalla':'Seguir oliendo · aroma '+(M.i+1)+' de '+NOTAS.length}</button>\n        ${MODO!=='celu' && M.cata!=='lista' ? `<button class="btn ghost go2" ${okMesa()?'':'disabled'} onclick="irCarga()">Ya votaron en papel · cargar votos</button>` : ''}
       </div>${pie()}`;
   }
   return `<div class="hero"><div class="marca">Emotional Reminder</div><h1>¡A armar!</h1>
@@ -766,7 +855,7 @@ function vMesa(){
     </div>${pie()}`;
 }
 const okMesa = () => M.ninas.length>0 && M.ninas.every(s=>s.nombre.trim().length>0);
-function chkMesa(){ const b = $('.go'); if(b) b.disabled = !okMesa(); }
+function chkMesa(){ const b = $('.go'); if(b) b.disabled = !okMesa(); const c = $('.go2'); if(c) c.disabled = !okMesa(); }
 function empezarCata(){ if(!okMesa()) return; M.ninas.forEach(s=>s.nombre = s.nombre.trim()); M.inicio = M.inicio || Date.now();
   if(M.cata==='no'){ M.cata = 'en curso'; M.i = 0; M.fase = 'intro'; } else M.fase = 'cata'; guardar(); pintar(); window.scrollTo(0,0); }
 function nuevaMesaConf(){ if(!confirm('¿Empezar una mesa nueva? Se borran las niñas de esta tablet (lo enviado a la planilla queda guardado).')) return; M = nuevaMesa(); guardar(); pintar(); }
@@ -1006,6 +1095,8 @@ function pintar(conservar){
   else if(M.fase==='intro') html = vIntro();
   else if(M.fase==='cata') html = vCata();
   else if(M.fase==='grupo') html = vGrupo();
+  else if(M.fase==='resumen') html = vResumen();
+  else if(M.fase==='carga') html = vCarga();
   else if(M.fase!=='nina' || !s) html = vMesa();
   else {
     if(['armar','receta','listo'].includes(s.fase) && !s.sel) s.fase = 'analisis';
@@ -1018,7 +1109,7 @@ function pintar(conservar){
   if(cv && s){ const vivo = s.fase==='armar'; redibujar = ()=>{ const c2 = $('#lz'); if(c2) dibujar(s, c2.getContext('2d'), vivo); }; redibujar();
     if(document.fonts) document.fonts.ready.then(()=>redibujar && redibujar()); }
 }
-if((M.fase==='nina' && !S()) || (M.fase==='cata' && !M.ninas.length) || (M.fase==='grupo' && !M.ninas.length)) M.fase = 'mesa';
+if((M.fase==='nina' && !S()) || (M.fase==='cata' && !M.ninas.length) || (['grupo','resumen','carga'].includes(M.fase) && !M.ninas.length)) M.fase = 'mesa';
 Object.keys(IMGS).forEach(img);
 pintar(); vaciar();
 </script></body></html>

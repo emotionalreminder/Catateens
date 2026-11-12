@@ -514,6 +514,30 @@ function piramide(r){
   return o;
 }
 const ESP = String.fromCharCode(8202);
+/* Layout de la imagen: una columna de dibujos alineada (como Pequeñas perfumistas), salida arriba,
+   corazón al medio y la base abajo, más grande cuanto más ml lleva. Los textos van a los costados de
+   su grupo si entran prolijos; si no, los tres van abajo en columnas. */
+const VAIVEN = [0, -0.30, 0.28, -0.14, 0.18, -0.32, 0.26, -0.12];
+const MODO_TEXTO = 'auto';   /* 'auto' · 'lados' · 'abajo' */
+function apilar(r, c, Y0, Y1, dibuja){
+  const W = 1080, ns = notasDe(r,'sal').map(id=>({img:id, ml:r.notas[id], e:'s'}))
+    .concat(notasDe(r,'cor').map(id=>({img:id, ml:r.notas[id], e:'c'})))
+    .concat([{img:X[r.base].img, ml:X[r.base].ml, e:'f'}]);
+  const SOL = 0.40, UTIL = Y1-Y0, mx = Math.max.apply(null, ns.map(x=>x.ml));
+  let alt = ns.map(x => 170 + 330*Math.sqrt(x.ml/mx));
+  const bruto = alt.reduce((a,b)=>a+b,0) - SOL*alt.slice(0,-1).reduce((a,b)=>a+b,0);
+  const k = Math.min(1, UTIL/bruto); alt = alt.map(a=>a*k);
+  let y = Y0 + Math.max(0, (UTIL - bruto*k)/2); const rects = [], zona = {};
+  ns.forEach((n,i)=>{ const im = imgEl(n.img), a = alt[i];
+    const iw = im._ok ? im.width : 1, ih = im._ok ? im.height : 1;
+    const e = Math.min(a*1.45/iw, a/ih, 560/iw), w = iw*e, h = ih*e;
+    const libre = (W-w)/2 - 170, x = (W-w)/2 + VAIVEN[i % VAIVEN.length]*Math.max(0,libre);
+    if(dibuja && im._ok) c.drawImage(im, x, y, w, h);
+    const q = {x0:x+w*.03, x1:x+w*.97, y0:y+h*.03, y1:y+h*.97}; rects.push(q);
+    const z = zona[n.e] || (zona[n.e] = {y0:1e9, y1:0}); z.y0 = Math.min(z.y0, q.y0); z.y1 = Math.max(z.y1, q.y1);
+    y += a*(1-SOL); });
+  return {rects, zona};
+}
 function dibujar(p, c){
   const W = 1080, H = 1528, T = BGS[fondoImg()] || BGS.blanco, SERIF = '"Cormorant Garamond", Georgia, serif', r = p.r;
   c.fillStyle = T.bg; c.fillRect(0,0,W,H);
@@ -526,59 +550,60 @@ function dibujar(p, c){
   c.fillStyle = T.acc; c.font = '600 23px Inter, sans-serif'; c.fillText(familiaTxt(r).toUpperCase().split('').join(ESP), W/2, 188);
   c.fillStyle = T.dim; c.font = `italic 500 38px ${SERIF}`; c.fillText('Creado por ' + p.nom.trim(), W/2, 240);
   c.strokeStyle = T.acc; c.lineWidth = 2; c.beginPath(); c.moveTo(W/2-60,272); c.lineTo(W/2+60,272); c.stroke();
-  /* pila de notas. Cada grupo se corre hacia el lado contrario a su texto:
-     salida → texto a la izquierda, corazón → a la derecha, fondo → a la izquierda */
-  const LADO = {s:-1, c:1, f:-1};
-  const TW = 300;   /* ancho de la columna de texto */
-  const ns = notasDe(r,'sal').map(id=>({img:id, ml:r.notas[id], e:'s'}))
-    .concat(notasDe(r,'cor').map(id=>({img:id, ml:r.notas[id], e:'c'})))
-    .concat([{img:X[r.base].img, ml:X[r.base].ml, e:'f'}]);
-  const ARRIBA = 300, ABAJO = 50, UTIL = H-ARRIBA-ABAJO, SOL = 0.40;
-  const mx = Math.max.apply(null, ns.map(x=>x.ml));
-  let alt = ns.map(x => 170 + 330*Math.sqrt(x.ml/mx));
-  const bruto = alt.reduce((a,b)=>a+b,0) - SOL*alt.slice(0,-1).reduce((a,b)=>a+b,0);
-  const k = Math.min(1, UTIL/bruto); alt = alt.map(a=>a*k);
-  let y = ARRIBA + Math.max(0, (UTIL - bruto*k)/2);
-  const zona = {s:{y0:1e9,y1:0,x0:1e9,x1:0}, c:{y0:1e9,y1:0,x0:1e9,x1:0}, f:{y0:1e9,y1:0,x0:1e9,x1:0}};
-  const vaiven = [0, .5, -.3, .7];
-  const rects = [];   /* lo que ocupa cada dibujo, para no escribir encima */   /* pequeño zigzag dentro de cada grupo */
-  const porGrupo = {s:0, c:0, f:0};
-  ns.forEach((n,i)=>{ const im = imgEl(n.img), a = alt[i], j = porGrupo[n.e]++;
-    if(im._ok){ const e = Math.min(a*1.45/im.width, a/im.height, 540/im.width), w = im.width*e, h = im.height*e;
-      /* el dibujo va en la franja que deja libre la columna de texto de su grupo */
-      const f0 = LADO[n.e] < 0 ? 64+TW : 24, f1 = LADO[n.e] < 0 ? W-24 : W-64-TW;
-      const x = Math.max(f0, Math.min(f1-w, (f0+f1-w)/2 + 40*vaiven[j % vaiven.length]*LADO[n.e]*-1));
-      c.drawImage(im, x, y, w, h);
-      rects.push({x0:x+w*.03, x1:x+w*.97, y0:y+h*.03, y1:y+h*.97});
-      const z = zona[n.e]; z.y0 = Math.min(z.y0, y); z.y1 = Math.max(z.y1, y+h); z.x0 = Math.min(z.x0, x); z.x1 = Math.max(z.x1, x+w); }
-    y += a*(1-SOL); });
-  /* bloques de texto */
-  const pr = piramide(r), TIT = {s:'Notas de salida', c:'Notas de corazón', f:'Notas de fondo'};
-  /* cada bloque va en su columna, en el hueco libre de dibujos más cercano a su grupo; si no entra, achica la letra */
-  const ok = e => zona[e].y1 > 0, Y0 = 300, Y1 = H-40;
-  ['s','c','f'].forEach(e=>{
-    const lineas = pr[e]; if(!lineas.length) return;
-    const izq = LADO[e] < 0, xt = izq ? 64 : W-64, cx0 = izq ? 64 : W-64-TW, cx1 = cx0 + TW;
-    const tapan = rects.filter(q=>q.x1 > cx0 && q.x0 < cx1).sort((a,b)=>a.y0-b.y0);
-    const huecos = []; let yy = Y0;
-    tapan.forEach(q=>{ if(q.y0 > yy) huecos.push([yy, q.y0]); yy = Math.max(yy, q.y1); }); if(Y1 > yy) huecos.push([yy, Y1]);
-    const z = zona[e], centro = ok(e) ? (z.y0+z.y1)/2 : (Y0+Y1)/2;
-    const medida = tam => { c.font = `500 ${tam}px ${SERIF}`; return {tam, lh:tam*1.15, alto:46 + lineas.length*tam*1.15, ancho:Math.max.apply(null, lineas.map(t=>c.measureText(t).width))}; };
-    /* para cada hueco, la letra más grande que entra; gana el que deja letra grande y queda cerca del grupo */
-    let mejor = null;
-    huecos.forEach(([a,b])=>{ let m = medida(34); while((m.ancho > TW-16 || m.alto > b-a) && m.tam > 18) m = medida(m.tam-1);
-      if(m.alto > b-a) return;
-      const y0 = Math.max(a, Math.min(b - m.alto, centro - m.alto/2)), dist = Math.abs(y0 + m.alto/2 - centro);
-      const puntos = m.tam*20 - dist; if(!mejor || puntos > mejor.puntos) mejor = {y0, m, puntos}; });
-    if(!mejor){ const m = medida(18); mejor = {y0:Math.max(Y0, Math.min(Y1-m.alto, centro-m.alto/2)), m}; }
-    const {y0, m} = mejor;
-    rects.push({x0:cx0, x1:cx1, y0:y0-16, y1:y0+m.alto+16});
-    c.textAlign = izq ? 'left' : 'right'; c.textBaseline = 'alphabetic';
+
+  const pr = piramide(r), TIT = {s:'Notas de salida', c:'Notas de corazón', f:'Notas de fondo'}, M = 56, TMIN = 28;
+  const bloque = (e, tam) => { c.font = `500 ${tam}px ${SERIF}`; const lh = tam*1.15;
+    return {tam, lh, alto: 46 + pr[e].length*lh, ancho: Math.max.apply(null, pr[e].map(t=>c.measureText(t).width).concat([c.measureText('x').width]))}; };
+  const pinta = (e, xt, y0, m, align) => {
+    c.textAlign = align; c.textBaseline = 'alphabetic';
     c.fillStyle = T.acc; c.font = '600 20px Inter, sans-serif'; c.fillText(TIT[e].toUpperCase().split('').join(ESP), xt, y0+20);
-    c.strokeStyle = T.acc; c.lineWidth = 1.5; c.beginPath(); c.moveTo(xt, y0+34); c.lineTo(xt + (izq?50:-50), y0+34); c.stroke();
+    const lx = align==='left' ? [xt, xt+50] : align==='right' ? [xt-50, xt] : [xt-25, xt+25];
+    c.strokeStyle = T.acc; c.lineWidth = 1.5; c.beginPath(); c.moveTo(lx[0], y0+34); c.lineTo(lx[1], y0+34); c.stroke();
     c.fillStyle = T.ink; c.font = `500 ${m.tam}px ${SERIF}`;
-    lineas.forEach((t,i)=>c.fillText(t, xt, y0 + 46 + m.lh*(i+1) - m.lh*.25));
-  });
+    pr[e].forEach((t,i)=>c.fillText(t, xt, y0 + 46 + m.lh*(i+1) - m.lh*.25)); };
+
+  /* 1º intento: textos a los costados. Cada bloque busca, en el lado con más lugar junto a su grupo,
+     el hueco libre de dibujos más cercano. Si alguno no entra con letra ≥ TMIN, se pasa todo abajo. */
+  const planLados = () => {
+    const {rects, zona} = apilar(r, c, 300, H-50, false), plan = [], ocup = rects.slice();
+    for(const e of ['s','c','f']){
+      if(!pr[e].length) continue;
+      const z = zona[e] || {y0:300, y1:H-50}, centro = (z.y0+z.y1)/2;
+      let mejor = null;
+      for(const izq of [true, false]){
+        /* ancho libre en ese lado a la altura del grupo */
+        const enGrupo = rects.filter(q=>q.y1 > z.y0 && q.y0 < z.y1);
+        const borde = izq ? Math.min.apply(null, enGrupo.map(q=>q.x0)) : Math.max.apply(null, enGrupo.map(q=>q.x1));
+        const TW = izq ? borde - M - 16 : W - M - borde - 16; if(TW < 220) continue;
+        const cx0 = izq ? M : W-M-TW, cx1 = cx0+TW;
+        const tapan = ocup.filter(q=>q.x1 > cx0 && q.x0 < cx1).sort((a,b)=>a.y0-b.y0);
+        const huecos = []; let yy = 300; tapan.forEach(q=>{ if(q.y0 > yy) huecos.push([yy, q.y0]); yy = Math.max(yy, q.y1); }); if(H-50 > yy) huecos.push([yy, H-50]);
+        for(const [a,b] of huecos){ let m = bloque(e, 34); while((m.ancho > TW || m.alto > b-a) && m.tam > TMIN) m = bloque(e, m.tam-1);
+          if(m.ancho > TW || m.alto > b-a) continue;
+          const y0 = Math.max(a, Math.min(b-m.alto, centro-m.alto/2)), dist = Math.abs(y0+m.alto/2-centro);
+          if(dist > 260) continue;   /* lejos de su grupo no se entiende */
+          const pts = m.tam*12 - dist; if(!mejor || pts > mejor.pts) mejor = {e, izq, y0, m, pts, cx0, cx1}; } }
+      if(!mejor) return null;
+      plan.push(mejor); ocup.push({x0:mejor.cx0, x1:mejor.cx1, y0:mejor.y0-18, y1:mejor.y0+mejor.m.alto+18});
+    }
+    /* todos los bloques con la misma letra, para que se vea parejo */
+    const t = Math.min.apply(null, plan.map(b=>b.m.tam)); plan.forEach(b=>{ b.m = bloque(b.e, t); });
+    return plan;
+  };
+  const plan = MODO_TEXTO==='abajo' ? null : planLados();
+  if(plan || MODO_TEXTO==='lados'){
+    apilar(r, c, 300, H-50, true);
+    (plan||[]).forEach(b=>pinta(b.e, b.izq ? M : W-M, b.y0, b.m, b.izq ? 'left' : 'right'));
+  } else {
+    /* textos abajo, en tres columnas iguales */
+    const es = ['s','c','f'].filter(e=>pr[e].length), cw = (W-2*M)/es.length;
+    let tam = 30, ms; do { ms = es.map(e=>bloque(e, tam)); tam--; } while(ms.some(m=>m.ancho > cw-24) && tam > 20);
+    const alto = Math.max.apply(null, ms.map(m=>m.alto)), yT = H - 50 - alto;
+    apilar(r, c, 296, yT - 30, true);
+    c.strokeStyle = T.dim; c.globalAlpha = .3; c.lineWidth = 1;
+    es.slice(1).forEach((_,i)=>{ const x = M + cw*(i+1); c.beginPath(); c.moveTo(x, yT); c.lineTo(x, yT+alto); c.stroke(); }); c.globalAlpha = 1;
+    es.forEach((e,i)=>pinta(e, M + cw*i + cw/2, yT, ms[i], 'center'));
+  }
   c.textAlign = 'center'; c.textBaseline = 'alphabetic';
 }
 function dibujarCv(){ const cv = $('#cv'); if(cv && P.r) dibujar(P, cv.getContext('2d')); }

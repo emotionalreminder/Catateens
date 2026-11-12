@@ -168,19 +168,25 @@ const FK = ['citrica','frutal','verde','floral','aromatica','ambar','gourmand','
 const FAMN = {citrica:'Cítrica',frutal:'Frutal',verde:'Verde',floral:'Floral',aromatica:'Aromática',ambar:'Ambarada',gourmand:'Gourmand',
   amaderada:'Amaderada',oriental:'Oriental',cuero:'Cuero',especiada:'Especiada',almizclada:'Almizclada'};
 
-/* BASES · ml = lo que se carga en la probeta (entero). fm = perfil para comparar con los gustos. */
+/* BASES · ml = lo que se carga en la probeta (entero). fm = perfil para comparar con los gustos.
+   ref = perfumes (base de datos) que forman la base: si el invitado los usa, suma puntos. Nunca se muestran.
+   S/C/F = notas que aparecen en la pirámide de la imagen final. */
 const BASES = [
+  /* Musky: Light Blue (D&G) */
   {id:'musky',    n:'Musky',    ml:10, frase:'Fresco, limpio y luminoso',        img:'musky',
-    fm:{almizclada:.5, floral:.25, citrica:.15, amaderada:.1},
-    S:['Limón','Manzana verde'], C:['Jazmín','Rosa blanca'], F:['Almizcle blanco','Cedro']},
+    fm:{citrica:.45, amaderada:.2, almizclada:.15, frutal:.1, aromatica:.1}, ref:['light blue'],
+    S:['Limón','Manzana verde'], C:['Jazmín','Rosa blanca'], F:['Cedro','Almizcle blanco','Ámbar']},
+  /* Gourmand: vainilla 34,2 % · haba tonka 28,1 % · Tobacco Vanille (TF) 24,4 % · Iso E Super 7,1 % · Galaxolide 6,2 % */
   {id:'gourmand', n:'Gourmand', ml:11, frase:'Dulce, cálido y envolvente',       img:'gourmand',
-    fm:{gourmand:.6, especiada:.2, ambar:.1, almizclada:.1},
-    S:['Especias suaves','Hoja de tabaco'], C:['Haba tonka','Vainilla'], F:['Frutos secos','Almizcle']},
+    fm:{gourmand:.65, especiada:.15, amaderada:.1, almizclada:.1}, ref:['tobacco vanille'], mol:['isoe','galaxolide'],
+    S:['Hoja de tabaco','Especias suaves'], C:['Vainilla','Haba tonka','Cacao'], F:['Frutos secos','Maderas aterciopeladas','Almizcle']},
+  /* Sándalo: Santal 33 (Le Labo) + acorde de roble: sándalo cremoso, sin la salida */
   {id:'sandalo',  n:'Sándalo',  ml:12, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
-    fm:{amaderada:.6, floral:.2, especiada:.1, cuero:.1},
-    S:['Cardamomo','Violeta'], C:['Iris','Papiro'], F:['Sándalo','Cedro','Cuero suave']},
+    fm:{amaderada:.55, cuero:.2, almizclada:.15, floral:.1}, ref:['santal 33'],
+    S:[], C:['Iris','Papiro'], F:['Sándalo cremoso','Roble','Cedro','Cuero suave']},
+  /* Tabaco: Tobacco Absolute (Molton Brown) */
   {id:'tabaco',   n:'Tabaco',   ml:13, frase:'Especiado, intenso y magnético',   img:'tabaco',
-    fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15},
+    fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15}, ref:['tobacco absolute'],
     S:['Bergamota','Pomelo'], C:['Nuez moscada','Palisandro'], F:['Tabaco','Bálsamo','Cuero']}
 ];
 const CORAZON = [
@@ -241,7 +247,9 @@ const tops = P => Object.entries(P).filter(([,v])=>v>.08).sort((a,b)=>b[1]-a[1])
 
 /* ======================= RECETA ======================= */
 const voto = (p,id) => p.v[id]==null ? 1 : p.v[id];
-function puntajeBase(p, b){ const {P} = perfil(p); return 4*voto(p,b.id) + 3*afin(b.fm,P); }
+/* +3 si entre sus favoritos está el perfume que forma la base */
+const usaRef = (p, b) => p.perf.some(t=>(b.ref||[]).some(r=>nz(t).startsWith(r)));
+function puntajeBase(p, b){ const {P} = perfil(p); return 4*voto(p,b.id) + 3*afin(b.fm,P) + (usaRef(p,b)?3:0); }
 function baseSugerida(p){ return BASES.map(b=>[b.id, puntajeBase(p,b)]).sort((x,y)=>y[1]-x[1])[0][0]; }
 const enCasa = (b, id) => RECETAS.some(r=>r.b===b && (r.c.includes(id) || r.s.includes(id)));
 function elegirNotas(p, base, lista, max){
@@ -271,7 +279,10 @@ function magia(p, base, notas){
     galaxolide: (['musky','gourmand'].includes(base)?3:0) + 3*P.almizclada + fresco*.2 + 3*P.gourmand*.5,
     isoe:       (['sandalo','tabaco'].includes(base)?3:0) + 3*P.amaderada + 2*P.especiada + 2*P.cuero
   };
+  /* si la base ya trae una molécula, no se repite en la magia */
+  (X[base].mol||[]).forEach(m=>delete sc[m]);
   const [a,b] = Object.entries(sc).sort((x,y)=>y[1]-x[1]);
+  if(!b) return {[a[0]]:EVENTO.MAGIA_GOTAS};
   const g1 = Math.round(EVENTO.MAGIA_GOTAS*.6);
   return {[a[0]]:g1, [b[0]]:EVENTO.MAGIA_GOTAS-g1};
 }

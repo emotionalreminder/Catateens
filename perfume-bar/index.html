@@ -159,8 +159,7 @@ const EVENTO = {
   LOGO_EVENTO: 'logo_boda',// monograma de la boda (en IMGS). Vacío = sin logo.
   FIRMA: ['Método Emotional Reminder', 'Diseñado por Lic. Agustín Melazo Díaz · MP 240.297'],
   ML: 25,                  // probeta / frasco
-  MAGIA_GOTAS: 20,         // gotas finales de moléculas (≈ 1 ml)
-  GOTAS_ML: 20,
+  MAGIA_ML: [0.75, 0.25],  // toque final con jeringa (0,25 a 1 ml): principal y secundaria. Suma 1 ml.
   PARTE_SALIDA: .5,        // de lo que queda después de la base, cuánto va a salida (el resto a corazón)
   MAX_COR: 2, MAX_SAL: 3,  // cuántas notas de corazón / salida como máximo
   TERMINOS: 'Acepto que Emotional Reminder guarde mis datos y me escriba por WhatsApp para mandarme mi receta.'
@@ -203,11 +202,11 @@ const SALIDA = [
   {id:'pera',      n:'Pera',         d:'Jugosa y verde',       fm:{frutal:.7, verde:.3}},
   {id:'bruma',     n:'Bruma de mar', d:'Aire fresco y salino', fm:{aromatica:.5, citrica:.3, verde:.2}}
 ];
-/* Moléculas "mágicas": van al final, con gotero. No se votan. */
+/* Moléculas "mágicas": frascos de 100 ml, van al final con jeringa. No se votan. n = como está rotulado el frasco. */
 const MAGIA = [
-  {id:'galaxolide', n:'Galaxolide',   d:'Almizcle limpio, ropa recién lavada', img:'galaxolide'},
-  {id:'isoe',       n:'Iso E Super',  d:'Madera aterciopelada, efecto piel',   img:'isoe'},
-  {id:'hedione',    n:'Hedione',      d:'Jazmín transparente, da aire y luz',  img:'hedione'}
+  {id:'galaxolide', n:'Base Musky',  mol:'Galaxolide',  d:'Almizcle limpio, ropa recién lavada', img:'galaxolide'},
+  {id:'isoe',       n:'Base Woody',  mol:'Iso E Super', d:'Madera aterciopelada, efecto piel',   img:'isoe'},
+  {id:'hedione',    n:'Base Floral', mol:'Hedione',     d:'Jazmín transparente, da aire y luz',  img:'hedione'}
 ];
 /* Recetas de la casa: combinaciones probadas por base. Se pueden sumar más. */
 const RECETAS = [
@@ -284,13 +283,13 @@ function magia(p, base, notas){
   /* si la base ya trae una molécula, no se repite en la magia */
   (X[base].mol||[]).forEach(m=>delete sc[m]);
   const [a,b] = Object.entries(sc).sort((x,y)=>y[1]-x[1]);
-  if(!b) return {[a[0]]:EVENTO.MAGIA_GOTAS};
-  const g1 = Math.round(EVENTO.MAGIA_GOTAS*.6);
-  return {[a[0]]:g1, [b[0]]:EVENTO.MAGIA_GOTAS-g1};
+  const [m1, m2] = EVENTO.MAGIA_ML;
+  if(!b) return {[a[0]]:m1+m2};
+  return {[a[0]]:m1, [b[0]]:m2};
 }
-/* arma la receta: base fija + corazón + salida en ml enteros + gotas de magia */
+/* arma la receta: base fija + corazón + salida en ml enteros + toque de magia con jeringa */
 function armar(p, base, receta){
-  const B = X[base], resto = EVENTO.ML - B.ml - EVENTO.MAGIA_GOTAS/EVENTO.GOTAS_ML;
+  const B = X[base], resto = Math.round(EVENTO.ML - B.ml - EVENTO.MAGIA_ML.reduce((a,b)=>a+b,0));
   let cor, sal;
   if(receta){ cor = receta.c.map(id=>({id,s:1})); sal = receta.s.map(id=>({id,s:1})); }
   else { cor = elegirNotas(p, base, CORAZON, EVENTO.MAX_COR); sal = elegirNotas(p, base, SALIDA, EVENTO.MAX_SAL); }
@@ -312,7 +311,7 @@ function atras(){ const prev = {bases:'registro', corazon:'bases', salida:'coraz
 /* ======================= PLANILLA ======================= */
 const urlScript = () => LS.get('er_pb_url','') || EVENTO.SCRIPT_URL;
 function recetaTxt(r){ if(!r) return '';
-  const l = [`${X[r.base].n} ${X[r.base].ml} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`), Object.entries(r.magia).map(([id,g])=>`${X[id].n} ${g} gotas`));
+  const l = [`${X[r.base].n} ${X[r.base].ml} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`), Object.entries(r.magia).map(([id,g])=>`${X[id].n} (${X[id].mol}) ${fmt(g)} ml`));
   return l.join(' · '); }
 function fila(p){
   const lbl = v => v==null ? '' : VOTOS.find(x=>x[0]===v)[2];
@@ -445,10 +444,10 @@ function vReceta(){
   let ult = '';
   const li = f => { const a = X[f.id], g = f.et!==ult ? `<div class="grp">${tit[f.et]}</div>` : ''; ult = f.et;
     return g + `<li style="--c:${col[f.et]}"><img src="${foto(a.img||a.id)}" alt=""><div class="t"><b>${esc(f.et==='base'?'Base '+a.n:a.n)}</b>
-      <small>${f.et==='base'?'Ampolla de decantación':`${f.ml} jeringa${f.ml>1?'s':''} de 1 ml`}</small></div>
+      <small>${f.et==='base'?'Fondo':f.et==='cor'?'Corazón':'Salida'} · estación ${esc(a.n)}</small></div>
       <div class="ml"><b>+${f.ml} ml</b><small>hasta ${f.hasta} ml</small></div></li>`; };
-  const mag = Object.entries(r.magia).map(([id,g])=>`<li style="--c:var(--l-mag)"><img src="${foto(X[id].img)}" alt=""><div class="t"><b>${esc(X[id].n)}</b><small>${esc(X[id].d)}</small></div>
-      <div class="ml"><b>${g} gotas</b><small>gotero</small></div></li>`).join('');
+  const mag = Object.entries(r.magia).map(([id,g])=>`<li style="--c:var(--l-mag)"><img src="${foto(X[id].img)}" alt=""><div class="t"><b>${esc(X[id].n)}</b><small>${esc(X[id].mol)} · ${esc(X[id].d)}</small></div>
+      <div class="ml"><b>${fmt(g)} ml</b><small>jeringa</small></div></li>`).join('');
   const rc = r.receta ? RECETAS.find(x=>x.n===r.receta) : null;
   return `<div class="cab"><div class="eb">Paso 4 · Tu receta</div><h1>${rc ? esc(rc.n) : 'Tu receta a medida'}</h1>
       <p class="sub">${rc ? 'Receta de la casa.' : `Base ${esc(X[r.base].n)}${r.base===P.sug?', la que mejor va con vos':''}.`} Pasá por cada estación en este orden.</p>

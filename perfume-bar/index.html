@@ -60,6 +60,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 .acl{display:none;position:absolute;left:0;right:0;top:100%;z-index:8;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);overflow:hidden;margin-top:2px;}
 .acl button{display:block;width:100%;text-align:left;padding:12px 14px;font-size:15px;border-bottom:1px solid #f0e9e0;}
 .acl span{color:var(--dim);font-size:13px;}
+.tel{display:flex;align-items:stretch;border:1.5px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden;}
+.tel span{display:flex;align-items:center;padding:0 4px 0 16px;font-size:17px;color:var(--dim);white-space:nowrap;}
+.fld .tel input{border:0;border-radius:0;background:transparent;padding-left:6px;min-width:0;}
 .check{display:flex;gap:12px;align-items:flex-start;margin-top:18px;font-size:14px;line-height:1.4;cursor:pointer;}
 .check input{width:24px;height:24px;flex:0 0 auto;accent-color:var(--terra);margin-top:1px;}
 
@@ -159,7 +162,9 @@ const EVENTO = {
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwkMzVVILGvF1Ctx53JR3hvndsLlbkjoLsSwF9MDSjhcGSp2gZfTo6hd_Cx3UoI_aV3AA/exec',
   CLAVE: 'ER-ninas-2026',
   HOJA: 'Cafayate',        // pestaña de la planilla "App cata teens"
-  PIN: '2730',             // panel del organizador (⚙ al pie)
+  PIN: '2730',
+  WA_ER: '5491150532730',  // WhatsApp de Emotional Reminder: el invitado le manda su receta desde su celular
+  WA_PREFIJO: '54 9',      // se muestra fijo delante del número del invitado             // panel del organizador (⚙ al pie)
   LOGO: '',                // logo de Emotional Reminder (data:image/... o URL). Vacío = marca en texto.
   LOGO_EVENTO: 'logo_boda',// monograma de la boda (en IMGS). Vacío = sin logo.
   FIRMA: ['Método Emotional Reminder', 'Diseñado por Lic. Agustín Melazo Díaz · MP 240.297'],
@@ -240,6 +245,12 @@ const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'
 const LS = {get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const nz = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 const fmt = n => (Math.round(n*100)/100).toLocaleString('es-AR');
+/* WhatsApp: el invitado escribe solo característica y número; se limpia 54 / 9 / 0 si los pone igual */
+const waLocal = t => { let d = String(t||'').replace(/\D/g,''); d = d.replace(/^54/,'').replace(/^9/,'').replace(/^0/,'');
+  /* si escribió el 15 después de la característica (11 15 …), se saca: el número queda de 10 cifras */
+  if(d.length===12) for(const i of [2,3,4]) if(d.substr(i,2)==='15'){ d = d.slice(0,i)+d.slice(i+2); break; }
+  return d; };
+const waCompleto = t => { const d = waLocal(t); return d ? '549'+d : ''; };
 const X = {}; BASES.concat(CORAZON, SALIDA, MAGIA).forEach(a=>X[a.id]=a);
 const etapa = id => BASES.some(b=>b.id===id) ? 'base' : CORAZON.some(c=>c.id===id) ? 'cor' : SALIDA.some(s=>s.id===id) ? 'sal' : 'mag';
 function aviso(t){ const d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),2000); }
@@ -331,7 +342,7 @@ function fila(p){
   const lbl = v => v==null ? '' : VOTOS.find(x=>x[0]===v)[2];
   const pf = perfil(p), rc = p.r && p.r.receta ? RECETAS.find(x=>x.n===p.r.receta) : null;
   const cols = [['ID',p.id],['Fecha',new Date(p.t0).toLocaleString('es-AR')],['Última actualización',new Date().toLocaleString('es-AR')],['Estado',p.est],
-    ['Nombre',p.nom.trim()],['WhatsApp',p.wa.trim()],['Acepta términos',p.acepta?'Sí':'No'],
+    ['Nombre',p.nom.trim()],['WhatsApp',waCompleto(p.wa) ? '+'+EVENTO.WA_PREFIJO+' '+waLocal(p.wa) : ''],['Acepta términos',p.acepta?'Sí':'No'],
     ['Perfumes que usa',p.perf.filter(x=>x.trim()).join(' | ')],['Perfil según sus perfumes',tops(pf.P).join(' · ')]];
   BASES.concat(CORAZON, SALIDA).forEach(a=>cols.push([(etapa(a.id)==='base'?'Base ':'')+a.n, lbl(p.v[a.id])]));
   cols.push(['Base sugerida',p.sug?X[p.sug].n:''],['Base',p.r?X[p.r.base].n:''],
@@ -378,7 +389,7 @@ function vRegistro(){
   return `<div class="hero">${EVENTO.LOGO_EVENTO?`<img src="${foto(EVENTO.LOGO_EVENTO)}" alt="" style="height:72px;display:block;margin:0 auto 14px">`:''}<div class="eb">Perfume Bar</div><h1>Creá tu perfume</h1><p class="sub">Olé, votá y te armamos una receta a tu medida.</p></div>
   <div class="form">
     <div class="fld"><label for="nom">¿Cómo te llamás?</label><input id="nom" type="text" value="${esc(P.nom)}" autocomplete="off" placeholder="Tu nombre" oninput="P.nom=this.value;guardar();chk()"></div>
-    <div class="fld"><label for="wa">WhatsApp</label><input id="wa" type="tel" inputmode="tel" value="${esc(P.wa)}" autocomplete="off" placeholder="+54 9 …" oninput="P.wa=this.value;guardar()"></div>
+    <div class="fld"><label for="wa">WhatsApp</label><div class="tel"><span>+${esc(EVENTO.WA_PREFIJO)}</span><input id="wa" type="tel" inputmode="numeric" value="${esc(waLocal(P.wa))}" autocomplete="off" placeholder="11 5555 5555" oninput="P.wa=this.value;guardar()"></div></div>
     <div class="fld"><label>Tus perfumes favoritos <small>(opcional, hasta 5)</small></label><div class="perfs">
       ${P.perf.map((v,i)=>`<div class="ac"><input id="pf${i}" type="text" value="${esc(v)}" autocomplete="off" placeholder="Perfume ${i+1}" aria-label="Perfume favorito ${i+1}"
         oninput="tipear(${i},this.value)" onblur="setTimeout(()=>cerrarAc(${i}),200)"><div class="acl" id="acl${i}"></div></div>`).join('')}
@@ -504,13 +515,14 @@ function terminar(){ if(!P.pn.trim()) return; registrar(P,'Terminó'); ir('final
 
 /* 6 · final */
 function vFinal(){
-  const w = P.wa.replace(/\D/g,''), r = P.r;
-  const txt = `¡Hola ${P.nom.trim()}! Tu perfume "${P.pn.trim()}": ${recetaTxt(r)}. Emotional Reminder`;
+  const r = P.r;
+  const txt = `¡Hola Emotional Reminder! Soy ${P.nom.trim()} y creé mi perfume "${P.pn.trim()}" en el Perfume Bar de ${EVENTO.nombre}. Mi receta: ${recetaTxt(r)}.`;
   return `<div class="cab"><div class="eb">Paso 5 · Listo</div><h1>${esc(P.pn.trim())}</h1><p class="sub">Guardá la imagen o compartila.</p></div>
     <div class="final"><canvas id="cv" width="1080" height="1528" aria-label="Imagen de tu perfume"></canvas>
     <div>
       <button class="btn terra" style="margin-top:0" onclick="compartir()">Guardar / compartir imagen</button>
-      ${w ? `<a class="btn ghost" target="_blank" rel="noopener" href="https://wa.me/${w}?text=${encodeURIComponent(txt)}">Mandarme la receta por WhatsApp</a>` : ''}
+      <a class="btn ghost" target="_blank" rel="noopener" href="https://wa.me/${EVENTO.WA_ER}?text=${encodeURIComponent(txt)}">Guardar mi receta por WhatsApp</a>
+      <p class="hint" style="text-align:center;margin-top:6px">Se abre tu WhatsApp con la receta lista: tocá enviar y te queda guardada en el chat con Emotional Reminder.</p>
       <button class="btn ghost" onclick="ir('receta')">Ver la receta otra vez</button>
       <button class="btn" onclick="otro()">Hacer otro perfume</button>
     </div></div>${pie()}`;

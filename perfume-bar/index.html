@@ -431,8 +431,9 @@ function pasos(r){
 function probeta(filas, col){
   const x0 = 70, w = 70, y0 = 380, yT = 70, k = (y0-yT)/EVENTO.ML, Y = ml => y0 - ml*k;
   let ticks = '';
-  for(let ml=0; ml<=EVENTO.ML; ml++){ const y = Y(ml), big = ml%5===0;
-    ticks += `<line x1="${x0}" x2="${x0+(big?16:9)}" y1="${y}" y2="${y}" stroke="#8a7a6e" stroke-width="${big?1.5:1}"/>`;
+  /* igual que la probeta real: una rayita cada 0,5 ml y número cada 5 ml */
+  for(let ml=0; ml<=EVENTO.ML; ml+=.5){ const y = Y(ml), big = ml%5===0, ent = ml%1===0;
+    ticks += `<line x1="${x0}" x2="${x0+(big?18:ent?11:6)}" y1="${y}" y2="${y}" stroke="#8a7a6e" stroke-width="${big?1.5:ent?1:.7}"/>`;
     if(big) ticks += `<text x="${x0-8}" y="${y+4}" text-anchor="end" font-size="12" fill="#8a7a6e" font-family="Inter">${ml}</text>`; }
   const capas = filas.map((f,i)=>`<rect class="lay" style="animation-delay:${i*.35}s" x="${x0}" y="${Y(f.hasta)}" width="${w}" height="${Y(f.hasta-f.ml)-Y(f.hasta)+(i?0:20)}" fill="${col[f.et]}" opacity="${f.et==='base'?1:.62+.38*((i%2))}"/>`).join('');
   const marcas = filas.filter((f,i)=>!(f.et==='mag' && filas[i+1] && filas[i+1].et==='mag')).map(f=>`<line x1="${x0+w+2}" x2="${x0+w+14}" y1="${Y(f.hasta)}" y2="${Y(f.hasta)}" stroke="${col[f.et]}" stroke-width="2.5"/>
@@ -455,7 +456,7 @@ function vReceta(){
     const sub = f.et==='base' ? 'Fondo · estación de bases' : f.et==='mag' ? `${a.mol} · jeringa de 1 ml` : `${f.et==='cor'?'Corazón':'Salida'} · estación ${a.n}`;
     return g + `<li style="--c:${col[f.et]}"><img src="${foto(a.img||a.id)}" alt=""><div class="t"><b>${esc(f.et==='base'?'Base '+a.n:a.n)}</b>
       <small>${esc(sub)}</small></div>
-      <div class="ml"><b>+${fmt(f.ml)} ml</b><small>hasta ${fmt(f.hasta)} ml</small></div></li>`; };
+      <div class="ml"><b>+${fmt(f.ml)} ml</b><small>${f.et==='mag' && f.hasta%1 ? 'jeringa' : 'hasta '+fmt(f.hasta)+' ml'}</small></div></li>`; };
   const libres = CORAZON.concat(SALIDA).filter(x=>!(x.id in r.notas));
   const falta = r.falta>0 ? `<div class="cambiar" style="border-color:var(--terra);margin:0 0 14px"><b>Sumá una nota más</b>
       <div class="hint">Faltan ${r.falta} ml para llenar la probeta. Elegí otra nota:</div><div class="chips">

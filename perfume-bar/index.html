@@ -103,6 +103,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 .pasos .ml{text-align:right;white-space:nowrap;}
 .pasos .ml b{display:block;font-size:19px;}
 .pasos .ml small{display:block;font-size:12.5px;color:var(--dim);}
+.pasos li.nota{flex-wrap:wrap;}
+.tic{flex:1 0 100%;display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 2px 64px;}
+.tic button{width:30px;height:30px;border-radius:50%;border:2px solid var(--c);background:transparent;font-size:13px;font-weight:700;color:var(--c);}
+.tic button.ok{background:var(--c);color:#fff;}
+.pasos li.listo{opacity:.55;}
 .grp{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;color:var(--dim);margin:12px 0 2px;}
 .grp:first-child{margin-top:0;}
 .cambiar{margin-top:16px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;}
@@ -159,6 +164,7 @@ const EVENTO = {
   LOGO_EVENTO: 'logo_boda',// monograma de la boda (en IMGS). Vacío = sin logo.
   FIRMA: ['Método Emotional Reminder', 'Diseñado por Lic. Agustín Melazo Díaz · MP 240.297'],
   ML: 25,                  // probeta / frasco
+  GOTERO_ML: 1,            // un gotero lleno de los frascos de 30 ml ≈ 20 gotas ≈ 1 ml (medirlo y ajustar acá)
   BASE_MAX: .60,           // la base puede subir hasta este % si los topes de las notas no alcanzan
   MAX_COR: 2, MAX_SAL: 3,  // cuántas notas de corazón / salida elige la app (2 a 5 en total)
   MAX_NOTAS: 6,            // tope de notas contando las que se suman a mano
@@ -319,7 +325,7 @@ function atras(){ const prev = {bases:'registro', corazon:'bases', salida:'coraz
 /* ======================= PLANILLA ======================= */
 const urlScript = () => LS.get('er_pb_url','') || EVENTO.SCRIPT_URL;
 function recetaTxt(r){ if(!r) return '';
-  const l = [`${X[r.base].n} ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`), Object.entries(r.magia).map(([id,g])=>`${X[id].n} (${X[id].mol}) ${fmt(g)} ml`));
+  const l = [`${X[r.base].n} hasta ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${goteros(ml)} gotero${goteros(ml)>1?'s':''} (${ml} ml)`), Object.entries(r.magia).map(([id,g])=>`${X[id].n} (${X[id].mol}) ${fmt(g)} ml`));
   return l.join(' · '); }
 function fila(p){
   const lbl = v => v==null ? '' : VOTOS.find(x=>x[0]===v)[2];
@@ -413,7 +419,7 @@ function seguir(sig, faltan){
 
 /* 5 · análisis y receta */
 function analizar(){
-  P.sug = baseSugerida(P); P.extra = []; P.r = armar(P, P.sug, null); if(!P.pn) P.pn = '';
+  P.sug = baseSugerida(P); P.extra = []; P.hechos = {}; P.r = armar(P, P.sug, null); if(!P.pn) P.pn = '';
   registrar(P,'Votó'); P.paso = 'analisis'; guardar(); pintar(); window.scrollTo(0,0);
 }
 function vAnalisis(){ return `<div class="analiza"><div class="gota"></div><h1>Analizando tus gustos…</h1><p class="sub">Cruzamos tus votos con los perfumes que usás.</p></div>`; }
@@ -450,20 +456,25 @@ function probeta(filas, col){
 function vReceta(){
   const r = P.r, {filas, col} = pasos(r), pf = perfil(P), gustos = tops(pf.P);
   const encanta = BASES.concat(CORAZON, SALIDA).filter(a=>P.v[a.id]===3).map(a=>(etapa(a.id)==="base"?"Base ":"")+a.n);
-  const tit = {base:'1 · Base', mag:'2 · Moléculas · con jeringa', cor:'3 · Notas de corazón', sal:'4 · Notas de salida'};
+  const tit = {base:'1 · Base · con ampolla', mag:'2 · Moléculas · con jeringa', cor:'3 · Notas de corazón · con gotero', sal:'4 · Notas de salida · con gotero'};
   let ult = '';
+  const hechos = P.hechos || {};
   const li = f => { const a = X[f.id], g = f.et!==ult ? `<div class="grp">${tit[f.et]}</div>` : ''; ult = f.et;
-    const sub = f.et==='base' ? 'Fondo · estación de bases' : f.et==='mag' ? `${a.mol} · jeringa de 1 ml` : `${f.et==='cor'?'Corazón':'Salida'} · estación ${a.n}`;
-    return g + `<li style="--c:${col[f.et]}"><img src="${foto(a.img||a.id)}" alt=""><div class="t"><b>${esc(f.et==='base'?'Base '+a.n:a.n)}</b>
-      <small>${esc(sub)}</small></div>
-      <div class="ml"><b>+${fmt(f.ml)} ml</b><small>${f.et==='mag' && f.hasta%1 ? 'jeringa' : 'hasta '+fmt(f.hasta)+' ml'}</small></div></li>`; };
+    const nota = f.et==='cor' || f.et==='sal', n = nota ? goteros(f.ml) : 0, h = hechos[f.id]||0;
+    const sub = f.et==='base' ? 'Ampolla de decantación' : f.et==='mag' ? `${a.mol} · jeringa de 1 ml` : `Gotero de ${a.n} · ≈ ${f.ml} ml`;
+    const der = f.et==='base' ? `<b>hasta ${fmt(f.hasta)} ml</b><small>en la probeta</small>`
+      : f.et==='mag' ? `<b>${fmt(f.ml)} ml</b><small>jeringa</small>`
+      : `<b>${n} gotero${n>1?'s':''}</b><small>llenos</small>`;
+    return g + `<li class="${nota?'nota':''} ${nota && h>=n?'listo':''}" style="--c:${col[f.et]}"><img src="${foto(a.img||a.id)}" alt=""><div class="t"><b>${esc(f.et==='base'?'Base '+a.n:a.n)}</b>
+      <small>${esc(sub)}</small></div><div class="ml">${der}</div>
+      ${nota ? `<div class="tic" role="group" aria-label="Goteros de ${esc(a.n)} puestos">${Array.from({length:n},(_,i)=>`<button class="${i<h?'ok':''}" aria-pressed="${i<h}" onclick="tic('${f.id}',${i})">${i<h?'✓':i+1}</button>`).join('')}</div>` : ''}</li>`; };
   const libres = CORAZON.concat(SALIDA).filter(x=>!(x.id in r.notas));
   const falta = r.falta>0 ? `<div class="cambiar" style="border-color:var(--terra);margin:0 0 14px"><b>Sumá una nota más</b>
       <div class="hint">Faltan ${r.falta} ml para llenar la probeta. Elegí otra nota:</div><div class="chips">
       ${libres.map(x=>`<button class="chip" onclick="sumarNota('${x.id}')">${esc(x.n)}</button>`).join('')}</div></div>` : '';
   const rc = r.receta ? RECETAS.find(x=>x.n===r.receta) : null;
   return `<div class="cab"><div class="eb">Paso 4 · Tu receta</div><h1>${rc ? esc(rc.n) : 'Tu receta a medida'}</h1>
-      <p class="sub">${rc ? 'Receta de la casa.' : `Base ${esc(X[r.base].n)}${r.base===P.sug?', la que mejor va con vos':''}.`} Pasá por cada estación en este orden.</p>
+      <p class="sub">${rc ? 'Receta de la casa.' : `Base ${esc(X[r.base].n)}${r.base===P.sug?', la que mejor va con vos':''}.`} Pasá por cada estación en este orden. Cada gotero lleno es ≈ 1 ml.</p>
       ${!rc && (gustos.length || encanta.length) ? `<div class="tend">${gustos.map(g=>`<span>${esc(g)}</span>`).join('')}${encanta.slice(0,4).map(n=>`<span>♥ ${esc(n)}</span>`).join('')}</div>` : ''}</div>
     <div class="receta"><div>${probeta(filas, col)}</div>
     <div>${falta}<ol class="pasos">${filas.map(li).join('')}</ol>
@@ -475,8 +486,11 @@ function vReceta(){
     </div></div>${pie()}`;
 }
 const esNombreReceta = t => RECETAS.some(r=>r.n===String(t).trim());
+const goteros = ml => Math.max(1, Math.round(ml/EVENTO.GOTERO_ML));
+/* el invitado va tocando un círculo por cada gotero que pone */
+function tic(id, i){ P.hechos = P.hechos || {}; P.hechos[id] = (P.hechos[id]||0) > i ? i : i+1; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
 function sumarNota(id){ P.extra = (P.extra||[]).concat([id]); const rc = P.r.receta ? RECETAS.find(x=>x.n===P.r.receta) : null; P.r = armar(P, P.r.base, rc, P.extra); guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); registrar(P,'Votó'); }
-function cambiarBase(b){ P.extra = []; P.r = armar(P, b, null); if(esNombreReceta(P.pn)) P.pn = ''; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); registrar(P,'Votó'); }
+function cambiarBase(b){ P.extra = []; P.hechos = {}; P.r = armar(P, b, null); if(esNombreReceta(P.pn)) P.pn = ''; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); registrar(P,'Votó'); }
 function vRecetas(){
   return `<div class="cab"><div class="eb">Recetas de la casa</div><h1>Combinaciones probadas</h1><p class="sub">Si preferís una de estas en lugar de la tuya.</p></div>
     <div class="recs">${RECETAS.map((r,i)=>`<button class="rc" onclick="usarReceta(${i})"><img src="${foto(X[r.b].img)}" alt="">
@@ -484,8 +498,8 @@ function vRecetas(){
       <div class="d">Base ${esc(X[r.b].n)} · ${r.c.concat(r.s).map(id=>esc(X[id].n)).join(' · ')}</div></div>${P.r && P.r.receta===r.n?'<span class="ok">Elegida</span>':''}</button>`).join('')}</div>
     <button class="btn ghost" onclick="usarMia()">Volver a mi receta a medida</button>${pie()}`;
 }
-function usarReceta(i){ const r = RECETAS[i]; P.extra = []; P.r = armar(P, r.b, r); if(!P.pn.trim() || esNombreReceta(P.pn)) P.pn = r.n; registrar(P,'Votó'); ir('receta'); }
-function usarMia(){ P.extra = []; P.r = armar(P, P.sug || baseSugerida(P), null); if(esNombreReceta(P.pn)) P.pn = ''; registrar(P,'Votó'); ir('receta'); }
+function usarReceta(i){ const r = RECETAS[i]; P.extra = []; P.hechos = {}; P.r = armar(P, r.b, r); if(!P.pn.trim() || esNombreReceta(P.pn)) P.pn = r.n; registrar(P,'Votó'); ir('receta'); }
+function usarMia(){ P.extra = []; P.hechos = {}; P.r = armar(P, P.sug || baseSugerida(P), null); if(esNombreReceta(P.pn)) P.pn = ''; registrar(P,'Votó'); ir('receta'); }
 function terminar(){ if(!P.pn.trim()) return; registrar(P,'Terminó'); ir('final'); }
 
 /* 6 · final */

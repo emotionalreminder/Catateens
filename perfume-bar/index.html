@@ -342,7 +342,7 @@ function fila(p){
   const lbl = v => v==null ? '' : VOTOS.find(x=>x[0]===v)[2];
   const pf = perfil(p), rc = p.r && p.r.receta ? RECETAS.find(x=>x.n===p.r.receta) : null;
   const cols = [['ID',p.id],['Fecha',new Date(p.t0).toLocaleString('es-AR')],['Última actualización',new Date().toLocaleString('es-AR')],['Estado',p.est],
-    ['Nombre',p.nom.trim()],['WhatsApp',waCompleto(p.wa) ? '+'+EVENTO.WA_PREFIJO+' '+waLocal(p.wa) : ''],['Acepta términos',p.acepta?'Sí':'No'],['Abrió WhatsApp con la imagen',p.waEnviado?'Sí':'No'],
+    ['Nombre',p.nom.trim()],['WhatsApp',waCompleto(p.wa) ? '+'+EVENTO.WA_PREFIJO+' '+waLocal(p.wa) : ''],['Acepta términos',p.acepta?'Sí':'No'],['Código',codigo(p)],['Abrió WhatsApp',p.waEnviado?'Sí':'No'],
     ['Perfumes que usa',p.perf.filter(x=>x.trim()).join(' | ')],['Perfil según sus perfumes',tops(pf.P).join(' · ')]];
   BASES.concat(CORAZON, SALIDA).forEach(a=>cols.push([(etapa(a.id)==='base'?'Base ':'')+a.n, lbl(p.v[a.id])]));
   cols.push(['Base sugerida',p.sug?X[p.sug].n:''],['Base',p.r?X[p.r.base].n:''],
@@ -517,35 +517,38 @@ function terminar(){ if(!P.pn.trim()) return; registrar(P,'Terminó'); ir('final
 function vFinal(){
   const r = P.r;
   const txt = `¡Hola Emotional Reminder! Soy ${P.nom.trim()} y creé mi perfume "${P.pn.trim()}" en el Perfume Bar de ${EVENTO.nombre}. Mi receta: ${recetaTxt(r)}.`;
-  return `<div class="cab"><div class="eb">Paso 5 · Listo</div><h1>${esc(P.pn.trim())}</h1><p class="sub">Mandanos tu perfume por WhatsApp y te queda guardado.</p></div>
+  return `<div class="cab"><div class="eb">Paso 5 · Listo</div><h1>${esc(P.pn.trim())}</h1><p class="sub">Guardá tu perfume y mandanos tu receta.</p></div>
     <div class="final"><canvas id="cv" width="1080" height="1528" aria-label="Imagen de tu perfume"></canvas>
     <div>
-      <button class="btn terra" style="margin-top:0" onclick="mandarWA()">Mandar mi perfume por WhatsApp</button>
+      <button class="btn terra" style="margin-top:0" onclick="mandarWA()">Guardar mi perfume y enviarlo</button>
       <ol class="hint" style="margin:10px 0 0 20px;display:flex;flex-direction:column;gap:4px">
-        <li>Se abre el chat con Emotional Reminder con tu receta escrita.</li>
-        <li>Mantené apretado en el chat y tocá <b>Pegar</b>: aparece la imagen de tu perfume.</li>
-        <li>Enviá y listo, te queda guardado.</li></ol>
-      <button class="btn ghost" onclick="compartir()">Guardar la imagen en el celular</button>
+        <li>Se guarda la imagen de tu perfume en el celular. En iPhone, en el menú que aparece tocá <b>Guardar imagen</b>.</li>
+        <li>Se abre el chat con Emotional Reminder con tu receta escrita: tocá <b>enviar</b>.</li></ol>
       <button class="btn ghost" onclick="ir('receta')">Ver la receta otra vez</button>
       <button class="btn" onclick="otro()">Hacer otro perfume</button>
     </div></div>${pie()}`;
 }
-/* copia la imagen al portapapeles y abre el chat con Emotional Reminder con la receta escrita:
-   el invitado pega la imagen y envía. Llega desde su número real. */
+/* Botón de WhatsApp: guarda la imagen en el celular y abre el chat con Emotional Reminder con un mensaje
+   ya escrito (nombre, perfume, receta y código). El invitado solo toca enviar: así llega su número real,
+   y el código permite cruzar el chat con su fila de la planilla. */
 let blobFinal = null;
 function prepararBlob(){ const cv = $('#cv'); if(cv) cv.toBlob(b=>{ blobFinal = b; }, 'image/png'); }
+function blobYa(){ /* sin esperas, para no perder el permiso del toque en iPhone */
+  if(blobFinal) return blobFinal;
+  const u = $('#cv').toDataURL('image/png'), bin = atob(u.split(',')[1]), a = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) a[i] = bin.charCodeAt(i); return new Blob([a], {type:'image/png'}); }
+const codigo = p => p.cod || (p.cod = (EVENTO.nombre.slice(0,2) + '-' + Math.random().toString(36).slice(2,6)).toUpperCase());
+function textoWA(){ return `¡Hola Emotional Reminder! Soy ${P.nom.trim()} y creé mi perfume "${P.pn.trim()}" en el Perfume Bar de ${EVENTO.nombre} (código ${codigo(P)}). Mi receta: ${recetaTxt(P.r)}.`; }
 async function mandarWA(){
-  const txt = `¡Hola Emotional Reminder! Soy ${P.nom.trim()} y creé mi perfume "${P.pn.trim()}" en el Perfume Bar de ${EVENTO.nombre}. Mi receta: ${recetaTxt(P.r)}.`;
-  const url = `https://wa.me/${EVENTO.WA_ER}?text=${encodeURIComponent(txt)}`;
-  let copiada = false;
-  try{
-    const blob = blobFinal || new Promise(res=>$('#cv').toBlob(res,'image/png'));
-    await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]); copiada = true;
-  }catch(e){}
+  const url = `https://wa.me/${EVENTO.WA_ER}?text=${encodeURIComponent(textoWA())}`;
+  const blob = blobYa(), nom = 'perfume_' + nz(P.pn||P.nom).replace(/ /g,'_') + '.png';
+  const file = new File([blob], nom, {type:'image/png'});
   P.waEnviado = true; guardar(); registrar(P,'Terminó');
-  aviso(copiada ? 'Imagen copiada: en el chat mantené apretado y tocá Pegar' : 'Guardá la imagen y adjuntala en el chat');
-  setTimeout(()=>{ location.href = url; }, copiada ? 900 : 1600);
-  if(!copiada) setTimeout(compartir, 50);
+  let compartida = false;
+  try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:P.pn||'Mi perfume'}); compartida = true; } }catch(e){}
+  if(!compartida){ try{ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove(); }catch(e){} }
+  aviso('Imagen guardada · ahora tocá enviar en WhatsApp');
+  setTimeout(()=>{ location.href = url; }, 700);
 }
 function otro(){ if(!confirm('¿Empezar un perfume nuevo? Este ya quedó guardado.')) return; P = nuevo(); guardar(); pintar(); window.scrollTo(0,0); }
 

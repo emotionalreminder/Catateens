@@ -159,9 +159,9 @@ const EVENTO = {
   LOGO_EVENTO: 'logo_boda',// monograma de la boda (en IMGS). Vacío = sin logo.
   FIRMA: ['Método Emotional Reminder', 'Diseñado por Lic. Agustín Melazo Díaz · MP 240.297'],
   ML: 25,                  // probeta / frasco
-  MAGIA_ML: [0.75, 0.25],  // toque final con jeringa (0,25 a 1 ml): principal y secundaria. Suma 1 ml.
-  PARTE_SALIDA: .5,        // de lo que queda después de la base, cuánto va a salida (el resto a corazón)
-  MAX_COR: 2, MAX_SAL: 3,  // cuántas notas de corazón / salida como máximo
+  BASE_MAX: .60,           // la base puede subir hasta este % si los topes de las notas no alcanzan
+  MAX_COR: 2, MAX_SAL: 3,  // cuántas notas de corazón / salida elige la app (2 a 5 en total)
+  MAX_NOTAS: 6,            // tope de notas contando las que se suman a mano
   TERMINOS: 'Acepto que Emotional Reminder guarde mis datos y me escriba por WhatsApp para mandarme mi receta.'
 };
 /* Familias olfativas (mismo orden que el perfil de FRA) */
@@ -169,24 +169,33 @@ const FK = ['citrica','frutal','verde','floral','aromatica','ambar','gourmand','
 const FAMN = {citrica:'Cítrica',frutal:'Frutal',verde:'Verde',floral:'Floral',aromatica:'Aromática',ambar:'Ambarada',gourmand:'Gourmand',
   amaderada:'Amaderada',oriental:'Oriental',cuero:'Cuero',especiada:'Especiada',almizclada:'Almizclada'};
 
-/* BASES · ml = lo que se carga en la probeta (entero). fm = perfil para comparar con los gustos.
+/* BASES · ml = ml fijos en la bureta (tabla técnica 14/11). mol = toque de moléculas con jeringa (suma 1 ml).
+   topes = máximo de ml de cada nota sobre esta base. fm = perfil para comparar con los gustos.
    ref = perfumes (base de datos) que forman la base: si el invitado los usa, suma puntos. Nunca se muestran.
-   S/C/F = notas que aparecen en la pirámide de la imagen final. */
+   S/C/F = notas que aparecen en la imagen final. */
 const BASES = [
-  /* Musky: Light Blue (D&G) */
-  {id:'musky',    n:'Musky',    ml:10, frase:'Fresco, limpio y luminoso',        img:'musky',
+  /* Musky: tipo Light Blue / M-Cher · aireada, va alta */
+  {id:'musky',    n:'Musky',    ml:14, frase:'Fresco, limpio y luminoso',        img:'musky',
+    mol:{hedione:.5, galaxolide:.5},
+    topes:{bergamota:5, grosella:3, pera:4, bruma:3, peonia:5, rosas:4, jazmin:3, higo:4},
     fm:{citrica:.45, amaderada:.2, almizclada:.15, frutal:.1, aromatica:.1}, ref:['light blue'],
     S:['Limón','Manzana verde'], C:['Jazmín','Rosa blanca'], F:['Cedro','Almizcle blanco','Ámbar']},
-  /* Gourmand: vainilla 34,2 % · haba tonka 28,1 % · Tobacco Vanille (TF) 24,4 % · Iso E Super 7,1 % · Galaxolide 6,2 % */
+  /* Gourmand: vainilla 34,2 % · haba tonka 28,1 % · tipo Tobacco Vanille 24,4 % · Iso E Super 7,1 % · Galaxolide 6,2 % · potente, va baja */
   {id:'gourmand', n:'Gourmand', ml:11, frase:'Dulce, cálido y envolvente',       img:'gourmand',
-    fm:{gourmand:.65, especiada:.15, amaderada:.1, almizclada:.1}, ref:['tobacco vanille'], mol:['isoe','galaxolide'],
+    mol:{hedione:.5, isoe:.25, galaxolide:.25},
+    topes:{bergamota:4, grosella:3, pera:4, bruma:1, peonia:4, rosas:5, jazmin:3, higo:3},
+    fm:{gourmand:.65, especiada:.15, amaderada:.1, almizclada:.1}, ref:['tobacco vanille'],
     S:['Hoja de tabaco','Especias suaves'], C:['Vainilla','Haba tonka','Cacao'], F:['Frutos secos','Maderas aterciopeladas','Almizcle']},
-  /* Sándalo: Santal 33 (Le Labo) + acorde de roble: sándalo cremoso, sin la salida */
+  /* Sándalo: tipo Santal 33 + sándalo cremoso (roble) */
   {id:'sandalo',  n:'Sándalo',  ml:12, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
+    mol:{isoe:.5, hedione:.25, galaxolide:.25},
+    topes:{bergamota:5, grosella:3, pera:3, bruma:2, peonia:4, rosas:5, jazmin:3, higo:5},
     fm:{amaderada:.55, cuero:.2, almizclada:.15, floral:.1}, ref:['santal 33'],
     S:[], C:['Iris','Papiro'], F:['Sándalo cremoso','Roble','Cedro','Cuero suave']},
-  /* Tabaco: Tobacco Absolute (Molton Brown) */
-  {id:'tabaco',   n:'Tabaco',   ml:13, frase:'Especiado, intenso y magnético',   img:'tabaco',
+  /* Tabaco: tipo Tobacco Absolute · potente, va baja */
+  {id:'tabaco',   n:'Tabaco',   ml:11, frase:'Especiado, intenso y magnético',   img:'tabaco',
+    mol:{isoe:.5, galaxolide:.25, hedione:.25},
+    topes:{bergamota:6, grosella:3, pera:3, bruma:1, peonia:3, rosas:5, jazmin:2, higo:4},
     fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15}, ref:['tobacco absolute'],
     S:['Bergamota','Pomelo'], C:['Nuez moscada','Palisandro'], F:['Tabaco','Bálsamo','Cuero']}
 ];
@@ -210,12 +219,12 @@ const MAGIA = [
 ];
 /* Recetas de la casa: combinaciones probadas por base. Se pueden sumar más. */
 const RECETAS = [
-  {n:'Torrontés',             sub:'El aroma del valle', b:'musky',    c:['jazmin'], s:['pera']},
+  {n:'Torrontés',             sub:'El aroma del valle', b:'musky',    c:['jazmin'], s:['pera','bergamota']},   /* + bergamota: con los topes no llenaba */
   {n:'La novia',              b:'musky',    c:['peonia'], s:['pera']},
-  {n:'Promesa',               b:'gourmand', c:['rosas'],  s:['grosella']},
+  {n:'Promesa',               b:'gourmand', c:['rosas','peonia'], s:['grosella']},   /* + peonía: con los topes no llenaba */
   {n:'Atardecer en el valle', b:'sandalo',  c:['higo'],   s:['bergamota']},
   {n:'El novio',              b:'tabaco',   c:['rosas'],  s:['bergamota']},
-  {n:'Brisa de la quebrada',  b:'sandalo',  c:['higo'],   s:['bruma']}
+  {n:'Brisa de la quebrada',  b:'sandalo',  c:['higo'],   s:['bruma','bergamota']}   /* + bergamota: con los topes no llenaba */
 ];
 const VOTOS = [[3,'♥','Me encanta'],[2,'✦','Me gusta'],[1,'◦','Un poquito'],[0,'✕','Nada']];
 
@@ -259,50 +268,49 @@ function elegirNotas(p, base, lista, max){
   let c = sc.filter(x=>x.v>=2); if(!c.length) c = sc.filter(x=>x.v===1);
   return c.sort((a,b)=>b.s-a.s).slice(0,max);
 }
-/* reparte un total entero entre ítems según puntaje (mínimo 1 ml cada uno) */
-function repartir(total, items){
-  const o = {}; if(total<=0 || !items.length) return o;
-  items = items.slice(0, total);
-  const S = items.reduce((a,x)=>a+x.s,0) || items.length;
-  const raw = items.map(x=>({id:x.id, r: total*(x.s||1)/S}));
-  raw.forEach(x=>o[x.id] = Math.max(1, Math.floor(x.r)));
+/* reparte el espacio entre las notas en proporción a su tope, en ml enteros, sin pasar ningún tope;
+   lo que falte por redondeo va a la nota con más tope que tenga lugar */
+function repartirTope(total, ids, tope){
+  const o = {}; if(total<=0 || !ids.length) return o;
+  const T = ids.reduce((a,id)=>a+tope(id),0) || 1;
+  ids.forEach(id=>o[id] = Math.max(1, Math.min(tope(id), Math.floor(total*tope(id)/T))));
   let d = total - Object.values(o).reduce((a,b)=>a+b,0);
-  const ord = raw.slice().sort((a,b)=>(b.r-Math.floor(b.r))-(a.r-Math.floor(a.r)));
-  for(let i=0; d>0; i++, d--) o[ord[i%ord.length].id]++;
-  for(let i=0; d<0; i++){ const k = Object.keys(o).sort((a,b)=>o[b]-o[a])[0]; if(o[k]<=1) break; o[k]--; d++; }
+  const porTope = ids.slice().sort((a,b)=>tope(b)-tope(a));
+  while(d>0){ const k = porTope.find(id=>o[id]<tope(id)); if(!k) break; o[k]++; d--; }
+  while(d<0){ const k = Object.keys(o).sort((a,b)=>o[b]-o[a])[0]; if(o[k]<=1) break; o[k]--; d++; }
   return o;
 }
-function magia(p, base, notas){
-  const {P} = perfil(p), ml = id => notas[id]||0;
-  const flor = ['peonia','rosas','jazmin'].reduce((a,id)=>a+ml(id),0), fresco = ['bergamota','pera','bruma','higo'].reduce((a,id)=>a+ml(id),0);
-  const sc = {
-    hedione:    flor*.6 + 3*P.floral + (base==='musky'?1:0),
-    galaxolide: (['musky','gourmand'].includes(base)?3:0) + 3*P.almizclada + fresco*.2 + 3*P.gourmand*.5,
-    isoe:       (['sandalo','tabaco'].includes(base)?3:0) + 3*P.amaderada + 2*P.especiada + 2*P.cuero
-  };
-  /* si la base ya trae una molécula, no se repite en la magia */
-  (X[base].mol||[]).forEach(m=>delete sc[m]);
-  const [a,b] = Object.entries(sc).sort((x,y)=>y[1]-x[1]);
-  const [m1, m2] = EVENTO.MAGIA_ML;
-  if(!b) return {[a[0]]:m1+m2};
-  return {[a[0]]:m1, [b[0]]:m2};
-}
-/* arma la receta: base fija + corazón + salida en ml enteros + toque de magia con jeringa */
-function armar(p, base, receta){
-  const B = X[base], resto = Math.round(EVENTO.ML - B.ml - EVENTO.MAGIA_ML.reduce((a,b)=>a+b,0));
-  let cor, sal;
-  if(receta){ cor = receta.c.map(id=>({id,s:1})); sal = receta.s.map(id=>({id,s:1})); }
-  else { cor = elegirNotas(p, base, CORAZON, EVENTO.MAX_COR); sal = elegirNotas(p, base, SALIDA, EVENTO.MAX_SAL); }
-  if(!cor.length && !sal.length){ const r = RECETAS.find(r=>r.b===base) || RECETAS[0]; cor = r.c.map(id=>({id,s:1})); sal = r.s.map(id=>({id,s:1})); }
-  let mlSal = sal.length ? (cor.length ? Math.round(resto*EVENTO.PARTE_SALIDA) : resto) : 0;
-  const notas = Object.assign(repartir(resto-mlSal, cor), repartir(mlSal, sal));
-  return {base, notas, magia: magia(p, base, notas), receta: receta ? receta.n : null};
+/* arma la receta según la tabla técnica:
+   base fija → moléculas fijas (1 ml) → notas en el espacio que queda (Total − base − 1 ml).
+   Si los topes no alcanzan, la base sube hasta BASE_MAX; si aún falta, la app suma la próxima nota que le gustó;
+   si no queda ninguna, r.falta > 0 y la receta pide "Sumá una nota más". */
+function armar(p, base, receta, extra){
+  const B = X[base], tope = id => (B.topes||{})[id] || 0, molMl = Object.values(B.mol).reduce((a,b)=>a+b,0);
+  const baseMax = Math.floor(EVENTO.ML*EVENTO.BASE_MAX);
+  let ids;
+  if(receta) ids = receta.c.concat(receta.s);
+  else {
+    ids = elegirNotas(p, base, CORAZON, EVENTO.MAX_COR).concat(elegirNotas(p, base, SALIDA, EVENTO.MAX_SAL)).map(x=>x.id);
+    if(!ids.length){ const r = RECETAS.find(r=>r.b===base) || RECETAS[0]; ids = r.c.concat(r.s); }
+  }
+  (extra||[]).forEach(id=>{ if(!ids.includes(id)) ids.push(id); });
+  const cabe = () => ids.reduce((a,id)=>a+tope(id),0), minimo = () => Math.round(EVENTO.ML - baseMax - molMl);
+  /* sumar notas que le gustaron mientras falte (máx. 5 elegidas por la app) */
+  if(!receta){ const {P:pf} = perfil(p);
+    const resto = () => CORAZON.concat(SALIDA).filter(x=>!ids.includes(x.id) && voto(p,x.id)>=1)
+      .sort((a,b)=>(2*voto(p,b.id)+2*afin(b.fm,pf)) - (2*voto(p,a.id)+2*afin(a.fm,pf)));
+    while((cabe() < minimo() || ids.length < 2) && ids.length < 5){ const nx = resto()[0]; if(!nx) break; ids.push(nx.id); } }
+  let baseMl = B.ml, espacio = Math.round(EVENTO.ML - baseMl - molMl);
+  if(cabe() < espacio){ baseMl = Math.min(baseMax, Math.round(EVENTO.ML - molMl - cabe())); espacio = Math.round(EVENTO.ML - baseMl - molMl); }
+  const falta = Math.max(0, espacio - cabe());
+  const notas = repartirTope(Math.min(espacio, cabe()), ids, tope);
+  return {base, baseMl, notas, magia: Object.fromEntries(Object.entries(B.mol).filter(([,v])=>v>0)), receta: receta ? receta.n : null, falta};
 }
 
 /* ======================= ESTADO ======================= */
 const PASOS = ['registro','bases','corazon','salida','receta','final'];
 const nuevo = () => ({id:'pb-'+Date.now()+'-'+Math.random().toString(36).slice(2,6), t0:Date.now(), paso:'registro',
-  nom:'', wa:'', perf:['','','','',''], acepta:false, v:{}, sug:null, r:null, pn:'', est:''});
+  nom:'', wa:'', perf:['','','','',''], acepta:false, v:{}, sug:null, r:null, extra:[], pn:'', est:''});
 let P = LS.get(KEY, null) || nuevo();
 const guardar = () => LS.set(KEY, P);
 function ir(paso){ P.paso = paso; guardar(); pintar(); window.scrollTo(0,0); }
@@ -311,7 +319,7 @@ function atras(){ const prev = {bases:'registro', corazon:'bases', salida:'coraz
 /* ======================= PLANILLA ======================= */
 const urlScript = () => LS.get('er_pb_url','') || EVENTO.SCRIPT_URL;
 function recetaTxt(r){ if(!r) return '';
-  const l = [`${X[r.base].n} ${X[r.base].ml} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`), Object.entries(r.magia).map(([id,g])=>`${X[id].n} (${X[id].mol}) ${fmt(g)} ml`));
+  const l = [`${X[r.base].n} ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`), Object.entries(r.magia).map(([id,g])=>`${X[id].n} (${X[id].mol}) ${fmt(g)} ml`));
   return l.join(' · '); }
 function fila(p){
   const lbl = v => v==null ? '' : VOTOS.find(x=>x[0]===v)[2];
@@ -405,7 +413,7 @@ function seguir(sig, faltan){
 
 /* 5 · análisis y receta */
 function analizar(){
-  P.sug = baseSugerida(P); P.r = armar(P, P.sug, null); if(!P.pn) P.pn = '';
+  P.sug = baseSugerida(P); P.extra = []; P.r = armar(P, P.sug, null); if(!P.pn) P.pn = '';
   registrar(P,'Votó'); P.paso = 'analisis'; guardar(); pintar(); window.scrollTo(0,0);
 }
 function vAnalisis(){ return `<div class="analiza"><div class="gota"></div><h1>Analizando tus gustos…</h1><p class="sub">Cruzamos tus votos con los perfumes que usás.</p></div>`; }
@@ -414,7 +422,8 @@ function pasos(r){
   const filas = [], col = {base:'var(--l-base)', cor:'var(--l-cor)', sal:'var(--l-sal)', mag:'var(--l-mag)'};
   let acc = 0;
   const fila = (id, et, ml, extra) => { acc += ml; filas.push({id, et, ml, hasta:acc, extra}); };
-  fila(r.base, 'base', X[r.base].ml);
+  fila(r.base, 'base', r.baseMl);
+  Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).forEach(([id,ml])=>fila(id,'mag',ml));
   Object.entries(r.notas).filter(([id])=>etapa(id)==='cor').sort((a,b)=>b[1]-a[1]).forEach(([id,ml])=>fila(id,'cor',ml));
   Object.entries(r.notas).filter(([id])=>etapa(id)==='sal').sort((a,b)=>b[1]-a[1]).forEach(([id,ml])=>fila(id,'sal',ml));
   return {filas, col};
@@ -426,8 +435,8 @@ function probeta(filas, col){
     ticks += `<line x1="${x0}" x2="${x0+(big?16:9)}" y1="${y}" y2="${y}" stroke="#8a7a6e" stroke-width="${big?1.5:1}"/>`;
     if(big) ticks += `<text x="${x0-8}" y="${y+4}" text-anchor="end" font-size="12" fill="#8a7a6e" font-family="Inter">${ml}</text>`; }
   const capas = filas.map((f,i)=>`<rect class="lay" style="animation-delay:${i*.35}s" x="${x0}" y="${Y(f.hasta)}" width="${w}" height="${Y(f.hasta-f.ml)-Y(f.hasta)+(i?0:20)}" fill="${col[f.et]}" opacity="${f.et==='base'?1:.62+.38*((i%2))}"/>`).join('');
-  const marcas = filas.map(f=>`<line x1="${x0+w+2}" x2="${x0+w+14}" y1="${Y(f.hasta)}" y2="${Y(f.hasta)}" stroke="${col[f.et]}" stroke-width="2.5"/>
-    <text x="${x0+w+18}" y="${Y(f.hasta)+4}" font-size="12" font-weight="700" fill="#2E2420" font-family="Inter">${f.hasta}</text>`).join('');
+  const marcas = filas.filter((f,i)=>!(f.et==='mag' && filas[i+1] && filas[i+1].et==='mag')).map(f=>`<line x1="${x0+w+2}" x2="${x0+w+14}" y1="${Y(f.hasta)}" y2="${Y(f.hasta)}" stroke="${col[f.et]}" stroke-width="2.5"/>
+    <text x="${x0+w+18}" y="${Y(f.hasta)+4}" font-size="12" font-weight="700" fill="#2E2420" font-family="Inter">${fmt(f.hasta)}</text>`).join('');
   return `<svg class="probeta" viewBox="0 0 200 430" role="img" aria-label="Probeta de ${EVENTO.ML} ml con las marcas de tu receta">
     <defs><clipPath id="vidrio"><path d="M${x0} 40 V${y0+6} q0 14 14 14 h${w-28} q14 0 14 -14 V40 Z"/></clipPath></defs>
     <g clip-path="url(#vidrio)"><rect x="${x0}" y="40" width="${w}" height="${y0}" fill="#fff" opacity=".7"/>${capas}</g>
@@ -440,29 +449,33 @@ function probeta(filas, col){
 function vReceta(){
   const r = P.r, {filas, col} = pasos(r), pf = perfil(P), gustos = tops(pf.P);
   const encanta = BASES.concat(CORAZON, SALIDA).filter(a=>P.v[a.id]===3).map(a=>(etapa(a.id)==="base"?"Base ":"")+a.n);
-  const tit = {base:'Base · en la estación de bases', cor:'Corazón', sal:'Salida'};
+  const tit = {base:'1 · Base', mag:'2 · Moléculas · con jeringa', cor:'3 · Notas de corazón', sal:'4 · Notas de salida'};
   let ult = '';
   const li = f => { const a = X[f.id], g = f.et!==ult ? `<div class="grp">${tit[f.et]}</div>` : ''; ult = f.et;
+    const sub = f.et==='base' ? 'Fondo · estación de bases' : f.et==='mag' ? `${a.mol} · jeringa de 1 ml` : `${f.et==='cor'?'Corazón':'Salida'} · estación ${a.n}`;
     return g + `<li style="--c:${col[f.et]}"><img src="${foto(a.img||a.id)}" alt=""><div class="t"><b>${esc(f.et==='base'?'Base '+a.n:a.n)}</b>
-      <small>${f.et==='base'?'Fondo':f.et==='cor'?'Corazón':'Salida'} · estación ${esc(a.n)}</small></div>
-      <div class="ml"><b>+${f.ml} ml</b><small>hasta ${f.hasta} ml</small></div></li>`; };
-  const mag = Object.entries(r.magia).map(([id,g])=>`<li style="--c:var(--l-mag)"><img src="${foto(X[id].img)}" alt=""><div class="t"><b>${esc(X[id].n)}</b><small>${esc(X[id].mol)} · ${esc(X[id].d)}</small></div>
-      <div class="ml"><b>${fmt(g)} ml</b><small>jeringa</small></div></li>`).join('');
+      <small>${esc(sub)}</small></div>
+      <div class="ml"><b>+${fmt(f.ml)} ml</b><small>hasta ${fmt(f.hasta)} ml</small></div></li>`; };
+  const libres = CORAZON.concat(SALIDA).filter(x=>!(x.id in r.notas));
+  const falta = r.falta>0 ? `<div class="cambiar" style="border-color:var(--terra);margin:0 0 14px"><b>Sumá una nota más</b>
+      <div class="hint">Faltan ${r.falta} ml para llenar la probeta. Elegí otra nota:</div><div class="chips">
+      ${libres.map(x=>`<button class="chip" onclick="sumarNota('${x.id}')">${esc(x.n)}</button>`).join('')}</div></div>` : '';
   const rc = r.receta ? RECETAS.find(x=>x.n===r.receta) : null;
   return `<div class="cab"><div class="eb">Paso 4 · Tu receta</div><h1>${rc ? esc(rc.n) : 'Tu receta a medida'}</h1>
       <p class="sub">${rc ? 'Receta de la casa.' : `Base ${esc(X[r.base].n)}${r.base===P.sug?', la que mejor va con vos':''}.`} Pasá por cada estación en este orden.</p>
       ${!rc && (gustos.length || encanta.length) ? `<div class="tend">${gustos.map(g=>`<span>${esc(g)}</span>`).join('')}${encanta.slice(0,4).map(n=>`<span>♥ ${esc(n)}</span>`).join('')}</div>` : ''}</div>
     <div class="receta"><div>${probeta(filas, col)}</div>
-    <div><ol class="pasos">${filas.map(li).join('')}<div class="grp">Toque final · magia</div>${mag}</ol>
+    <div>${falta}<ol class="pasos">${filas.map(li).join('')}</ol>
       <div class="cambiar"><div class="hint">¿Querés otra base? La receta se ajusta.</div><div class="chips">
         ${BASES.map(b=>`<button class="chip" aria-pressed="${r.base===b.id}" onclick="cambiarBase('${b.id}')">${esc(b.n)}${b.id===P.sug?' <small>★</small>':''}</button>`).join('')}</div>
         <button class="btn ghost" style="min-height:48px;padding:10px" onclick="ir('recetas')">Ver recetas de la casa</button></div>
-      <div class="fld"><label for="pn">¿Cómo se llama tu perfume?</label><input id="pn" type="text" maxlength="28" value="${esc(P.pn)}" autocomplete="off" placeholder="Ej.: Noche en Cafayate" oninput="P.pn=this.value;guardar();$('#fin').disabled=!this.value.trim()"></div>
-      <button class="btn terra" id="fin" ${P.pn.trim()?'':'disabled'} onclick="terminar()">Listo · ver mi perfume</button>
+      <div class="fld"><label for="pn">¿Cómo se llama tu perfume?</label><input id="pn" type="text" maxlength="28" value="${esc(P.pn)}" autocomplete="off" placeholder="Ej.: Noche en Cafayate" oninput="P.pn=this.value;guardar();$('#fin').disabled=!this.value.trim()||P.r.falta>0"></div>
+      <button class="btn terra" id="fin" ${P.pn.trim() && !r.falta?'':'disabled'} onclick="terminar()">Listo · ver mi perfume</button>
     </div></div>${pie()}`;
 }
 const esNombreReceta = t => RECETAS.some(r=>r.n===String(t).trim());
-function cambiarBase(b){ P.r = armar(P, b, null); if(esNombreReceta(P.pn)) P.pn = ''; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); registrar(P,'Votó'); }
+function sumarNota(id){ P.extra = (P.extra||[]).concat([id]); const rc = P.r.receta ? RECETAS.find(x=>x.n===P.r.receta) : null; P.r = armar(P, P.r.base, rc, P.extra); guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); registrar(P,'Votó'); }
+function cambiarBase(b){ P.extra = []; P.r = armar(P, b, null); if(esNombreReceta(P.pn)) P.pn = ''; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); registrar(P,'Votó'); }
 function vRecetas(){
   return `<div class="cab"><div class="eb">Recetas de la casa</div><h1>Combinaciones probadas</h1><p class="sub">Si preferís una de estas en lugar de la tuya.</p></div>
     <div class="recs">${RECETAS.map((r,i)=>`<button class="rc" onclick="usarReceta(${i})"><img src="${foto(X[r.b].img)}" alt="">
@@ -470,8 +483,8 @@ function vRecetas(){
       <div class="d">Base ${esc(X[r.b].n)} · ${r.c.concat(r.s).map(id=>esc(X[id].n)).join(' · ')}</div></div>${P.r && P.r.receta===r.n?'<span class="ok">Elegida</span>':''}</button>`).join('')}</div>
     <button class="btn ghost" onclick="usarMia()">Volver a mi receta a medida</button>${pie()}`;
 }
-function usarReceta(i){ const r = RECETAS[i]; P.r = armar(P, r.b, r); if(!P.pn.trim() || esNombreReceta(P.pn)) P.pn = r.n; registrar(P,'Votó'); ir('receta'); }
-function usarMia(){ P.r = armar(P, P.sug || baseSugerida(P), null); if(esNombreReceta(P.pn)) P.pn = ''; registrar(P,'Votó'); ir('receta'); }
+function usarReceta(i){ const r = RECETAS[i]; P.extra = []; P.r = armar(P, r.b, r); if(!P.pn.trim() || esNombreReceta(P.pn)) P.pn = r.n; registrar(P,'Votó'); ir('receta'); }
+function usarMia(){ P.extra = []; P.r = armar(P, P.sug || baseSugerida(P), null); if(esNombreReceta(P.pn)) P.pn = ''; registrar(P,'Votó'); ir('receta'); }
 function terminar(){ if(!P.pn.trim()) return; registrar(P,'Terminó'); ir('final'); }
 
 /* 6 · final */
@@ -523,7 +536,7 @@ const MODO_TEXTO = 'abajo';   /* 'auto' · 'lados' · 'abajo' */
 function apilar(r, c, Y0, Y1, dibuja){
   const W = 1080, ns = notasDe(r,'sal').map(id=>({img:id, ml:r.notas[id], e:'s'}))
     .concat(notasDe(r,'cor').map(id=>({img:id, ml:r.notas[id], e:'c'})))
-    .concat([{img:X[r.base].img, ml:X[r.base].ml, e:'f'}]);
+    .concat([{img:X[r.base].img, ml:r.baseMl||X[r.base].ml, e:'f'}]);
   const SOL = 0.40, UTIL = Y1-Y0, mx = Math.max.apply(null, ns.map(x=>x.ml));
   let alt = ns.map(x => 170 + 330*Math.sqrt(x.ml/mx));
   const bruto = alt.reduce((a,b)=>a+b,0) - SOL*alt.slice(0,-1).reduce((a,b)=>a+b,0);
@@ -652,6 +665,7 @@ function abrirPanel(){
 function pintar(){
   if(P.paso!=='registro' && !(P.nom.trim() && P.acepta)) P.paso = 'registro';
   if(['receta','recetas','final'].includes(P.paso) && !P.r) P.paso = 'salida';
+  if(P.r && P.r.baseMl==null){ const rc = P.r.receta ? RECETAS.find(x=>x.n===P.r.receta) : null; P.r = armar(P, P.r.base, rc, P.extra); guardar(); }
   if(P.paso==='analisis') { setTimeout(()=>{ if(P.paso==='analisis') ir('receta'); }, 1600); }
   barra();
   const V = {registro:vRegistro, bases:vBases, corazon:vCorazon, salida:vSalida, analisis:vAnalisis, receta:vReceta, recetas:vRecetas, final:vFinal}[P.paso] || vRegistro;

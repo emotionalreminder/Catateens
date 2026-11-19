@@ -635,6 +635,7 @@ async function terminarGrupo(){
     const blob = await new Promise(res=>cv.toBlob(res,'image/jpeg',.88));
     const archivo = nombreArchivo(p);
     await idbPut({nombre:archivo, blob, t:Date.now()});
+    await idbPut({nombre:archivo, blob, t:Date.now()}, 'respaldo');
     const cola = LS.get('er_pb_cola',[]).filter(r=>r.id!==p.cod); cola.push(filaTablet(p, archivo)); LS.set('er_pb_cola', cola);
     const hist = LS.get(KT+'_hist',[]); hist.push({cod:p.cod, nom:p.nom.trim(), pn:p.pn.trim(), archivo, t:Date.now()}); LS.set(KT+'_hist', hist);
   }
@@ -646,10 +647,50 @@ async function terminarGrupo(){
 function limpiar(){ if(activos().length && !confirm('¿Borrar este grupo y empezar otro? Lo que no guardaste se pierde.')) return; G = nuevoGrupo(); guardar(); pintar(); window.scrollTo(0,0); }
 
 /* ---------- cola de imágenes (IndexedDB) ---------- */
-function idb(){ return new Promise((res,rej)=>{ const r = indexedDB.open('er_tablet_fotos', 1); r.onupgradeneeded = ()=>r.result.createObjectStore('fotos', {keyPath:'nombre'}); r.onsuccess = ()=>res(r.result); r.onerror = ()=>rej(r.error); }); }
-async function idbPut(o){ const db = await idb(); return new Promise((res,rej)=>{ const tx = db.transaction('fotos','readwrite'); tx.objectStore('fotos').put(o); tx.oncomplete = res; tx.onerror = ()=>rej(tx.error); }); }
-async function idbTodas(){ const db = await idb(); return new Promise((res,rej)=>{ const q = db.transaction('fotos').objectStore('fotos').getAll(); q.onsuccess = ()=>res(q.result); q.onerror = ()=>rej(q.error); }); }
+/* dos depósitos: "fotos" = cola para subir a Drive (se vacía al subir) · "respaldo" = copia permanente de todo lo hecho */
+function idb(){ return new Promise((res,rej)=>{ const r = indexedDB.open('er_tablet_fotos', 2);
+  r.onupgradeneeded = ()=>{ const db = r.result; ['fotos','respaldo'].forEach(n=>{ if(!db.objectStoreNames.contains(n)) db.createObjectStore(n, {keyPath:'nombre'}); }); };
+  r.onsuccess = ()=>res(r.result); r.onerror = ()=>rej(r.error); }); }
+async function idbPut(o, st='fotos'){ const db = await idb(); return new Promise((res,rej)=>{ const tx = db.transaction(st,'readwrite'); tx.objectStore(st).put(o); tx.oncomplete = res; tx.onerror = ()=>rej(tx.error); }); }
+async function idbTodas(st='fotos'){ const db = await idb(); return new Promise((res,rej)=>{ const q = db.transaction(st).objectStore(st).getAll(); q.onsuccess = ()=>res(q.result); q.onerror = ()=>rej(q.error); }); }
 async function idbBorrar(n){ const db = await idb(); return new Promise(res=>{ const tx = db.transaction('fotos','readwrite'); tx.objectStore('fotos').delete(n); tx.oncomplete = res; }); }
+
+/* ---------- copia de seguridad: todas las imágenes de esta tablet ---------- */
+async function respaldoArchivos(){ return (await idbTodas('respaldo')).sort((a,b)=>a.t-b.t).map(f=>new File([f.blob], f.nombre, {type:'image/jpeg'})); }
+/* 1) menú de compartir: en iPad "Guardar imágenes" las manda todas a Fotos de una vez */
+async function respaldoCompartir(){
+  const fs = await respaldoArchivos(); if(!fs.length){ aviso('Todavía no hay imágenes en esta tablet'); return; }
+  try{ if(navigator.canShare && navigator.canShare({files:fs})){ await navigator.share({files:fs, title:'Perfume Bar · Tablet '+tabletN()}); return; } }
+  catch(e){ if(e && e.name==='AbortError') return; }
+  aviso('Este equipo no deja compartir varias: se descarga un .zip'); respaldoZip();
+}
+/* 2) un solo archivo .zip con todas (queda en Archivos / Descargas) */
+async function respaldoZip(){
+  const fs = await respaldoArchivos(); if(!fs.length){ aviso('Todavía no hay imágenes en esta tablet'); return; }
+  const blob = await armarZip(fs), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `VJ_Cafayate_Tablet${tabletN()}_respaldo_${fechaArchivo()}.zip`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 60000);
+}
+/* zip sin compresión (las imágenes ya vienen comprimidas) */
+const CRC = (()=>{ const t = new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
+const crc32 = u => { let c = 0xFFFFFFFF; for(let i=0;i<u.length;i++) c = CRC[(c^u[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; };
+async function armarZip(files){
+  const partes = [], central = []; let off = 0; const enc = new TextEncoder();
+  for(const f of files){
+    const data = new Uint8Array(await f.arrayBuffer()), nom = enc.encode(f.name), crc = crc32(data);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0,0x04034b50,true); h.setUint16(4,20,true); h.setUint16(6,0x0800,true); h.setUint16(8,0,true);
+    h.setUint32(14,crc,true); h.setUint32(18,data.length,true); h.setUint32(22,data.length,true); h.setUint16(26,nom.length,true);
+    partes.push(h.buffer, nom, data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0,0x02014b50,true); c.setUint16(4,20,true); c.setUint16(6,20,true); c.setUint16(8,0x0800,true);
+    c.setUint32(16,crc,true); c.setUint32(20,data.length,true); c.setUint32(24,data.length,true); c.setUint16(28,nom.length,true); c.setUint32(42,off,true);
+    central.push(c.buffer, nom); off += 30 + nom.length + data.length;
+  }
+  const tam = central.reduce((a,b)=>a+(b.byteLength||b.length),0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true); e.setUint16(8,files.length,true); e.setUint16(10,files.length,true); e.setUint32(12,tam,true); e.setUint32(16,off,true);
+  return new Blob([...partes, ...central, e.buffer], {type:'application/zip'});
+}
 const aBase64 = b => new Promise(res=>{ const f = new FileReader(); f.onload = ()=>res(String(f.result).split(',')[1]); f.readAsDataURL(b); });
 
 let subiendo = false;
@@ -691,6 +732,10 @@ function abrirPanel(){
       <label>¿Qué tablet es esta?</label>
       <div class="chips">${[1,2,3,4].map(n=>`<button class="${tabletN()===n?'on':''}" onclick="LS.set(KT+'_n',${n});this.closest('.modal').remove();pintar();abrirPanel()">Tablet ${n}</button>`).join('')}</div>
       <p class="hint">Perfumes hechos en esta tablet: <b>${hist.length}</b> · ${esc(pendTxt)}</p>
+      <label>Copia de seguridad de las imágenes</label>
+      <button class="btn terra" onclick="respaldoCompartir()">Guardar todas en Fotos</button>
+      <button class="btn ghost" onclick="respaldoZip()">Descargar todas en un .zip</button>
+      <p class="hint">La copia queda guardada en la tablet aunque ya se hayan subido a Drive.</p>
       <label for="pdrive">Link del script de imágenes (Drive)</label><input id="pdrive" value="${esc(driveUrl())}" placeholder="https://script.google.com/macros/s/…/exec">
       <label for="purl">Link del script de la planilla</label><input id="purl" value="${esc(urlScript())}">
       <button class="btn" onclick="LS.set(KT+'_drive',$('#pdrive').value.trim());LS.set('er_pb_url',$('#purl').value.trim());this.closest('.modal').remove();subir();aviso('Guardado')">Guardar y subir ahora</button>

@@ -1,5 +1,5 @@
-/* Guarda la app en la tablet para que abra sin internet. Versión 20261119015414 */
-const CACHE = 'perfume-bar-tablet-20261119015414';
+/* Guarda la app en la tablet para que abra sin internet. Versión 20261119015729 */
+const CACHE = 'perfume-bar-tablet-20261119015729';
 const ARCHIVOS = ['./', './index.html', './manifest.json', './icono.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

@@ -39,9 +39,10 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:30px
 .cab{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
 
 /* grilla de cata: filas = aromas, columnas = personas */
-.grilla{display:grid;grid-template-columns:minmax(150px,1fr) repeat(4, minmax(170px,1.15fr));gap:0;background:var(--card);border:1.5px solid var(--line);border-radius:16px;overflow:hidden;}
+.grilla{display:grid;grid-template-columns:minmax(110px,.9fr) repeat(4, minmax(138px,1.15fr));gap:0;background:var(--card);border:1.5px solid var(--line);border-radius:16px;}
 .grilla > div{border-bottom:1px solid var(--line);padding:8px;display:flex;align-items:center;}
-.grilla .hd{position:sticky;top:56px;z-index:5;background:var(--card);border-bottom:2px solid var(--ink);padding:10px 8px;}
+.grilla .hd{position:sticky;top:var(--alto-top,56px);z-index:5;background:var(--card);border-bottom:2px solid var(--ink);padding:10px 8px;align-self:stretch;}
+.grilla .hd:first-child{border-top-left-radius:15px;} .grilla .hd:nth-child(5){border-top-right-radius:15px;}
 .grilla .col-a, .grilla .col-c{background:#FCF8F2;}
 .persona{width:100%;display:flex;flex-direction:column;gap:4px;}
 .persona .letra{font-size:11px;letter-spacing:2px;font-weight:700;color:var(--terra);}
@@ -51,6 +52,7 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:30px
 .aroma{gap:10px;}
 .aroma img{width:46px;height:46px;object-fit:contain;flex:0 0 auto;}
 .aroma b{font-family:"Cormorant Garamond",Georgia,serif;font-size:21px;font-weight:600;line-height:1.05;}
+@media (max-width:900px){.aroma img{width:34px;height:34px;} .aroma b{font-size:17px;} .votos button small{display:none;} .persona input{font-size:20px;}}
 .votos{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;}
 .votos button{border:1.5px solid var(--line);border-radius:10px;background:#fff;min-height:44px;font-size:17px;line-height:1;}
 .votos button small{display:block;font-size:9.5px;margin-top:2px;color:var(--dim);}
@@ -747,6 +749,8 @@ function abrirPanel(){
 }
 
 /* ---------- pintar ---------- */
+function medirTop(){ const t = document.querySelector('.top'); if(t) document.documentElement.style.setProperty('--alto-top', t.offsetHeight+'px'); }
+window.addEventListener('resize', medirTop);
 function pintar(){
   if(G.paso!=='cata' && !activos().some(([p])=>p.r)) G.paso = 'cata';
   P.paso = G.paso==='imagenes' ? 'final' : '';
@@ -754,6 +758,7 @@ function pintar(){
   $('#app').innerHTML = {cata:vCata, formulas:vFormulas, imagenes:vImagenes}[G.paso]();
   ({cata:accionesCata, formulas:accionesFormulas, imagenes:accionesImagenes})[G.paso]();
   if(G.paso==='imagenes') dibujarTodas();
+  medirTop();
 }
 if(document.fonts){ Promise.all(['600 96px "Cormorant Garamond"','italic 500 42px "Cormorant Garamond"','600 24px Inter','400 24px Inter'].map(f=>document.fonts.load(f).catch(()=>{}))).then(dibujarTodas); }
 /* funciona sin internet: se guarda en la tablet la primera vez que se abre con Wi-Fi */

@@ -14,7 +14,7 @@ def enc(path):
     return 'data:image/webp;base64,'+base64.b64encode(b.getvalue()).decode()
 d={k:enc(f'imgs/{v}.webp') for k,v in M.items()}
 for k in ['logo_boda','logo_boda_claro']: d[k]='data:image/webp;base64,'+base64.b64encode(open(f'imgs/{k}.webp','rb').read()).decode()
-t=open('app-tablet.html').read().replace('__COMUN1__',c1).replace('__COMUN2__',c2).replace('__IMGS__',json.dumps(d))
+t=open('app-tablet.html').read().replace('__COMUN1__',c1).replace('__COMUN2__',c2).replace('__IMGS__',json.dumps(d)).replace('__QR__',re.sub(r'<\?xml[^>]*>','',open('qr.svg').read()).strip())
 out=sys.argv[1]; os.makedirs(out,exist_ok=True)
 ver=time.strftime('%Y%m%d%H%M%S')
 open(f'{out}/index.html','w').write(t)

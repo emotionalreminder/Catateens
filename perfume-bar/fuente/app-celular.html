@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2E2420">
+<title>Perfume Bar · Emotional Reminder</title>
+<script>
+/* Si el celular tiene guardada una versión vieja de la app, se recarga sola con la última. */
+const APP_VERSION = '__VERSION__';
+(async()=>{ try{
+  const r = await fetch(location.pathname + '?nc=' + Date.now(), {cache:'no-store', headers:{Range:'bytes=0-1500'}});
+  /* lee solo el principio del archivo y corta la descarga */
+  const rd = r.body.getReader(); let txt = '';
+  while(txt.length < 1500){ const {done, value} = await rd.read(); if(done) break; txt += new TextDecoder().decode(value); }
+  rd.cancel().catch(()=>{});
+  const m = txt.match(/APP_VERSION = '([^']+)'/);
+  if(m && m[1] !== APP_VERSION && !location.search.includes('v=' + m[1])) location.replace(location.pathname + '?v=' + m[1]);
+}catch(e){} })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F0E6; --card:#FFFDF9; --ink:#2E2420; --dim:#857467; --line:#E7DBCB; --soft:#F1E7DA;
+  --terra:#A4553A; --gold:#B8925A;
+  --l-base:#9C5A3C; --l-cor:#C7808F; --l-sal:#E0B860; --l-mag:#7E8FA6;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.4;}
+button,input,textarea{font:inherit;color:inherit;}
+button{cursor:pointer;border:0;background:none;}
+
+.top{position:sticky;top:0;z-index:10;background:var(--ink);color:#F5ECE0;}
+.top-in{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 16px;min-height:60px;}
+.back{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.25);font-size:18px;flex:0 0 auto;display:grid;place-items:center;}
+.marca{flex:1;min-width:0;display:flex;align-items:center;gap:10px;}
+.marca img{height:30px;width:auto;display:block;}
+.marca .wm{font-size:11px;letter-spacing:3.5px;text-transform:uppercase;color:#E0CBA8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prog{display:flex;gap:6px;align-items:center;}
+.prog i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.22);display:block;}
+.prog i.ok{background:#E0CBA8;} .prog i.on{background:#fff;width:22px;border-radius:5px;}
+
+main{max-width:1000px;margin:0 auto;padding:22px 16px 40px;}
+.eb{font-size:12px;letter-spacing:3.5px;text-transform:uppercase;color:var(--terra);font-weight:600;}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:40px;line-height:1.05;margin:6px 0;letter-spacing:-.01em;}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:28px;line-height:1.1;}
+.sub{color:var(--dim);font-size:16px;}
+.cab{text-align:center;margin:4px auto 18px;max-width:620px;}
+.hint{color:var(--dim);font-size:14px;}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:60px;padding:16px 20px;border-radius:16px;
+  background:var(--ink);color:#fff;font-weight:600;letter-spacing:2px;text-transform:uppercase;font-size:15px;margin-top:14px;text-decoration:none;text-align:center;}
+.btn.terra{background:var(--terra);}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink);}
+.btn:disabled{opacity:.35;cursor:default;}
+.sticky-btn{position:sticky;bottom:0;padding:10px 0 14px;background:linear-gradient(to top,var(--bg) 70%,transparent);margin-top:6px;}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+
+/* registro */
+.hero{text-align:center;padding:14px 0 6px;}
+.hero h1{font-size:46px;}
+.form{max-width:520px;margin:0 auto;}
+.fld{margin-top:16px;}
+.fld>label{display:block;font-size:14px;font-weight:600;margin-bottom:6px;}
+.fld>label small{font-weight:400;color:var(--dim);}
+.fld input[type=text],.fld input[type=tel],.fld input:not([type]),.fld select{width:100%;padding:15px 16px;border:1.5px solid var(--line);border-radius:14px;background:var(--card);font-size:17px;}
+.perfs{display:flex;flex-direction:column;gap:8px;}
+.ac{position:relative;}
+.ac input{padding:12px 14px !important;font-size:16px !important;}
+.acl{display:none;position:absolute;left:0;right:0;top:100%;z-index:8;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);overflow:hidden;margin-top:2px;}
+.acl button{display:block;width:100%;text-align:left;padding:12px 14px;font-size:15px;border-bottom:1px solid #f0e9e0;}
+.acl span{color:var(--dim);font-size:13px;}
+.tel{display:flex;align-items:stretch;border:1.5px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden;}
+.tel span{display:flex;align-items:center;padding:0 4px 0 16px;font-size:17px;color:var(--dim);white-space:nowrap;}
+.fld .tel input{border:0;border-radius:0;background:transparent;padding-left:6px;min-width:0;}
+.check{display:flex;gap:12px;align-items:flex-start;margin-top:18px;font-size:14px;line-height:1.4;cursor:pointer;}
+.check input{width:24px;height:24px;flex:0 0 auto;accent-color:var(--terra);margin-top:1px;}
+
+/* cata */
+.votos{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media (max-width:640px){.votos{grid-template-columns:1fr;}}
+.vc{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:12px;}
+.vc.hecho{border-color:#d9c8b2;}
+.vc .hd{display:flex;align-items:center;gap:12px;}
+.vc img{width:84px;height:84px;object-fit:contain;flex:0 0 auto;}
+.vc .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;font-weight:600;line-height:1.05;}
+.vc .d{color:var(--dim);font-size:13.5px;margin-top:2px;}
+.vb{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;}
+.vb button{border:1.5px solid var(--line);border-radius:12px;padding:8px 2px;background:#fbf8f4;font-size:11.5px;line-height:1.15;min-height:58px;}
+.vb button b{display:block;font-size:20px;line-height:1.1;margin-bottom:2px;}
+.vb button.sel{background:var(--terra);border-color:var(--terra);color:#fff;}
+.vb button.sel.v0{background:#6b5d52;border-color:#6b5d52;}
+
+/* análisis */
+.analiza{text-align:center;padding:80px 10px;}
+.analiza .gota{width:56px;height:56px;margin:0 auto 18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--terra);animation:lat 1s ease-in-out infinite;}
+@keyframes lat{50%{transform:rotate(-45deg) scale(.8);opacity:.6;}}
+@media (prefers-reduced-motion:reduce){.analiza .gota{animation:none;}}
+
+/* receta */
+.receta{display:grid;grid-template-columns:240px 1fr;gap:22px;align-items:start;}
+@media (max-width:720px){.receta{grid-template-columns:1fr;gap:6px;}}
+.probeta{width:100%;max-width:240px;margin:0 auto;display:block;}
+@media (max-width:720px){.probeta{max-width:190px;}}
+.probeta .lay{transform-box:fill-box;transform-origin:50% 100%;animation:llenar .6s cubic-bezier(.3,.7,.3,1) both;}
+@keyframes llenar{from{transform:scaleY(0);}}
+@media (prefers-reduced-motion:reduce){.probeta .lay{animation:none;}}
+.tend{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px;}
+.tend span{font-size:13px;padding:5px 11px;border-radius:999px;background:var(--soft);}
+.pasos{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.pasos li{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--line);border-left:6px solid var(--c);border-radius:16px;padding:10px 14px 10px 10px;}
+.pasos img{width:52px;height:52px;object-fit:contain;flex:0 0 auto;}
+.pasos .t{flex:1;min-width:0;}
+.pasos .t b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:23px;font-weight:600;line-height:1.05;}
+.pasos .t small{color:var(--dim);font-size:12.5px;}
+.pasos .ml{text-align:right;white-space:nowrap;}
+.pasos .ml b{display:block;font-size:19px;}
+.pasos .ml small{display:block;font-size:12.5px;color:var(--dim);}
+.pasos li.nota{flex-wrap:wrap;}
+.tic{flex:1 0 100%;display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 2px 64px;}
+.tic button{width:30px;height:30px;border-radius:50%;border:2px solid var(--c);background:transparent;font-size:13px;font-weight:700;color:var(--c);}
+.tic button.ok{background:var(--c);color:#fff;}
+.pasos li.listo{opacity:.55;}
+.pasos li.grande{padding:12px 16px 12px 12px;}
+.pasos li.grande img{width:64px;height:64px;}
+.pasos li.grande .t b{font-size:26px;}
+.pasos li.grande .ml b{font-size:30px;font-weight:700;}
+.total{display:flex;align-items:baseline;justify-content:center;gap:10px;margin-top:16px;padding:14px;border-top:1.5px solid var(--line);}
+.total span{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:600;}
+.total b{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;}
+.total small{color:var(--dim);font-size:14px;}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+.grp{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;color:var(--dim);margin:12px 0 2px;}
+.grp:first-child{margin-top:0;}
+.cambiar{margin-top:16px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;}
+.cambiar .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.chip{padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);font-size:14px;font-weight:600;background:var(--bg);}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink);}
+.chip small{font-weight:500;opacity:.75;}
+
+/* recetas de la casa */
+.recs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media (max-width:640px){.recs{grid-template-columns:1fr;}}
+.rc{display:flex;align-items:center;gap:12px;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:12px 16px 12px 10px;min-height:92px;}
+.rc img{width:72px;height:72px;object-fit:contain;flex:0 0 auto;}
+.rc .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:25px;font-weight:600;line-height:1.05;}
+.rc .n small{display:block;font-family:Inter,sans-serif;font-size:13px;font-weight:500;color:var(--terra);font-style:italic;margin-top:2px;}
+.rc .d{color:var(--dim);font-size:13.5px;margin-top:4px;}
+.rc .ok{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--terra);white-space:nowrap;}
+
+/* final */
+.final{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+@media (max-width:720px){.final{grid-template-columns:1fr;}}
+canvas{width:100%;height:auto;border-radius:18px;display:block;box-shadow:0 10px 30px rgba(46,36,32,.18);}
+
+.foot{text-align:center;color:var(--dim);font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:24px 0 30px;}
+.foot button{color:var(--dim);margin-left:8px;font-size:15px;letter-spacing:0;}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:30;padding:16px;}
+.modal .in{background:#fff;border-radius:20px;padding:22px;width:min(100%,460px);max-height:90vh;overflow:auto;}
+.modal select{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font-size:16px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:15px;z-index:40;max-width:calc(100% - 32px);text-align:center;}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in" id="top"></div></header>
+<main id="app"></main>
+<script>
+/* Fotos de bases, notas y moléculas (webp embebidas) */
+const IMGS = __IMGS__;
+</script>
+<script>
+/* Base de perfumes conocidos: [nombre, marca, perfil 0-9 en 12 familias (ver FK)] */
+const FRA = __FRA__;
+</script>
+<script>
+/*@@COMUN1*/
+/* ===================================================================
+   EVENTO · todo lo que cambia entre Cafayate, Caro Cuomo, etc. está acá
+   =================================================================== */
+const EVENTO = {
+  nombre: 'Cafayate',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwkMzVVILGvF1Ctx53JR3hvndsLlbkjoLsSwF9MDSjhcGSp2gZfTo6hd_Cx3UoI_aV3AA/exec',
+  CLAVE: 'ER-ninas-2026',
+  HOJA: 'Cafayate',        // pestaña de la planilla "App cata teens"
+  PIN: '2730',
+  WA_ER: '5491150532730',  // WhatsApp de Emotional Reminder: el invitado le manda su receta desde su celular
+  PEDIR_WA: false,
+  PEDIR_TERMINOS: false,   // false: no se muestra la casilla de aceptar         // false: no se pide el WhatsApp al registrarse; llega cuando el invitado manda su perfume
+  WA_PREFIJO: '54 9',      // se muestra fijo delante del número del invitado             // panel del organizador (⚙ al pie)
+  LOGO: '',                // logo de Emotional Reminder (data:image/... o URL). Vacío = marca en texto.
+  LOGO_EVENTO: 'logo_boda',// monograma de la boda (en IMGS). Vacío = sin logo.
+  FIRMA: ['Método Emotional Reminder', 'Diseñado por Lic. Agustín Melazo Díaz · MP 240.297'],
+  ML: 25,                  // probeta / frasco: base 13 + moduladores 2 + notas 10 (reglas 18/11)
+  BASE_ML: 13, MOD_ML: 2, NOTAS_ML: 10,
+  MARCA_ML: 15,            // rayita marcada con fibrón en la probeta: base + moduladores
+  TERMINOS: 'Acepto que Emotional Reminder guarde mis datos y me escriba por WhatsApp para mandarme mi receta.'
+};
+/* Familias olfativas (mismo orden que el perfil de FRA) */
+const FK = ['citrica','frutal','verde','floral','aromatica','ambar','gourmand','amaderada','oriental','cuero','especiada','almizclada'];
+const FAMN = {citrica:'Cítrica',frutal:'Frutal',verde:'Verde',floral:'Floral',aromatica:'Aromática',ambar:'Ambarada',gourmand:'Gourmand',
+  amaderada:'Amaderada',oriental:'Oriental',cuero:'Cuero',especiada:'Especiada',almizclada:'Almizclada'};
+
+/* BASES (reglas 18/11) · 13 ml fijos de base + 2 ml de moduladores con jeringa.
+   rango = [mínimo, máximo] en ml enteros de cada nota sobre esta base. redondeo = nota que se suma si faltan notas.
+   fm = perfil para comparar con los gustos. ref = perfumes que forman la base (suman puntos; nunca se muestran).
+   S/C/F = notas que aparecen en la imagen final. */
+const BASES = [
+  /* Musky: tipo Light Blue · ya tiene almizcle, no lleva Galaxolide */
+  {id:'musky',    n:'Musky',    ml:13, frase:'Fresco, limpio y luminoso',        img:'musky',
+    mol:{hedione:1.5, isoe:.5},
+    rango:{bergamota:[2,5], grosella:[1,3], pera:[1,4], bruma:[1,3], peonia:[2,5], rosas:[1,4], jazmin:[1,3], higo:[2,4]},
+    redondeo:{cor:'peonia', sal:'bergamota'},
+    fm:{citrica:.45, amaderada:.2, almizclada:.15, frutal:.1, aromatica:.1}, ref:['light blue'],
+    S:['Limón','Manzana verde'], C:['Jazmín','Rosa blanca'], F:['Cedro','Almizcle blanco','Ámbar']},
+  /* Gourmand: vainilla 34,2 % · haba tonka 28,1 % · tipo Tobacco Vanille 24,4 % · Iso E Super 7,1 % · Galaxolide 6,2 % */
+  {id:'gourmand', n:'Gourmand', ml:13, frase:'Dulce, cálido y envolvente',       img:'gourmand',
+    mol:{hedione:1.5, isoe:.5},
+    rango:{bergamota:[2,4], grosella:[1,3], pera:[1,4], bruma:[1,1], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[1,3]},
+    redondeo:{cor:'rosas', sal:'bergamota'},
+    fm:{gourmand:.65, especiada:.15, amaderada:.1, almizclada:.1}, ref:['tobacco vanille'],
+    S:['Hoja de tabaco','Especias suaves'], C:['Vainilla','Haba tonka','Cacao'], F:['Frutos secos','Maderas aterciopeladas','Almizcle']},
+  /* Sándalo: tipo Santal 33 + acorde de roble */
+  {id:'sandalo',  n:'Sándalo',  ml:13, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
+    mol:{isoe:1, hedione:.5, galaxolide:.5},
+    rango:{bergamota:[2,5], grosella:[1,3], pera:[1,3], bruma:[1,2], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[2,5]},
+    redondeo:{cor:'higo', sal:'bergamota'},
+    fm:{amaderada:.55, cuero:.2, almizclada:.15, floral:.1}, ref:['santal 33'],
+    S:[], C:['Iris','Papiro'], F:['Sándalo cremoso','Roble','Cedro','Cuero suave']},
+  /* Tabaco: tipo Tobacco Absolute */
+  {id:'tabaco',   n:'Tabaco',   ml:13, frase:'Especiado, intenso y magnético',   img:'tabaco',
+    mol:{isoe:1, hedione:1},
+    rango:{bergamota:[2,6], grosella:[1,3], pera:[1,3], bruma:[1,1], peonia:[1,3], rosas:[1,5], jazmin:[1,2], higo:[1,4]},
+    redondeo:{cor:'rosas', sal:'bergamota'},
+    fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15}, ref:['tobacco absolute'],
+    S:['Bergamota','Pomelo'], C:['Nuez moscada','Palisandro'], F:['Tabaco','Bálsamo','Cuero']}
+];
+const CORAZON = [
+  {id:'peonia', n:'Peonía',       d:'Rosa limpia y delicada',   fm:{floral:1}},
+  {id:'rosas',  n:'Rosas',        d:'Romántica, aterciopelada', fm:{floral:.85, especiada:.15}},
+  {id:'jazmin', n:'Jazmín',       d:'Flor blanca y luminosa',   fm:{floral:1}},
+  {id:'higo',   n:'Flor de Higo', d:'Verde, lechosa y soleada', fm:{verde:.7, frutal:.3}}
+];
+const SALIDA = [
+  {id:'bergamota', n:'Bergamota',    d:'Cítrica y chispeante', fm:{citrica:1}},
+  {id:'grosella',  n:'Grosella',     d:'Fruto rojo, ácida',    fm:{frutal:1}},
+  {id:'pera',      n:'Pera',         d:'Jugosa y verde',       fm:{frutal:.7, verde:.3}},
+  {id:'bruma',     n:'Bruma de mar', d:'Aire fresco y salino', fm:{aromatica:.5, citrica:.3, verde:.2}}
+];
+/* Moléculas "mágicas": frascos de 100 ml, van al final con jeringa. No se votan. n = como está rotulado el frasco. */
+const MAGIA = [
+  {id:'galaxolide', n:'Base Musky',  mol:'Galaxolide',  d:'Almizcle limpio y redondo',  img:'galaxolide'},
+  {id:'isoe',       n:'Base Woody',  mol:'Iso E Super', d:'Madera aterciopelada',       img:'isoe'},
+  {id:'hedione',    n:'Base Floral', mol:'Hedione',     d:'Luz floral, da aire',        img:'hedione'}
+];
+/* Nombres sugeridos por perfil (para la tablet y como ideas en el celular) */
+const NOMBRES = {
+  floral:    ['Torrontés','Promesa','Viñas al sol'],
+  fresco:    ['Brisa de la quebrada','Viento de la montaña','Cielo calchaquí'],
+  amaderado: ['Atardecer en el valle','Médanos','Los Colorados'],
+  intenso:   ['Noche en Cafayate','Luna de los Valles','Quebrada de las Flechas']
+};
+const RECETAS = [];   /* sin recetas de la casa en esta versión */
+const VOTOS = [[3,'♥','Me encanta'],[2,'✦','Me gusta'],[1,'◦','Un poquito'],[0,'✕','Nada']];
+
+/* ======================= UTILIDADES ======================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LS = {get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const nz = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+const fmt = n => (Math.round(n*100)/100).toLocaleString('es-AR');
+/* WhatsApp: el invitado escribe solo característica y número; se limpia 54 / 9 / 0 si los pone igual */
+const waLocal = t => { let d = String(t||'').replace(/\D/g,''); d = d.replace(/^54/,'').replace(/^9/,'').replace(/^0/,'');
+  /* si escribió el 15 después de la característica (11 15 …), se saca: el número queda de 10 cifras */
+  if(d.length===12) for(const i of [2,3,4]) if(d.substr(i,2)==='15'){ d = d.slice(0,i)+d.slice(i+2); break; }
+  return d; };
+const waCompleto = t => { const d = waLocal(t); return d ? '549'+d : ''; };
+const X = {}; BASES.concat(CORAZON, SALIDA, MAGIA).forEach(a=>X[a.id]=a);
+const etapa = id => BASES.some(b=>b.id===id) ? 'base' : CORAZON.some(c=>c.id===id) ? 'cor' : SALIDA.some(s=>s.id===id) ? 'sal' : 'mag';
+function aviso(t){ const d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),2000); }
+const KEY = 'er_pb_' + nz(EVENTO.nombre).replace(/ /g,'_');
+
+/* ======================= PERFUMES FAVORITOS ======================= */
+const FRAX = FRA.map(([n,b,v])=>({n,b,v,k:nz(n+' '+b),kn:nz(n)}));
+function buscar(q){ q = nz(q); if(q.length<2) return []; const ws = q.split(' ');
+  return FRAX.filter(f=>ws.every(w=>f.k.includes(w))).sort((a,b)=>(b.kn.startsWith(q)-a.kn.startsWith(q)) || a.n.length-b.n.length).slice(0,6); }
+function encontrar(t){ const q = nz(t); if(!q) return null;
+  return FRAX.find(f=>f.k===q) || FRAX.find(f=>f.kn===q) || FRAX.find(f=>q.startsWith(f.kn) && f.kn.length>3) || null; }
+/* perfil 0..1 por familia, promedio de los perfumes reconocidos */
+function perfil(p){
+  const P = {}; FK.forEach(f=>P[f]=0); let n = 0;
+  p.perf.forEach(t=>{ const f = encontrar(t); if(!f) return; n++; FK.forEach((k,i)=>P[k] += (+f.v[i])/9); });
+  if(n) FK.forEach(k=>P[k] /= n);
+  return {P, n};
+}
+const afin = (fm, P) => Object.entries(fm).reduce((a,[k,w])=>a + w*(P[k]||0), 0);
+const tops = P => Object.entries(P).filter(([,v])=>v>.08).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k])=>FAMN[k]);
+
+/* ======================= MOTOR QUÍMICO (reglas 18/11) =======================
+   Base 13 ml + moduladores 2 ml (fijos por base) + notas 10 ml.
+   Votos: me encanta 3 · me gusta 2 · un poquito 1 (va a su mínimo) · nada 0 (nunca entra). Sin votar = un poquito. */
+const voto = (p,id) => p.v[id]==null ? 1 : p.v[id];
+const NOTAS_TODAS = () => CORAZON.concat(SALIDA);
+const grupo = id => CORAZON.some(c=>c.id===id) ? 'cor' : 'sal';
+const usaRef = (p, b) => (p.perf||[]).some(t=>(b.ref||[]).some(r=>nz(t).startsWith(r)));
+/* base: la más votada; si hay empate entre "me encanta", decide según las notas que le encantan */
+const DESEMPATE = {bruma:['musky'], peonia:['musky'], jazmin:['musky'], rosas:['gourmand','tabaco'], grosella:['gourmand'], higo:['sandalo'], bergamota:['tabaco','sandalo']};
+function puntajeBase(p, b){ const {P} = perfil(p); return 4*voto(p,b.id) + 2*afin(b.fm,P) + (usaRef(p,b)?3:0); }
+function baseSugerida(p){
+  const enc = NOTAS_TODAS().filter(n=>voto(p,n.id)===3).map(n=>n.id);
+  let cands = BASES.map(b=>({b, s:puntajeBase(p,b)}));
+  const mx = Math.max.apply(null, cands.map(c=>c.s));
+  let top = cands.filter(c=>c.s >= mx - 1);                       /* empatadas o casi */
+  if(top.length > 1){
+    if(enc.includes('bruma') && top.some(c=>!['gourmand','tabaco'].includes(c.b.id))) top = top.filter(c=>!['gourmand','tabaco'].includes(c.b.id));
+    top.forEach(c=>{ c.d = c.s + enc.reduce((a,id)=>a + ((DESEMPATE[id]||[]).includes(c.b.id) ? 2 : 0) + c.b.rango[id][1]*.3, 0); });
+    top.sort((x,y)=>y.d-x.d); return top[0].b.id;
+  }
+  return cands.sort((x,y)=>y.s-x.s)[0].b.id;
+}
+/* perfil del invitado → cuántos ml van a corazón y a salida */
+const PERFILES = {floral:{cor:7, sal:3}, citrico:{cor:4, sal:6}, amaderado:{cor:6, sal:4}, neutro:{cor:5, sal:5}};
+function perfilNotas(p, base){
+  const {P} = perfil(p), w = id => voto(p,id);
+  const sc = {
+    floral:    ['peonia','rosas','jazmin'].reduce((a,id)=>a + (w(id)===3?2:w(id)===2?1:0), 0) + 3*P.floral,
+    citrico:   ['bergamota','grosella','pera'].reduce((a,id)=>a + (w(id)===3?2:w(id)===2?1:0), 0) + 3*(P.citrica+P.frutal),
+    amaderado: (['sandalo','tabaco'].includes(base)?2:0) + 3*(P.amaderada+P.especiada+P.cuero+P.ambar*.5)
+  };
+  const ord = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
+  return (ord[0][1] >= 2 && ord[0][1] >= ord[1][1]*1.25) ? ord[0][0] : 'neutro';
+}
+/* elige las notas: las que le encantan y le gustan (4, o 5 si tiene muchos "me encanta"),
+   al menos 1 de corazón y 1 de salida, y redondea con la nota de la base si faltan */
+function elegirNotas(p, base){
+  const B = X[base], {P} = perfil(p), w = id => voto(p,id);
+  const rank = n => w(n.id)*10 + afin(n.fm,P) + ((DESEMPATE[n.id]||[]).includes(base)?.5:0);
+  const todas = NOTAS_TODAS().filter(n=>w(n.id)>=1).sort((a,b)=>rank(b)-rank(a));
+  const nEnc = todas.filter(n=>w(n.id)===3).length, N = nEnc >= 4 ? 5 : 4;
+  let ids = todas.filter(n=>w(n.id)>=2).slice(0, N).map(n=>n.id);
+  const hay = g => ids.some(id=>grupo(id)===g);
+  const redondeo = g => { const op = [B.redondeo[g], g==='sal' ? 'pera' : 'rosas'].concat(todas.filter(n=>grupo(n.id)===g).map(n=>n.id));
+    return op.find(id=>!ids.includes(id) && w(id)>=1); };
+  ['cor','sal'].forEach(g=>{ if(!hay(g)){ const r = redondeo(g); if(r){ if(ids.length >= N) ids.pop(); ids.push(r); } } });
+  while(ids.length < 4){
+    const nc = ids.filter(id=>grupo(id)==='cor').length, ns = ids.length - nc;
+    const r = redondeo(nc <= ns ? 'cor' : 'sal') || redondeo(nc <= ns ? 'sal' : 'cor'); if(!r) break; ids.push(r);
+  }
+  return ids;
+}
+/* reparte los ml de un grupo: cada nota arranca en su mínimo; el resto, proporcional al voto, sin pasar el máximo.
+   "un poquito" se queda en su mínimo. Lo que sobra por redondeo va a la nota con mayor voto que tenga margen. */
+function repartirGrupo(total, ids, p, B){
+  const o = {}, w = id => voto(p,id), r = id => B.rango[id];
+  ids.forEach(id=>o[id] = r(id)[0]);
+  let resto = total - ids.reduce((a,id)=>a+o[id],0);
+  const crecen = ids.filter(id=>w(id)>=2);
+  for(let vuelta=0; resto>0 && vuelta<4; vuelta++){
+    const libres = crecen.filter(id=>o[id] < r(id)[1]); if(!libres.length) break;
+    const W = libres.reduce((a,id)=>a+w(id),0), antes = resto;
+    libres.forEach(id=>{ const add = Math.min(r(id)[1]-o[id], Math.floor(antes*w(id)/W)); o[id] += add; resto -= add; });
+    if(resto === antes){ const k = libres.sort((a,b)=>w(b)-w(a) || (r(b)[1]-o[b])-(r(a)[1]-o[a]))[0]; o[k]++; resto--; }
+  }
+  /* si nadie puede crecer, crecen los "un poquito" como último recurso */
+  while(resto>0){ const k = ids.filter(id=>o[id] < r(id)[1]).sort((a,b)=>w(b)-w(a))[0]; if(!k) break; o[k]++; resto--; }
+  return {o, resto};
+}
+function armar(p, base){
+  const B = X[base], ids = elegirNotas(p, base), pf = perfilNotas(p, base), tot = EVENTO.NOTAS_ML;
+  let notas = {}, quedan = ids.slice();
+  for(let intento=0; intento<4; intento++){
+    const cor = quedan.filter(id=>grupo(id)==='cor'), sal = quedan.filter(id=>grupo(id)==='sal');
+    const min = l => l.reduce((a,id)=>a+B.rango[id][0],0), max = l => l.reduce((a,id)=>a+B.rango[id][1],0);
+    /* reparto según el perfil, ajustado a lo que entra en cada grupo */
+    let tc = cor.length ? PERFILES[pf].cor : 0; if(!sal.length) tc = tot;
+    tc = Math.max(min(cor), Math.min(max(cor), tc)); let ts = tot - tc;
+    if(ts > max(sal)){ ts = max(sal); tc = Math.min(max(cor), tot - ts); }
+    if(ts < min(sal)){ ts = min(sal); tc = tot - ts; }
+    const a = repartirGrupo(tc, cor, p, B), b = repartirGrupo(ts, sal, p, B);
+    notas = Object.assign(a.o, b.o);
+    const suma = Object.values(notas).reduce((x,y)=>x+y,0);
+    if(suma === tot) break;
+    if(suma > tot){ /* sobran notas: saco la de menor voto, sin dejar a un grupo vacío */
+      const k = quedan.filter(id=>quedan.filter(x=>grupo(x)===grupo(id)).length > 1).sort((x,y)=>voto(p,x)-voto(p,y))[0];
+      if(!k) break; quedan = quedan.filter(id=>id!==k); continue; }
+    /* faltan ml: sumo una nota de redondeo */
+    const g = cor.length <= sal.length ? 'cor' : 'sal';
+    const r = [B.redondeo[g], B.redondeo[g==='cor'?'sal':'cor'], 'pera', 'rosas'].concat(NOTAS_TODAS().map(n=>n.id)).find(id=>!quedan.includes(id) && voto(p,id)>=1);
+    if(!r) break; quedan.push(r);
+  }
+  /* si votó "nada" a casi todo y las notas no llegan a 10 ml, lo que falta va a la base */
+  const suma = Object.values(notas).reduce((x,y)=>x+y,0);
+  return {base, baseMl:B.ml + Math.max(0, tot - suma), notas, magia: Object.fromEntries(Object.entries(B.mol).filter(([,v])=>v>0)), perfil:pf, receta:null, falta:0};
+}
+function nombreSugerido(r, quien){
+  const tipo = r.perfil==='floral' ? 'floral' : r.perfil==='citrico' ? 'fresco' : ['sandalo'].includes(r.base) ? 'amaderado' : ['tabaco','gourmand'].includes(r.base) ? 'intenso' : 'fresco';
+  const l = NOMBRES[tipo]; return l[Math.floor(Math.random()*l.length)] + (quien ? ' by ' + quien : '');
+}
+
+/*@@FIN1*/
+/* ======================= ESTADO ======================= */
+const PASOS = ['registro','bases','corazon','salida','receta','final'];
+const nuevo = () => ({id:'pb-'+Date.now()+'-'+Math.random().toString(36).slice(2,6), t0:Date.now(), paso:'registro',
+  nom:'', wa:'', perf:['','','','',''], acepta:false, v:{}, sug:null, r:null, extra:[], pn:'', est:''});
+let P = LS.get(KEY, null) || nuevo();
+const guardar = () => LS.set(KEY, P);
+function ir(paso){ P.paso = paso; guardar(); pintar(); window.scrollTo(0,0); }
+function atras(){ const prev = {bases:'registro', corazon:'bases', salida:'corazon', nombre:'salida', receta:'nombre', final:'receta'}[P.paso]; if(prev) ir(prev); }
+
+/* ======================= PLANILLA ======================= */
+const urlScript = () => LS.get('er_pb_url','') || EVENTO.SCRIPT_URL;
+function recetaTxt(r){ if(!r) return '';
+  const l = [`${X[r.base].n} hasta ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`), Object.entries(r.magia).map(([id,g])=>`${X[id].n} (${X[id].mol}) ${fmt(g)} ml`));
+  return l.join(' · '); }
+function fila(p){
+  const lbl = v => v==null ? '' : VOTOS.find(x=>x[0]===v)[2];
+  const pf = perfil(p), rc = p.r && p.r.receta ? RECETAS.find(x=>x.n===p.r.receta) : null;
+  const cols = [['ID',p.id],['Fecha',new Date(p.t0).toLocaleString('es-AR')],['Última actualización',new Date().toLocaleString('es-AR')],['Estado',p.est],
+    ['Nombre',p.nom.trim()],['WhatsApp',waCompleto(p.wa) ? '+'+EVENTO.WA_PREFIJO+' '+waLocal(p.wa) : ''],['Código',codigo(p)],['Abrió WhatsApp',p.waEnviado?'Sí':'No'],
+    ['Perfumes que usa',p.perf.filter(x=>x.trim()).join(' | ')],['Perfil según sus perfumes',tops(pf.P).join(' · ')]];
+  BASES.concat(CORAZON, SALIDA).forEach(a=>cols.push([(etapa(a.id)==='base'?'Base ':'')+a.n, lbl(p.v[a.id])]));
+  cols.push(['Base sugerida',p.sug?X[p.sug].n:''],['Base',p.r?X[p.r.base].n:''],
+    ['Corazón',p.r?Object.keys(p.r.notas).filter(id=>etapa(id)==='cor').map(id=>X[id].n).join(' · '):''],
+    ['Salida',p.r?Object.keys(p.r.notas).filter(id=>etapa(id)==='sal').map(id=>X[id].n).join(' · '):''],
+    ['Receta (ml)',recetaTxt(p.r)],['Receta usada',rc?(rc.sub?`${rc.n} (${rc.sub.toLowerCase()})`:rc.n):'personalizada'],['Nombre del perfume',p.pn.trim()]);
+  return {clave:EVENTO.CLAVE, hoja:EVENTO.HOJA, id:p.id, columnas:cols, t:Date.now()};
+}
+function registrar(p, estado){ p.est = estado; guardar();
+  const cola = LS.get('er_pb_cola',[]).filter(r=>r.id!==p.id); cola.push(fila(p)); LS.set('er_pb_cola',cola); vaciar(); }
+let enviando = false;
+function enviarForm(r){ return new Promise(res=>{ try{
+  let ifr = document.getElementById('erif'); if(!ifr){ ifr = document.createElement('iframe'); ifr.name='erif'; ifr.id='erif'; ifr.style.display='none'; document.body.appendChild(ifr); }
+  const f = document.createElement('form'); f.method='POST'; f.action=urlScript(); f.target='erif'; f.style.display='none';
+  const t = document.createElement('textarea'); t.name='payload'; t.value=JSON.stringify(r); f.appendChild(t); document.body.appendChild(f); f.submit();
+  setTimeout(()=>{ f.remove(); res(true); }, 1200); }catch(e){ res(false); } }); }
+async function vaciar(){
+  if(enviando || !navigator.onLine) return; enviando = true;
+  try{
+    for(const r of LS.get('er_pb_cola',[])){
+      let ok = false;
+      try{ const resp = await fetch(urlScript(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(r)}); const j = await resp.json(); ok = !!j.ok; }catch(e){}
+      if(!ok && navigator.onLine) ok = await enviarForm(r);   /* respaldo (iPhone / sin CORS): el script actualiza por ID, no duplica */
+      if(ok) LS.set('er_pb_cola', LS.get('er_pb_cola',[]).filter(x=>!(x.id===r.id && x.t===r.t)));
+    }
+  } finally { enviando = false; }
+}
+setInterval(vaciar, 30000);
+window.addEventListener('online', vaciar);
+
+/* ======================= PANTALLAS ======================= */
+const alCargarImagen = () => { if(P.paso==='final') dibujarCv(); };
+function barra(){
+  const i = ['bases','corazon','salida','nombre','receta','final'].indexOf(P.paso);
+  const logo = EVENTO.LOGO ? `<img src="${esc(EVENTO.LOGO)}" alt="Emotional Reminder">` : `<span class="wm">Emotional Reminder · Perfume Bar</span>`;
+  $('#top').innerHTML = (P.paso!=='registro' && P.paso!=='analisis' ? `<button class="back" onclick="atras()" aria-label="Volver">←</button>` : '') +
+    `<div class="marca">${logo}</div>` +
+    (i>=0 ? `<div class="prog" aria-label="Paso ${i+1} de 6">${[0,1,2,3,4,5].map(k=>`<i class="${k<i?'ok':k===i?'on':''}"></i>`).join('')}</div>` : '');
+}
+const pie = () => `<div class="foot">${esc(EVENTO.FIRMA[0])}<br><span style="letter-spacing:0;text-transform:none;font-size:12.5px">${esc(EVENTO.FIRMA[1]||'')}</span> <button onclick="abrirPanel()" aria-label="Panel del organizador">⚙</button></div>`;
+
+/* 1 · registro */
+function vRegistro(){
+  return `<div class="hero">${EVENTO.LOGO_EVENTO?`<img src="${foto(EVENTO.LOGO_EVENTO)}" alt="" style="height:72px;display:block;margin:0 auto 14px">`:''}<div class="eb">Perfume Bar</div><h1>Creá tu perfume</h1><p class="sub">Olé, votá y te armamos una receta a tu medida.</p></div>
+  <div class="form">
+    <div class="fld"><label for="nom">¿Cómo te llamás?</label><input id="nom" type="text" value="${esc(P.nom)}" autocomplete="off" placeholder="Tu nombre" oninput="P.nom=this.value;guardar();chk()"></div>
+    ${EVENTO.PEDIR_WA ? `<div class="fld"><label for="wa">WhatsApp <small>(opcional)</small></label><div class="tel"><span>+${esc(EVENTO.WA_PREFIJO)}</span><input id="wa" type="tel" inputmode="numeric" value="${esc(waLocal(P.wa))}" autocomplete="off" placeholder="11 5555 5555" oninput="P.wa=this.value;guardar()"></div></div>` : ''}
+    <div class="fld"><label>Tus perfumes favoritos <small>(opcional, hasta 5)</small></label><div class="perfs">
+      ${P.perf.map((v,i)=>`<div class="ac"><input id="pf${i}" type="text" value="${esc(v)}" autocomplete="off" placeholder="Perfume ${i+1}" aria-label="Perfume favorito ${i+1}"
+        oninput="tipear(${i},this.value)" onblur="setTimeout(()=>cerrarAc(${i}),200)"><div class="acl" id="acl${i}"></div></div>`).join('')}
+    </div></div>
+    ${EVENTO.PEDIR_TERMINOS ? `<label class="check"><input type="checkbox" id="ok" ${P.acepta?'checked':''} onchange="P.acepta=this.checked;guardar();chk()"><span>${esc(EVENTO.TERMINOS)}</span></label>` : ''}
+    <button class="btn terra" id="go" onclick="empezar()">Empezar a oler</button>
+  </div>${pie()}`;
+}
+const listo = () => !!(P.nom.trim() && (P.acepta || !EVENTO.PEDIR_TERMINOS));
+function chk(){ const b = $('#go'); if(b) b.disabled = !(listo()); }
+function tipear(i, val){ P.perf[i] = val; guardar(); const l = $('#acl'+i), r = buscar(val);
+  l.innerHTML = r.map(f=>`<button type="button" onmousedown="event.preventDefault()" onclick="elegirPerf(${i},this.dataset.v)" data-v="${esc(f.n+' · '+f.b)}"><b>${esc(f.n)}</b> <span>${esc(f.b)}</span></button>`).join('');
+  l.style.display = r.length ? 'block' : 'none'; }
+function elegirPerf(i, v){ P.perf[i] = v; guardar(); const inp = $('#pf'+i); if(inp) inp.value = v; cerrarAc(i); const nx = $('#pf'+(i+1)); if(nx && !nx.value) nx.focus(); }
+function cerrarAc(i){ const l = $('#acl'+i); if(l) l.style.display = 'none'; }
+function empezar(){ if(!(listo())) return; registrar(P,'Registrado'); ir('bases'); }
+
+/* 2-4 · cata */
+function tarjetaVoto(a, img){
+  const v = P.v[a.id];
+  return `<div class="vc ${v!=null?'hecho':''}"><div class="hd"><img src="${foto(img||a.img||a.id)}" alt=""><div><div class="n">${esc(a.n)}</div><div class="d">${esc(a.frase||a.d)}</div></div></div>
+    <div class="vb" role="group" aria-label="¿Qué te pareció ${esc(a.n)}?">${VOTOS.map(([k,s,t])=>`<button class="${v===k?'sel v'+k:''}" aria-pressed="${v===k}" onclick="votar('${a.id}',${k})"><b>${s}</b>${t}</button>`).join('')}</div></div>`;
+}
+function vCata(tit, eb, sub, lista, sig, txtSig){
+  const faltan = lista.filter(a=>P.v[a.id]==null).length;
+  return `<div class="cab"><div class="eb">${eb}</div><h1>${tit}</h1><p class="sub">${sub}</p></div>
+    <div class="votos">${lista.map(a=>tarjetaVoto(a)).join('')}</div>
+    <div class="sticky-btn"><button class="btn terra" onclick="seguir('${sig}',${faltan})">${faltan?`Faltan ${faltan} · ${txtSig}`:txtSig}</button></div>${pie()}`;
+}
+const vBases   = () => vCata('Olé las bases','Paso 1 · Las bases','Las cuatro se huelen en la estación. Votá cada una.', BASES.map(b=>({...b, n:'Base '+b.n})), 'corazon', 'Seguir al corazón');
+const vCorazon = () => vCata('Notas de corazón','Paso 2 · Corazón','Las flores que le dan personalidad.', CORAZON, 'salida', 'Seguir a la salida');
+const vSalida  = () => vCata('Notas de salida','Paso 3 · Salida','Lo primero que se siente al ponértelo.', SALIDA, 'nombre', 'Seguir');
+function votar(id, k){ P.v[id] = k; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
+function seguir(sig, faltan){
+  if(faltan && !confirm('Te faltan votar algunas. Las que no votes cuentan como "un poquito". ¿Seguimos?')) return;
+  if(sig==='analisis'){ analizar(); return; }
+  ir(sig);
+}
+
+/* 5 · análisis y receta */
+function analizar(){
+  P.sug = baseSugerida(P); P.r = armar(P, P.sug);
+  registrar(P,'Votó'); P.paso = 'analisis'; guardar(); pintar(); window.scrollTo(0,0);
+}
+function vAnalisis(){ return `<div class="analiza"><div class="gota"></div><h1>Armando tu receta…</h1><p class="sub">Cruzamos tus votos con los perfumes que usás.</p></div>`; }
+
+function vNombre(){
+  const ideas = [].concat(NOMBRES.floral[0], NOMBRES.fresco[0], NOMBRES.amaderado[0], NOMBRES.intenso[0]);
+  return `<div class="cab"><div class="eb">Paso 4 · Nombre</div><h1>¿Cómo se llama tu perfume?</h1><p class="sub">Escribilo como quieras. Va en la imagen final.</p></div>
+    <div class="form">
+      <div class="fld"><label for="pn" class="sr">Nombre del perfume</label><input id="pn" type="text" maxlength="28" value="${esc(P.pn)}" autocomplete="off" placeholder="Ej.: Noche en Cafayate" oninput="P.pn=this.value;guardar();$('#vr').disabled=!this.value.trim()"></div>
+      <div class="chips" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center">${ideas.map(n=>`<button class="chip" onclick="P.pn=this.textContent;guardar();$('#pn').value=P.pn;$('#vr').disabled=false">${esc(n)}</button>`).join('')}</div>
+      <button class="btn terra" id="vr" ${P.pn.trim()?'':'disabled'} onclick="if(P.pn.trim()) analizar()">Ver mi receta</button>
+    </div>${pie()}`;
+}
+/* 5 · receta: lista simple, foto y cantidad bien grande */
+const jeringas = ml => ml===1 ? '1 jeringa' : `${ml} jeringas`;
+function vReceta(){
+  const r = P.r, B = X[r.base], extra = r.baseMl - B.ml;
+  const marca = r.baseMl + Object.values(r.magia).reduce((a,b)=>a+b,0);
+  const fila = (img, nom, sub, cant, unidad, col) => `<li class="grande" style="--c:${col}"><img src="${foto(img)}" alt=""><div class="t"><b>${esc(nom)}</b><small>${sub}</small></div><div class="ml"><b>${cant}</b><small>${unidad}</small></div></li>`;
+  const notas = (g, tit, col) => { const l = Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1]);
+    return l.length ? `<div class="grp">${tit}</div>` + l.map(([id,ml])=>fila(id, X[id].n, jeringas(ml)+' de 1 ml', ml+' ml', '', col)).join('') : ''; };
+  return `<div class="cab"><div class="eb">Paso 5 · Tu receta</div><h1>${esc(P.pn.trim())}</h1>
+      <p class="sub">Base ${esc(B.n)}, la que mejor va con vos. Cargá en este orden.</p></div>
+    <div class="form" style="max-width:620px"><ol class="pasos">
+      <div class="grp">1 · Base · con la ampolla</div>
+      ${fila(B.img, 'Base '+B.n, `Llená la probeta hasta ${r.baseMl} ml`, r.baseMl+' ml', '', 'var(--l-base)')}
+      <div class="grp">2 · Moduladores · con jeringa</div>
+      ${Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>fila(X[id].img, X[id].n, X[id].d, fmt(ml)+' ml', '', 'var(--l-mag)')).join('')}
+      <p class="hint" style="margin:2px 4px 0">Con esto llegás a la rayita marcada${marca===EVENTO.MARCA_ML?` (${EVENTO.MARCA_ML} ml)`:` (${fmt(marca)} ml)`}.</p>
+      ${notas('cor','3 · Notas de corazón · con jeringa','var(--l-cor)')}
+      ${notas('sal','4 · Notas de salida · con jeringa','var(--l-sal)')}
+    </ol>
+    <div class="total"><span>Total</span><b>${EVENTO.ML} ml</b><small>Volcalo en tu frasco</small></div>
+    <button class="btn terra" onclick="terminar()">Listo · ver mi perfume</button></div>${pie()}`;
+}
+function terminar(){ registrar(P,'Terminó'); ir('final'); }
+
+/* 6 · final */
+function vFinal(){
+  const r = P.r;
+  const txt = `¡Hola Emotional Reminder! Soy ${P.nom.trim()} y creé mi perfume "${P.pn.trim()}" en el Perfume Bar de ${EVENTO.nombre}. Mi receta: ${recetaTxt(r)}.`;
+  return `<div class="cab"><div class="eb">Paso 5 · Listo</div><h1>${esc(P.pn.trim())}</h1><p class="sub">Guardá tu perfume y mandanos tu receta.</p></div>
+    <div class="final"><canvas id="cv" width="1080" height="1528" aria-label="Imagen de tu perfume"></canvas>
+    <div>
+      <button class="btn terra" style="margin-top:0" onclick="mandarWA()">Guardar mi perfume y enviarlo</button>
+      <ol class="hint" style="margin:10px 0 0 20px;display:flex;flex-direction:column;gap:4px">
+        <li>Se guarda la imagen de tu perfume en el celular. En iPhone, en el menú que aparece tocá <b>Guardar imagen</b>.</li>
+        <li>Se abre el chat con Emotional Reminder con tu receta escrita: tocá <b>enviar</b>.</li></ol>
+      <button class="btn ghost" onclick="ir('receta')">Ver la receta otra vez</button>
+      <button class="btn" onclick="otro()">Hacer otro perfume</button>
+    </div></div>${pie()}`;
+}
+/* Botón de WhatsApp: guarda la imagen en el celular y abre el chat con Emotional Reminder con un mensaje
+   ya escrito (nombre, perfume, receta y código). El invitado solo toca enviar: así llega su número real,
+   y el código permite cruzar el chat con su fila de la planilla. */
+let blobFinal = null;
+function prepararBlob(){ const cv = $('#cv'); if(cv) cv.toBlob(b=>{ blobFinal = b; }, 'image/png'); }
+function blobYa(){ /* sin esperas, para no perder el permiso del toque en iPhone */
+  if(blobFinal) return blobFinal;
+  const u = $('#cv').toDataURL('image/png'), bin = atob(u.split(',')[1]), a = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) a[i] = bin.charCodeAt(i); return new Blob([a], {type:'image/png'}); }
+const codigo = p => p.cod || (p.cod = (EVENTO.nombre.slice(0,2) + '-' + Math.random().toString(36).slice(2,6)).toUpperCase());
+function textoWA(){ return `¡Hola Emotional Reminder! Soy ${P.nom.trim()} y creé mi perfume "${P.pn.trim()}" en el Perfume Bar de ${EVENTO.nombre} (código ${codigo(P)}). Mi receta: ${recetaTxt(P.r)}.`; }
+async function mandarWA(){
+  const url = `https://wa.me/${EVENTO.WA_ER}?text=${encodeURIComponent(textoWA())}`;
+  const blob = blobYa(), nom = 'perfume_' + nz(P.pn||P.nom).replace(/ /g,'_') + '.png';
+  const file = new File([blob], nom, {type:'image/png'});
+  P.waEnviado = true; guardar(); registrar(P,'Terminó');
+  let compartida = false;
+  try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:P.pn||'Mi perfume'}); compartida = true; } }catch(e){}
+  if(!compartida){ try{ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove(); }catch(e){} }
+  aviso('Imagen guardada · ahora tocá enviar en WhatsApp');
+  setTimeout(()=>{ location.href = url; }, 700);
+}
+function otro(){ if(!confirm('¿Empezar un perfume nuevo? Este ya quedó guardado.')) return; P = nuevo(); guardar(); pintar(); window.scrollTo(0,0); }
+
+/*@@COMUN2*/
+/* ======================= IMAGEN FINAL ======================= */
+const BGS = {blanco:{bg:'#FFFFFF', ink:'#2B2420', acc:'#A4553A', dim:'#8a7a6e'}, marfil:{bg:'#F7F1E8', ink:'#2B2420', acc:'#A4553A', dim:'#7d6e62'},
+  terracota:{bg:'#8E4A33', ink:'#F8EFE6', acc:'#F1C9A4', dim:'#E6CDBB'}};
+const fondoImg = () => LS.get('er_pb_fondo2','blanco');
+const IMC = {};
+function imgEl(k){ if(IMC[k]) return IMC[k]; const im = new Image(); im.onload = ()=>{ im._ok = 1; if(typeof alCargarImagen==='function') alCargarImagen(); }; im.src = foto(k); return IMC[k] = im; }
+const foto = k => IMGS[k] || '';
+const notasDe = (r, et) => Object.entries(r.notas).filter(([id])=>etapa(id)===et).sort((a,b)=>b[1]-a[1]).map(([id])=>id);
+function familiaTxt(r){
+  const fam = {}; Object.entries(r.notas).forEach(([id,ml])=>Object.entries(X[id].fm).forEach(([f,w])=>fam[f]=(fam[f]||0)+ml*w));
+  const f = Object.entries(fam).sort((a,b)=>b[1]-a[1])[0];
+  return [X[r.base].n].concat(f ? [FAMN[f[0]]] : []).join(' · ');
+}
+/* imagen final: las notas apiladas, salida arriba, corazón al medio, base abajo.
+   Cada dibujo es más grande cuanto más ml lleva y se pisan un poco para que no queden huecos.
+   Al costado de cada grupo, la lista de notas: las que eligió + las que ya trae la base (se suman). */
+const NMAGIA = {hedione:['c','Jazmín luminoso'], isoe:['f','Maderas aterciopeladas'], galaxolide:['f','Almizcle blanco']};
+function piramide(r){
+  const b = X[r.base], o = {s:[], c:[], f:[]}, vistos = [];
+  const add = (e, t) => { const k = nz(t); if(vistos.some(v=>v===k || v.startsWith(k+' ') || k.startsWith(v+' '))) return; vistos.push(k); o[e].push(t); };
+  notasDe(r,'sal').forEach(id=>add('s',X[id].n)); b.S.forEach(t=>add('s',t));
+  notasDe(r,'cor').forEach(id=>add('c',X[id].n)); b.C.forEach(t=>add('c',t));
+  b.F.forEach(t=>add('f',t));
+  Object.keys(r.magia||{}).forEach(id=>{ const m = NMAGIA[id]; if(m) add(m[0], m[1]); });
+  return o;
+}
+const ESP = String.fromCharCode(8202);
+/* Layout de la imagen: una columna de dibujos alineada (como Pequeñas perfumistas), salida arriba,
+   corazón al medio y la base abajo, más grande cuanto más ml lleva. Los textos van a los costados de
+   su grupo si entran prolijos; si no, los tres van abajo en columnas. */
+const VAIVEN = [0, -0.30, 0.28, -0.14, 0.18, -0.32, 0.26, -0.12];
+const MODO_TEXTO = 'abajo';   /* 'auto' · 'lados' · 'abajo' */
+/* dibujos de relleno: notas que ya trae cada base, para dar volumen y que la columna no tenga huecos */
+const RELLENO = {
+  musky:    {s:['n_lima'],                  c:['jazmin','n_azahar'],      f:['n_cedro','n_ambar']},
+  gourmand: {s:['n_tabaco','n_oriental'],   c:['n_vainilla','n_tonka'],   f:['n_ddl','n_musk']},
+  sandalo:  {s:['n_violeta'],               c:['n_vetiver','n_violeta'],  f:['n_cedro','n_cuero']},
+  tabaco:   {s:['bergamota','n_citrico'],   c:['n_oriental','n_sandalo'], f:['n_ambar','n_cuero']}
+};
+const MIN_GRUPO = 3;   /* cada etapa se completa hasta 3 dibujos con relleno */
+function columna(r){
+  const usados = new Set(), out = [], rel = RELLENO[r.base] || {s:[],c:[],f:[]};
+  const etapaCol = (e, propias) => {
+    const ps = propias.map(id=>({img:id, ml:r.notas[id], e})); ps.forEach(x=>usados.add(x.img));
+    const fill = (rel[e]||[]).filter(k=>!usados.has(k) && IMGS[k]);
+    const n = Math.max(0, MIN_GRUPO - ps.length), extra = fill.slice(0, n).map(k=>({img:k, ml:1.4, e, relleno:true}));
+    extra.forEach(x=>usados.add(x.img));
+    /* intercalar: propia, relleno, propia, relleno… */
+    const L = []; for(let i=0; i<Math.max(ps.length, extra.length); i++){ if(ps[i]) L.push(ps[i]); if(extra[i]) L.push(extra[i]); }
+    return L;
+  };
+  out.push(...etapaCol('s', notasDe(r,'sal')), ...etapaCol('c', notasDe(r,'cor')));
+  const fondo = (rel.f||[]).filter(k=>!usados.has(k) && IMGS[k]).slice(0, out.length < 6 ? 2 : 1).map(k=>({img:k, ml:1.6, e:'f', relleno:true}));
+  out.push(...fondo, {img:X[r.base].img, ml:r.baseMl||X[r.base].ml, e:'f'});
+  return out;
+}
+function apilar(r, c, Y0, Y1, dibuja){
+  const W = 1080, ns = columna(r), SOL = 0.50, UTIL = Y1-Y0;
+  const mx = Math.max.apply(null, ns.map(x=>x.ml));
+  /* tamaño de cada dibujo: más grande cuanto más ml; el ancho nunca pasa de 540 px */
+  const med = k => ns.map(n=>{ const im = imgEl(n.img), iw = im._ok ? im.width : 1, ih = im._ok ? im.height : 1;
+    const a = k*(170 + 300*Math.sqrt(n.ml/mx)), e = Math.min(a/ih, Math.min(600, a*1.9)/iw); return {im, w:iw*e, h:ih*e}; });
+  /* el avance usa el alto real de cada dibujo, así se pisan siempre igual y no quedan huecos */
+  const alto = ms => ms.reduce((t,m,i)=>t + (i<ms.length-1 ? m.h*(1-SOL) : m.h), 0);
+  let k = 1, ms = med(k); const a0 = alto(ms); if(a0 > UTIL){ k = UTIL/a0; ms = med(k); }
+  let y = Y0 + Math.max(0, (UTIL - alto(ms))/2); const rects = [], zona = {};
+  ns.forEach((n,i)=>{ const {im, w, h} = ms[i];
+    const libre = Math.min(90, (W-w)/2 - 150), x = (W-w)/2 + VAIVEN[i % VAIVEN.length]*Math.max(0,libre)*1.6;
+    if(dibuja && im._ok) c.drawImage(im, x, y, w, h);
+    const q = {x0:x+w*.03, x1:x+w*.97, y0:y+h*.03, y1:y+h*.97}; rects.push(q);
+    const z = zona[n.e] || (zona[n.e] = {y0:1e9, y1:0}); z.y0 = Math.min(z.y0, q.y0); z.y1 = Math.max(z.y1, q.y1);
+    y += h*(1-SOL); });
+  return {rects, zona};
+}
+function dibujar(p, c){
+  const W = 1080, H = 1528, T = BGS[fondoImg()] || BGS.blanco, SERIF = '"Cormorant Garamond", Georgia, serif', r = p.r;
+  c.fillStyle = T.bg; c.fillRect(0,0,W,H);
+  if(fondoImg()==='terracota'){ const g = c.createRadialGradient(W/2,760,80,W/2,760,900); g.addColorStop(0,'rgba(255,220,190,.22)'); g.addColorStop(1,'rgba(0,0,0,.28)'); c.fillStyle = g; c.fillRect(0,0,W,H); }
+  /* encabezado */
+  c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  /* monograma de la boda arriba */
+  let top = 0;
+  if(EVENTO.LOGO_EVENTO){ const lg = imgEl(fondoImg()==='terracota' ? EVENTO.LOGO_EVENTO+'_claro' : EVENTO.LOGO_EVENTO);
+    if(lg._ok){ const h = 116, w = lg.width*h/lg.height; c.drawImage(lg, W/2-w/2, 44, w, h); } top = 118; }
+  c.fillStyle = T.ink; let fs = 92; c.font = `600 ${fs}px ${SERIF}`; const tit = p.pn.trim() || 'Mi perfume';
+  while(c.measureText(tit).width > W-120 && fs > 56){ fs -= 4; c.font = `600 ${fs}px ${SERIF}`; }
+  c.fillText(tit, W/2, 138+top);
+  c.fillStyle = T.acc; c.font = '600 23px Inter, sans-serif'; c.fillText(familiaTxt(r).toUpperCase().split('').join(ESP), W/2, 186+top);
+  c.fillStyle = T.dim; c.font = `italic 500 36px ${SERIF}`; c.fillText('Creado por ' + p.nom.trim(), W/2, 234+top);
+  c.strokeStyle = T.acc; c.lineWidth = 2; c.beginPath(); c.moveTo(W/2-60,262+top); c.lineTo(W/2+60,262+top); c.stroke();
+  /* firma al pie */
+  let pie = 50;
+  if(EVENTO.FIRMA && EVENTO.FIRMA.length){
+    c.fillStyle = T.acc; c.font = '600 17px Inter, sans-serif'; c.fillText(EVENTO.FIRMA[0].toUpperCase().split('').join(ESP+ESP), W/2, H-74);
+    if(EVENTO.FIRMA[1]){ c.fillStyle = T.dim; c.font = `italic 500 25px ${SERIF}`; c.fillText(EVENTO.FIRMA[1], W/2, H-42); }
+    pie = 120; }
+  const Y0 = 290 + top;
+
+  const pr = piramide(r), TIT = {s:'Notas de salida', c:'Notas de corazón', f:'Notas de fondo'}, M = 56, TMIN = 28;
+  const bloque = (e, tam) => { c.font = `500 ${tam}px ${SERIF}`; const lh = tam*1.15;
+    return {tam, lh, alto: 46 + pr[e].length*lh, ancho: Math.max.apply(null, pr[e].map(t=>c.measureText(t).width).concat([c.measureText('x').width]))}; };
+  const pinta = (e, xt, y0, m, align) => {
+    c.textAlign = align; c.textBaseline = 'alphabetic';
+    c.fillStyle = T.acc; c.font = '600 20px Inter, sans-serif'; c.fillText(TIT[e].toUpperCase().split('').join(ESP), xt, y0+20);
+    const lx = align==='left' ? [xt, xt+50] : align==='right' ? [xt-50, xt] : [xt-25, xt+25];
+    c.strokeStyle = T.acc; c.lineWidth = 1.5; c.beginPath(); c.moveTo(lx[0], y0+34); c.lineTo(lx[1], y0+34); c.stroke();
+    c.fillStyle = T.ink; c.font = `500 ${m.tam}px ${SERIF}`;
+    pr[e].forEach((t,i)=>c.fillText(t, xt, y0 + 46 + m.lh*(i+1) - m.lh*.25)); };
+
+  /* 1º intento: textos a los costados. Cada bloque busca, en el lado con más lugar junto a su grupo,
+     el hueco libre de dibujos más cercano. Si alguno no entra con letra ≥ TMIN, se pasa todo abajo. */
+  const planLados = () => {
+    const {rects, zona} = apilar(r, c, Y0, H-pie, false), plan = [], ocup = rects.slice();
+    for(const e of ['s','c','f']){
+      if(!pr[e].length) continue;
+      const z = zona[e] || {y0:300, y1:H-50}, centro = (z.y0+z.y1)/2;
+      let mejor = null;
+      for(const izq of [true, false]){
+        /* ancho libre en ese lado a la altura del grupo */
+        const enGrupo = rects.filter(q=>q.y1 > z.y0 && q.y0 < z.y1);
+        const borde = izq ? Math.min.apply(null, enGrupo.map(q=>q.x0)) : Math.max.apply(null, enGrupo.map(q=>q.x1));
+        const TW = izq ? borde - M - 16 : W - M - borde - 16; if(TW < 220) continue;
+        const cx0 = izq ? M : W-M-TW, cx1 = cx0+TW;
+        const tapan = ocup.filter(q=>q.x1 > cx0 && q.x0 < cx1).sort((a,b)=>a.y0-b.y0);
+        const huecos = []; let yy = 300; tapan.forEach(q=>{ if(q.y0 > yy) huecos.push([yy, q.y0]); yy = Math.max(yy, q.y1); }); if(H-50 > yy) huecos.push([yy, H-50]);
+        for(const [a,b] of huecos){ let m = bloque(e, 34); while((m.ancho > TW || m.alto > b-a) && m.tam > TMIN) m = bloque(e, m.tam-1);
+          if(m.ancho > TW || m.alto > b-a) continue;
+          const y0 = Math.max(a, Math.min(b-m.alto, centro-m.alto/2)), dist = Math.abs(y0+m.alto/2-centro);
+          if(dist > 260) continue;   /* lejos de su grupo no se entiende */
+          const pts = m.tam*12 - dist; if(!mejor || pts > mejor.pts) mejor = {e, izq, y0, m, pts, cx0, cx1}; } }
+      if(!mejor) return null;
+      plan.push(mejor); ocup.push({x0:mejor.cx0, x1:mejor.cx1, y0:mejor.y0-18, y1:mejor.y0+mejor.m.alto+18});
+    }
+    /* todos los bloques con la misma letra, para que se vea parejo */
+    const t = Math.min.apply(null, plan.map(b=>b.m.tam)); plan.forEach(b=>{ b.m = bloque(b.e, t); });
+    return plan;
+  };
+  const plan = MODO_TEXTO==='abajo' ? null : planLados();
+  if(plan || MODO_TEXTO==='lados'){
+    apilar(r, c, Y0, H-pie, true);
+    (plan||[]).forEach(b=>pinta(b.e, b.izq ? M : W-M, b.y0, b.m, b.izq ? 'left' : 'right'));
+  } else {
+    /* textos abajo, en tres columnas iguales */
+    const es = ['s','c','f'].filter(e=>pr[e].length), cw = (W-2*M)/es.length;
+    let tam = 30, ms; do { ms = es.map(e=>bloque(e, tam)); tam--; } while(ms.some(m=>m.ancho > cw-24) && tam > 20);
+    const alto = Math.max.apply(null, ms.map(m=>m.alto)), yT = H - pie - alto;
+    apilar(r, c, Y0, yT - 30, true);
+    c.strokeStyle = T.dim; c.globalAlpha = .3; c.lineWidth = 1;
+    es.slice(1).forEach((_,i)=>{ const x = M + cw*(i+1); c.beginPath(); c.moveTo(x, yT); c.lineTo(x, yT+alto); c.stroke(); }); c.globalAlpha = 1;
+    es.forEach((e,i)=>pinta(e, M + cw*i + cw/2, yT, ms[i], 'center'));
+  }
+  c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+}
+/*@@FIN2*/
+function dibujarCv(){ const cv = $('#cv'); if(cv && P.r){ dibujar(P, cv.getContext('2d')); clearTimeout(dibujarCv.t); dibujarCv.t = setTimeout(prepararBlob, 300); } }
+async function compartir(){
+  const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1528;
+  try{ await document.fonts.ready; }catch(e){}
+  dibujar(P, cv.getContext('2d'));
+  const blob = await new Promise(r=>cv.toBlob(r,'image/png'));
+  const nom = 'perfume_' + nz(P.pn||P.nom).replace(/ /g,'_') + '.png';
+  const file = new File([blob], nom, {type:'image/png'});
+  try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:P.pn||'Mi perfume'}); return; } }catch(e){ if(e && e.name==='AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+
+/* ======================= PANEL DEL ORGANIZADOR ======================= */
+let panelOk = false;
+function abrirPanel(){
+  const cola = LS.get('er_pb_cola',[]);
+  const d = document.createElement('div'); d.className = 'modal'; d.onclick = e=>{ if(e.target===d) d.remove(); };
+  d.innerHTML = panelOk ? `<div class="in"><h2>Panel</h2><p class="hint" style="margin:6px 0">Pendientes de enviar a la planilla: <b>${cola.length}</b>${navigator.onLine?'':' · sin conexión'}</p>
+    <div class="fld"><label for="purl">URL del script</label><input id="purl" value="${esc(urlScript())}"></div>
+    <button class="btn" onclick="LS.set('er_pb_url',document.getElementById('purl').value.trim());vaciar();aviso('Guardado');this.closest('.modal').remove()">Guardar y reenviar</button>
+    <div class="fld"><label for="pfondo">Fondo de la imagen final</label><select id="pfondo" onchange="LS.set('er_pb_fondo2',this.value);dibujarCv()">
+      ${[['blanco','Blanco'],['marfil','Marfil'],['terracota','Terracota']].map(([v,t])=>`<option value="${v}" ${fondoImg()===v?'selected':''}>${t}</option>`).join('')}</select></div>
+    <button class="btn ghost" onclick="this.closest('.modal').remove();P=nuevo();guardar();pintar()">Empezar de cero en este celular</button>
+    <button class="btn ghost" onclick="this.closest('.modal').remove()">Cerrar</button></div>`
+  : `<div class="in"><h2>Panel</h2><div class="fld"><label for="ppin">PIN</label><input id="ppin" type="password" inputmode="numeric"></div>
+    <button class="btn" onclick="if(document.getElementById('ppin').value===EVENTO.PIN){panelOk=true;this.closest('.modal').remove();abrirPanel()}else{aviso('PIN incorrecto')}">Entrar</button>
+    <button class="btn ghost" onclick="this.closest('.modal').remove()">Cancelar</button></div>`;
+  document.body.appendChild(d); const i = d.querySelector('input'); if(i && !panelOk) i.focus();
+}
+
+/* ======================= PINTAR ======================= */
+function pintar(){
+  if(P.paso!=='registro' && !(listo())) P.paso = 'registro';
+  if(['receta','final'].includes(P.paso) && !P.r) P.paso = 'nombre';
+  if(P.paso==='recetas') P.paso = 'receta';
+  /* receta guardada con el motor anterior: se rehace con las reglas nuevas */
+  if(P.r && !P.r.perfil){ P.r = armar(P, P.r.base); guardar(); }
+  if(P.paso==='analisis') { setTimeout(()=>{ if(P.paso==='analisis') ir('receta'); }, 1600); }
+  barra();
+  const V = {registro:vRegistro, bases:vBases, corazon:vCorazon, salida:vSalida, analisis:vAnalisis, nombre:vNombre, receta:vReceta, final:vFinal}[P.paso] || vRegistro;
+  $('#app').innerHTML = V();
+  if(P.paso==='registro') chk();
+  if(P.paso==='final') dibujarCv();
+}
+/* el canvas usa caras que la página no muestra: cargarlas antes de dibujar */
+if(document.fonts){ Promise.all(['600 96px "Cormorant Garamond"','italic 500 42px "Cormorant Garamond"','600 24px Inter','400 24px Inter'].map(f=>document.fonts.load(f).catch(()=>{})))
+  .then(()=>{ if(P.paso==='final') dibujarCv(); }); }
+pintar(); vaciar();
+</script>
+</body>
+</html>

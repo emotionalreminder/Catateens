@@ -194,8 +194,8 @@ const EVENTO = {
   LOGO_EVENTO: 'logo_boda',// monograma de la boda (en IMGS). Vacío = sin logo.
   FIRMA: ['Método Emotional Reminder', 'Diseñado por Lic. Agustín Melazo Díaz · MP 240.297'],
   ML: 25,                  // probeta / frasco: base 13 + moduladores 2 + notas 10 (reglas 18/11)
-  BASE_ML: 13, MOD_ML: 2, NOTAS_ML: 10,
-  MARCA_ML: 15,            // rayita marcada con fibrón en la probeta: base + moduladores
+  BASE_ML: 15, NOTAS_ML: 10,  // 15 ml de base terminada (con los moduladores ya premezclados) + 10 ml de notas
+  MARCA_ML: 15,            // rayita marcada con fibrón en la probeta
   TERMINOS: 'Acepto que Emotional Reminder guarde mis datos y me escriba por WhatsApp para mandarme mi receta.'
 };
 /* Familias olfativas (mismo orden que el perfil de FRA) */
@@ -203,35 +203,36 @@ const FK = ['citrica','frutal','verde','floral','aromatica','ambar','gourmand','
 const FAMN = {citrica:'Cítrica',frutal:'Frutal',verde:'Verde',floral:'Floral',aromatica:'Aromática',ambar:'Ambarada',gourmand:'Gourmand',
   amaderada:'Amaderada',oriental:'Oriental',cuero:'Cuero',especiada:'Especiada',almizclada:'Almizclada'};
 
-/* BASES (reglas 18/11) · 13 ml fijos de base + 2 ml de moduladores con jeringa.
+/* BASES (reglas 18/11, revisión moduladores premezclados) · 15 ml de base terminada:
+   base pura (pura) + moduladores (mol) mezclados en el laboratorio. En el evento solo se cargan 15 ml de base.
    rango = [mínimo, máximo] en ml enteros de cada nota sobre esta base. redondeo = nota que se suma si faltan notas.
    fm = perfil para comparar con los gustos. ref = perfumes que forman la base (suman puntos; nunca se muestran).
    S/C/F = notas que aparecen en la imagen final. */
 const BASES = [
   /* Musky: tipo Light Blue · ya tiene almizcle, no lleva Galaxolide */
-  {id:'musky',    n:'Musky',    ml:13, frase:'Fresco, limpio y luminoso',        img:'musky',
-    mol:{hedione:1.5, isoe:.5},
+  {id:'musky',    n:'Musky',    ml:15, pura:13.5, frase:'Fresco, limpio y luminoso',        img:'musky',
+    mol:{hedione:1, isoe:.5},
     rango:{bergamota:[2,5], grosella:[1,3], pera:[1,4], bruma:[1,3], peonia:[2,5], rosas:[1,4], jazmin:[1,3], higo:[2,4]},
     redondeo:{cor:'peonia', sal:'bergamota'},
     fm:{citrica:.45, amaderada:.2, almizclada:.15, frutal:.1, aromatica:.1}, ref:['light blue'],
     S:['Limón','Manzana verde'], C:['Jazmín','Rosa blanca'], F:['Cedro','Almizcle blanco','Ámbar']},
   /* Gourmand: vainilla 34,2 % · haba tonka 28,1 % · tipo Tobacco Vanille 24,4 % · Iso E Super 7,1 % · Galaxolide 6,2 % */
-  {id:'gourmand', n:'Gourmand', ml:13, frase:'Dulce, cálido y envolvente',       img:'gourmand',
-    mol:{hedione:1.5, isoe:.5},
+  {id:'gourmand', n:'Gourmand', ml:15, pura:13.5, frase:'Dulce, cálido y envolvente',       img:'gourmand',
+    mol:{hedione:1, isoe:.5},
     rango:{bergamota:[2,4], grosella:[1,3], pera:[1,4], bruma:[1,1], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[1,3]},
     redondeo:{cor:'rosas', sal:'bergamota'},
     fm:{gourmand:.65, especiada:.15, amaderada:.1, almizclada:.1}, ref:['tobacco vanille'],
     S:['Hoja de tabaco','Especias suaves'], C:['Vainilla','Haba tonka','Cacao'], F:['Frutos secos','Maderas aterciopeladas','Almizcle']},
   /* Sándalo: tipo Santal 33 + acorde de roble */
-  {id:'sandalo',  n:'Sándalo',  ml:13, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
+  {id:'sandalo',  n:'Sándalo',  ml:15, pura:13, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
     mol:{isoe:1, hedione:.5, galaxolide:.5},
     rango:{bergamota:[2,5], grosella:[1,3], pera:[1,3], bruma:[1,2], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[2,5]},
     redondeo:{cor:'higo', sal:'bergamota'},
     fm:{amaderada:.55, cuero:.2, almizclada:.15, floral:.1}, ref:['santal 33'],
     S:[], C:['Iris','Papiro'], F:['Sándalo cremoso','Roble','Cedro','Cuero suave']},
   /* Tabaco: tipo Tobacco Absolute */
-  {id:'tabaco',   n:'Tabaco',   ml:13, frase:'Especiado, intenso y magnético',   img:'tabaco',
-    mol:{isoe:1, hedione:1},
+  {id:'tabaco',   n:'Tabaco',   ml:15, pura:13.5, frase:'Especiado, intenso y magnético',   img:'tabaco',
+    mol:{isoe:1, hedione:.5},
     rango:{bergamota:[2,6], grosella:[1,3], pera:[1,3], bruma:[1,1], peonia:[1,3], rosas:[1,5], jazmin:[1,2], higo:[1,4]},
     redondeo:{cor:'rosas', sal:'bergamota'},
     fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15}, ref:['tobacco absolute'],
@@ -399,6 +400,11 @@ function nombreSugerido(r, quien){
   const l = NOMBRES[tipo]; return l[Math.floor(Math.random()*l.length)] + (quien ? ' by ' + quien : '');
 }
 
+function recetaTxt(r){ if(!r) return '';
+  const l = [`Base ${X[r.base].n} terminada ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`));
+  return l.join(' · ') + ` (la base trae ${modTxt(r)})`; }
+/* moduladores premezclados en la base, solo como dato */
+const modTxt = r => Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>`${X[id].mol} ${fmt(ml)} ml`).join(', ');
 /*@@FIN1*/
 /* ======================= ESTADO ======================= */
 const PASOS = ['registro','bases','corazon','salida','receta','final'];
@@ -411,9 +417,6 @@ function atras(){ const prev = {bases:'registro', corazon:'bases', salida:'coraz
 
 /* ======================= PLANILLA ======================= */
 const urlScript = () => LS.get('er_pb_url','') || EVENTO.SCRIPT_URL;
-function recetaTxt(r){ if(!r) return '';
-  const l = [`${X[r.base].n} hasta ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`), Object.entries(r.magia).map(([id,g])=>`${X[id].n} (${X[id].mol}) ${fmt(g)} ml`));
-  return l.join(' · '); }
 function fila(p){
   const lbl = v => v==null ? '' : VOTOS.find(x=>x[0]===v)[2];
   const pf = perfil(p), rc = p.r && p.r.receta ? RECETAS.find(x=>x.n===p.r.receta) : null;
@@ -524,8 +527,7 @@ function vNombre(){
 /* 5 · receta: lista simple, foto y cantidad bien grande */
 const jeringas = ml => ml===1 ? '1 jeringa' : `${ml} jeringas`;
 function vReceta(){
-  const r = P.r, B = X[r.base], extra = r.baseMl - B.ml;
-  const marca = r.baseMl + Object.values(r.magia).reduce((a,b)=>a+b,0);
+  const r = P.r, B = X[r.base];
   const fila = (img, nom, sub, cant, unidad, col) => `<li class="grande" style="--c:${col}"><img src="${foto(img)}" alt=""><div class="t"><b>${esc(nom)}</b><small>${sub}</small></div><div class="ml"><b>${cant}</b><small>${unidad}</small></div></li>`;
   const notas = (g, tit, col) => { const l = Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1]);
     return l.length ? `<div class="grp">${tit}</div>` + l.map(([id,ml])=>fila(id, X[id].n, jeringas(ml)+' de 1 ml', ml+' ml', '', col)).join('') : ''; };
@@ -533,12 +535,9 @@ function vReceta(){
       <p class="sub">Base ${esc(B.n)}, la que mejor va con vos. Cargá en este orden.</p></div>
     <div class="form" style="max-width:620px"><ol class="pasos">
       <div class="grp">1 · Base · con la ampolla</div>
-      ${fila(B.img, 'Base '+B.n, `Llená la probeta hasta ${r.baseMl} ml`, r.baseMl+' ml', '', 'var(--l-base)')}
-      <div class="grp">2 · Moduladores · con jeringa</div>
-      ${Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>fila(X[id].img, X[id].n, X[id].d, fmt(ml)+' ml', '', 'var(--l-mag)')).join('')}
-      <p class="hint" style="margin:2px 4px 0">Con esto llegás a la rayita marcada${marca===EVENTO.MARCA_ML?` (${EVENTO.MARCA_ML} ml)`:` (${fmt(marca)} ml)`}.</p>
-      ${notas('cor','3 · Notas de corazón · con jeringa','var(--l-cor)')}
-      ${notas('sal','4 · Notas de salida · con jeringa','var(--l-sal)')}
+      ${fila(B.img, 'Base '+B.n, r.baseMl===EVENTO.MARCA_ML ? `Llená la probeta hasta la rayita de ${EVENTO.MARCA_ML}` : `Llená la probeta hasta ${r.baseMl} ml`, r.baseMl+' ml', '', 'var(--l-base)')}
+      ${notas('cor','2 · Notas de corazón · con jeringa','var(--l-cor)')}
+      ${notas('sal','3 · Notas de salida · con jeringa','var(--l-sal)')}
     </ol>
     <div class="total"><span>Total</span><b>${EVENTO.ML} ml</b><small>Volcalo en tu frasco</small></div>
     <button class="btn terra" onclick="terminar()">Listo · ver mi perfume</button></div>${pie()}`;

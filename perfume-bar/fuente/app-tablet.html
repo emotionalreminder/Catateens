@@ -188,19 +188,18 @@ function calcular(){
 }
 function vFormulas(){
   const ficha = (p,i) => { if(!p.nom.trim() || !p.r) return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]}</span><div class="vacia">Sin invitado</div></div>`;
-    const r = p.r, B = X[r.base], marca = r.baseMl + Object.values(r.magia).reduce((a,b)=>a+b,0);
+    const r = p.r, B = X[r.base];
     const item = (img, nom, sub, ml, col, cls) => `<div class="item ${cls||''}" style="--c:${col}"><img src="${foto(img)}" alt=""><div class="n">${esc(nom)}${sub?`<small>${esc(sub)}</small>`:''}</div><div class="ml">${ml}</div></div>`;
     const notas = g => Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1])
       .map(([id,ml])=>item(id, X[id].n, ml===1?'1 jeringa':ml+' jeringas', ml+' ml', g==='cor'?'var(--l-cor)':'var(--l-sal)')).join('');
     return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]} · ${esc(p.cod||'')}</span><div class="quien">${esc(p.nom.trim())}</div>
       <input class="pn" value="${esc(p.pn)}" aria-label="Nombre del perfume de ${esc(p.nom)}" oninput="G.ps[${i}].pn=this.value;G.ps[${i}]._pnAuto=false;guardar()">
-      <div class="paso-h">1 · Base · ampolla</div>${item(B.img, 'Base '+B.n, '', r.baseMl+' ml', 'var(--l-base)', 'base')}
-      <div class="paso-h">2 · Moduladores · jeringa</div>${Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>item(X[id].img, X[id].n, '', fmt(ml)+' ml', 'var(--l-mag)')).join('')}
-      <div class="marca">Llega a la rayita de ${fmt(marca)} ml</div>
-      <div class="paso-h">3 · Corazón · jeringa</div>${notas('cor')}
-      <div class="paso-h">4 · Salida · jeringa</div>${notas('sal')}
+      <div class="paso-h">1 · Base terminada · ampolla</div>${item(B.img, 'Base '+B.n, r.baseMl===EVENTO.MARCA_ML ? 'hasta la rayita' : '', r.baseMl+' ml', 'var(--l-base)', 'base')}
+      <div class="marca">Trae ${esc(modTxt(r))}</div>
+      <div class="paso-h">2 · Corazón · jeringa</div>${notas('cor')}
+      <div class="paso-h">3 · Salida · jeringa</div>${notas('sal')}
     </div>`; };
-  return `<div class="cab"><div><h1>Fórmulas</h1><p class="sub">Base 13 ml + moduladores 2 ml + notas 10 ml = 25 ml. El nombre del perfume se puede cambiar.</p></div></div>
+  return `<div class="cab"><div><h1>Fórmulas</h1><p class="sub">Base terminada 15 ml + notas 10 ml = 25 ml. El nombre del perfume se puede cambiar.</p></div></div>
     <div class="cuatro">${G.ps.map(ficha).join('')}</div>`;
 }
 function accionesFormulas(){
@@ -238,7 +237,7 @@ function filaTablet(p, archivo){
   cols.push(['Base sugerida',X[p.r.base].n],['Base',X[p.r.base].n],
     ['Corazón',Object.keys(p.r.notas).filter(id=>grupo(id)==='cor').map(id=>X[id].n).join(' · ')],
     ['Salida',Object.keys(p.r.notas).filter(id=>grupo(id)==='sal').map(id=>X[id].n).join(' · ')],
-    ['Receta (ml)',`${X[p.r.base].n} ${p.r.baseMl} ml · `+Object.entries(p.r.magia).map(([id,ml])=>`${X[id].n} ${fmt(ml)} ml`).join(' · ')+' · '+Object.entries(p.r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`).join(' · ')],
+    ['Receta (ml)',recetaTxt(p.r)],
     ['Perfil',p.r.perfil],['Nombre del perfume',p.pn.trim()],['Archivo imagen',archivo]);
   return {clave:EVENTO.CLAVE, hoja:EVENTO.HOJA, id:p.cod, columnas:cols, t:Date.now()};
 }

@@ -130,8 +130,8 @@ const EVENTO = {
   LOGO_EVENTO: 'logo_boda',// monograma de la boda (en IMGS). Vacío = sin logo.
   FIRMA: ['Método Emotional Reminder', 'Diseñado por Lic. Agustín Melazo Díaz · MP 240.297'],
   ML: 25,                  // probeta / frasco: base 13 + moduladores 2 + notas 10 (reglas 18/11)
-  BASE_ML: 13, MOD_ML: 2, NOTAS_ML: 10,
-  MARCA_ML: 15,            // rayita marcada con fibrón en la probeta: base + moduladores
+  BASE_ML: 15, NOTAS_ML: 10,  // 15 ml de base terminada (con los moduladores ya premezclados) + 10 ml de notas
+  MARCA_ML: 15,            // rayita marcada con fibrón en la probeta
   TERMINOS: 'Acepto que Emotional Reminder guarde mis datos y me escriba por WhatsApp para mandarme mi receta.'
 };
 /* Familias olfativas (mismo orden que el perfil de FRA) */
@@ -139,35 +139,36 @@ const FK = ['citrica','frutal','verde','floral','aromatica','ambar','gourmand','
 const FAMN = {citrica:'Cítrica',frutal:'Frutal',verde:'Verde',floral:'Floral',aromatica:'Aromática',ambar:'Ambarada',gourmand:'Gourmand',
   amaderada:'Amaderada',oriental:'Oriental',cuero:'Cuero',especiada:'Especiada',almizclada:'Almizclada'};
 
-/* BASES (reglas 18/11) · 13 ml fijos de base + 2 ml de moduladores con jeringa.
+/* BASES (reglas 18/11, revisión moduladores premezclados) · 15 ml de base terminada:
+   base pura (pura) + moduladores (mol) mezclados en el laboratorio. En el evento solo se cargan 15 ml de base.
    rango = [mínimo, máximo] en ml enteros de cada nota sobre esta base. redondeo = nota que se suma si faltan notas.
    fm = perfil para comparar con los gustos. ref = perfumes que forman la base (suman puntos; nunca se muestran).
    S/C/F = notas que aparecen en la imagen final. */
 const BASES = [
   /* Musky: tipo Light Blue · ya tiene almizcle, no lleva Galaxolide */
-  {id:'musky',    n:'Musky',    ml:13, frase:'Fresco, limpio y luminoso',        img:'musky',
-    mol:{hedione:1.5, isoe:.5},
+  {id:'musky',    n:'Musky',    ml:15, pura:13.5, frase:'Fresco, limpio y luminoso',        img:'musky',
+    mol:{hedione:1, isoe:.5},
     rango:{bergamota:[2,5], grosella:[1,3], pera:[1,4], bruma:[1,3], peonia:[2,5], rosas:[1,4], jazmin:[1,3], higo:[2,4]},
     redondeo:{cor:'peonia', sal:'bergamota'},
     fm:{citrica:.45, amaderada:.2, almizclada:.15, frutal:.1, aromatica:.1}, ref:['light blue'],
     S:['Limón','Manzana verde'], C:['Jazmín','Rosa blanca'], F:['Cedro','Almizcle blanco','Ámbar']},
   /* Gourmand: vainilla 34,2 % · haba tonka 28,1 % · tipo Tobacco Vanille 24,4 % · Iso E Super 7,1 % · Galaxolide 6,2 % */
-  {id:'gourmand', n:'Gourmand', ml:13, frase:'Dulce, cálido y envolvente',       img:'gourmand',
-    mol:{hedione:1.5, isoe:.5},
+  {id:'gourmand', n:'Gourmand', ml:15, pura:13.5, frase:'Dulce, cálido y envolvente',       img:'gourmand',
+    mol:{hedione:1, isoe:.5},
     rango:{bergamota:[2,4], grosella:[1,3], pera:[1,4], bruma:[1,1], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[1,3]},
     redondeo:{cor:'rosas', sal:'bergamota'},
     fm:{gourmand:.65, especiada:.15, amaderada:.1, almizclada:.1}, ref:['tobacco vanille'],
     S:['Hoja de tabaco','Especias suaves'], C:['Vainilla','Haba tonka','Cacao'], F:['Frutos secos','Maderas aterciopeladas','Almizcle']},
   /* Sándalo: tipo Santal 33 + acorde de roble */
-  {id:'sandalo',  n:'Sándalo',  ml:13, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
+  {id:'sandalo',  n:'Sándalo',  ml:15, pura:13, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
     mol:{isoe:1, hedione:.5, galaxolide:.5},
     rango:{bergamota:[2,5], grosella:[1,3], pera:[1,3], bruma:[1,2], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[2,5]},
     redondeo:{cor:'higo', sal:'bergamota'},
     fm:{amaderada:.55, cuero:.2, almizclada:.15, floral:.1}, ref:['santal 33'],
     S:[], C:['Iris','Papiro'], F:['Sándalo cremoso','Roble','Cedro','Cuero suave']},
   /* Tabaco: tipo Tobacco Absolute */
-  {id:'tabaco',   n:'Tabaco',   ml:13, frase:'Especiado, intenso y magnético',   img:'tabaco',
-    mol:{isoe:1, hedione:1},
+  {id:'tabaco',   n:'Tabaco',   ml:15, pura:13.5, frase:'Especiado, intenso y magnético',   img:'tabaco',
+    mol:{isoe:1, hedione:.5},
     rango:{bergamota:[2,6], grosella:[1,3], pera:[1,3], bruma:[1,1], peonia:[1,3], rosas:[1,5], jazmin:[1,2], higo:[1,4]},
     redondeo:{cor:'rosas', sal:'bergamota'},
     fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15}, ref:['tobacco absolute'],
@@ -335,6 +336,11 @@ function nombreSugerido(r, quien){
   const l = NOMBRES[tipo]; return l[Math.floor(Math.random()*l.length)] + (quien ? ' by ' + quien : '');
 }
 
+function recetaTxt(r){ if(!r) return '';
+  const l = [`Base ${X[r.base].n} terminada ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`));
+  return l.join(' · ') + ` (la base trae ${modTxt(r)})`; }
+/* moduladores premezclados en la base, solo como dato */
+const modTxt = r => Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>`${X[id].mol} ${fmt(ml)} ml`).join(', ');
 
 /*@@COMUN2*/
 /* ======================= IMAGEN FINAL ======================= */
@@ -565,19 +571,18 @@ function calcular(){
 }
 function vFormulas(){
   const ficha = (p,i) => { if(!p.nom.trim() || !p.r) return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]}</span><div class="vacia">Sin invitado</div></div>`;
-    const r = p.r, B = X[r.base], marca = r.baseMl + Object.values(r.magia).reduce((a,b)=>a+b,0);
+    const r = p.r, B = X[r.base];
     const item = (img, nom, sub, ml, col, cls) => `<div class="item ${cls||''}" style="--c:${col}"><img src="${foto(img)}" alt=""><div class="n">${esc(nom)}${sub?`<small>${esc(sub)}</small>`:''}</div><div class="ml">${ml}</div></div>`;
     const notas = g => Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1])
       .map(([id,ml])=>item(id, X[id].n, ml===1?'1 jeringa':ml+' jeringas', ml+' ml', g==='cor'?'var(--l-cor)':'var(--l-sal)')).join('');
     return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]} · ${esc(p.cod||'')}</span><div class="quien">${esc(p.nom.trim())}</div>
       <input class="pn" value="${esc(p.pn)}" aria-label="Nombre del perfume de ${esc(p.nom)}" oninput="G.ps[${i}].pn=this.value;G.ps[${i}]._pnAuto=false;guardar()">
-      <div class="paso-h">1 · Base · ampolla</div>${item(B.img, 'Base '+B.n, '', r.baseMl+' ml', 'var(--l-base)', 'base')}
-      <div class="paso-h">2 · Moduladores · jeringa</div>${Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>item(X[id].img, X[id].n, '', fmt(ml)+' ml', 'var(--l-mag)')).join('')}
-      <div class="marca">Llega a la rayita de ${fmt(marca)} ml</div>
-      <div class="paso-h">3 · Corazón · jeringa</div>${notas('cor')}
-      <div class="paso-h">4 · Salida · jeringa</div>${notas('sal')}
+      <div class="paso-h">1 · Base terminada · ampolla</div>${item(B.img, 'Base '+B.n, r.baseMl===EVENTO.MARCA_ML ? 'hasta la rayita' : '', r.baseMl+' ml', 'var(--l-base)', 'base')}
+      <div class="marca">Trae ${esc(modTxt(r))}</div>
+      <div class="paso-h">2 · Corazón · jeringa</div>${notas('cor')}
+      <div class="paso-h">3 · Salida · jeringa</div>${notas('sal')}
     </div>`; };
-  return `<div class="cab"><div><h1>Fórmulas</h1><p class="sub">Base 13 ml + moduladores 2 ml + notas 10 ml = 25 ml. El nombre del perfume se puede cambiar.</p></div></div>
+  return `<div class="cab"><div><h1>Fórmulas</h1><p class="sub">Base terminada 15 ml + notas 10 ml = 25 ml. El nombre del perfume se puede cambiar.</p></div></div>
     <div class="cuatro">${G.ps.map(ficha).join('')}</div>`;
 }
 function accionesFormulas(){
@@ -615,7 +620,7 @@ function filaTablet(p, archivo){
   cols.push(['Base sugerida',X[p.r.base].n],['Base',X[p.r.base].n],
     ['Corazón',Object.keys(p.r.notas).filter(id=>grupo(id)==='cor').map(id=>X[id].n).join(' · ')],
     ['Salida',Object.keys(p.r.notas).filter(id=>grupo(id)==='sal').map(id=>X[id].n).join(' · ')],
-    ['Receta (ml)',`${X[p.r.base].n} ${p.r.baseMl} ml · `+Object.entries(p.r.magia).map(([id,ml])=>`${X[id].n} ${fmt(ml)} ml`).join(' · ')+' · '+Object.entries(p.r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`).join(' · ')],
+    ['Receta (ml)',recetaTxt(p.r)],
     ['Perfil',p.r.perfil],['Nombre del perfume',p.pn.trim()],['Archivo imagen',archivo]);
   return {clave:EVENTO.CLAVE, hoja:EVENTO.HOJA, id:p.cod, columnas:cols, t:Date.now()};
 }

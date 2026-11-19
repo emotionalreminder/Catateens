@@ -340,7 +340,7 @@ function nombreSugerido(r, quien){
 
 function recetaTxt(r){ if(!r) return '';
   const l = [`Base ${X[r.base].n} terminada ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`));
-  return l.join(' · ') + ` (la base trae ${modTxt(r)})`; }
+  return l.join(' · '); }
 /* moduladores premezclados en la base, solo como dato */
 const modTxt = r => Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>`${X[id].mol} ${fmt(ml)} ml`).join(', ');
 
@@ -580,7 +580,6 @@ function vFormulas(){
     return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]} · ${esc(p.cod||'')}</span><div class="quien">${esc(p.nom.trim())}</div>
       <input class="pn" value="${esc(p.pn)}" aria-label="Nombre del perfume de ${esc(p.nom)}" oninput="G.ps[${i}].pn=this.value;G.ps[${i}]._pnAuto=false;guardar()">
       <div class="paso-h">1 · Base terminada · ampolla</div>${item(B.img, 'Base '+B.n, r.baseMl===EVENTO.MARCA_ML ? 'hasta la rayita' : '', r.baseMl+' ml', 'var(--l-base)', 'base')}
-      <div class="marca">Trae ${esc(modTxt(r))}</div>
       <div class="paso-h">2 · Corazón · jeringa</div>${notas('cor')}
       <div class="paso-h">3 · Salida · jeringa</div>${notas('sal')}
     </div>`; };
@@ -622,7 +621,7 @@ function filaTablet(p, archivo){
   cols.push(['Base sugerida',X[p.r.base].n],['Base',X[p.r.base].n],
     ['Corazón',Object.keys(p.r.notas).filter(id=>grupo(id)==='cor').map(id=>X[id].n).join(' · ')],
     ['Salida',Object.keys(p.r.notas).filter(id=>grupo(id)==='sal').map(id=>X[id].n).join(' · ')],
-    ['Receta (ml)',recetaTxt(p.r)],
+    ['Receta (ml)',recetaTxt(p.r)],['Moduladores (en la base)',modTxt(p.r)],
     ['Perfil',p.r.perfil],['Nombre del perfume',p.pn.trim()],['Archivo imagen',archivo]);
   return {clave:EVENTO.CLAVE, hoja:EVENTO.HOJA, id:p.cod, columnas:cols, t:Date.now()};
 }

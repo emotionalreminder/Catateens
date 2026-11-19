@@ -402,7 +402,7 @@ function nombreSugerido(r, quien){
 
 function recetaTxt(r){ if(!r) return '';
   const l = [`Base ${X[r.base].n} terminada ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`));
-  return l.join(' · ') + ` (la base trae ${modTxt(r)})`; }
+  return l.join(' · '); }
 /* moduladores premezclados en la base, solo como dato */
 const modTxt = r => Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>`${X[id].mol} ${fmt(ml)} ml`).join(', ');
 /*@@FIN1*/
@@ -427,7 +427,7 @@ function fila(p){
   cols.push(['Base sugerida',p.sug?X[p.sug].n:''],['Base',p.r?X[p.r.base].n:''],
     ['Corazón',p.r?Object.keys(p.r.notas).filter(id=>etapa(id)==='cor').map(id=>X[id].n).join(' · '):''],
     ['Salida',p.r?Object.keys(p.r.notas).filter(id=>etapa(id)==='sal').map(id=>X[id].n).join(' · '):''],
-    ['Receta (ml)',recetaTxt(p.r)],['Receta usada',rc?(rc.sub?`${rc.n} (${rc.sub.toLowerCase()})`:rc.n):'personalizada'],['Nombre del perfume',p.pn.trim()]);
+    ['Receta (ml)',recetaTxt(p.r)],['Moduladores (en la base)',p.r?modTxt(p.r):''],['Receta usada',rc?(rc.sub?`${rc.n} (${rc.sub.toLowerCase()})`:rc.n):'personalizada'],['Nombre del perfume',p.pn.trim()]);
   return {clave:EVENTO.CLAVE, hoja:EVENTO.HOJA, id:p.id, columnas:cols, t:Date.now()};
 }
 function registrar(p, estado){ p.est = estado; guardar();

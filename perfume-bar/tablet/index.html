@@ -88,6 +88,9 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:30px
 .item.base img{width:58px;height:58px;}
 .item.base .ml{font-size:30px;}
 .marca{font-size:12px;color:var(--dim);padding:0 4px;}
+.elegir-tab{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:6px;font-size:13px;color:var(--dim);}
+.elegir-tab button{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);font-weight:700;font-size:16px;}
+.elegir-tab button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
 .mapa{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:8px;}
 .mapa .est{border-radius:8px;padding:6px 2px;text-align:center;background:var(--soft);opacity:.45;min-width:0;}
 .mapa .est b{display:block;font-size:16px;}
@@ -565,9 +568,17 @@ function vNombres(){
       <label for="wan${i}">WhatsApp <span class="hint">(opcional, para mandarle la foto)</span></label>
       <div class="tel"><span>+${esc(EVENTO.WA_PREFIJO)}</span><input id="wan${i}" type="tel" inputmode="numeric" placeholder="11 5555 5555" value="${esc(waLocal(p.wa))}" oninput="G.ps[${i}].wa=this.value;guardar()"></div>
     </div>`;
-  return `<div class="cab"><div><h1>Paso 1 · ¿Quiénes son?</h1><p class="sub">Anotá nombre y WhatsApp de cada uno. Pueden ser 1, 2, 3 o 4 personas.</p></div><button class="qrmini" onclick="mostrarQR()" aria-label="Mostrar QR para hacerlo desde el celular">${QR_SVG}<span><b>¿Prefieren su celular?</b><small>Tocá para mostrar el QR</small></span></button></div>
+  const elegirTab = `<div class="elegir-tab" role="group" aria-label="¿Qué tablet es esta?"><span>Esta tablet es la</span>
+      ${[1,2,3,4].map(n=>`<button class="${tabletN()===n?'on':''}" aria-pressed="${tabletN()===n}" onclick="cambiarTablet(${n})">${n}</button>`).join('')}</div>`;
+  return `${elegirTab}<div class="cab"><div><h1>Paso 1 · ¿Quiénes son?</h1><p class="sub">Anotá nombre y WhatsApp de cada uno. Pueden ser 1, 2, 3 o 4 personas.</p></div><button class="qrmini" onclick="mostrarQR()" aria-label="Mostrar QR para hacerlo desde el celular">${QR_SVG}<span><b>¿Prefieren su celular?</b><small>Tocá para mostrar el QR</small></span></button></div>
     <div class="aviso-tab">Si lo hacen con la tablet, la foto de su perfume les llega por WhatsApp después de la fiesta. Si la quieren ya, que escaneen el QR con su celular.</div>
     <div class="cuatro">${G.ps.map(card).join('')}</div>`;
+}
+/* el número de tablet se elige en la pantalla de inicio (no hace falta el PIN) */
+function cambiarTablet(n){
+  if(n===tabletN()) return;
+  if(activos().some(([p])=>p.cod) && !confirm('Este grupo ya tiene códigos de la Tablet '+tabletN()+'. ¿Cambiar igual? Los próximos grupos usan el número nuevo.')) return;
+  LS.set(KT+'_n', n); pintar(); aviso('Ahora es la Tablet '+n);
 }
 function accionesNombres(){
   const n = activos().length;

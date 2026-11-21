@@ -81,10 +81,19 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:30px
 .item img{width:44px;height:44px;object-fit:contain;flex:0 0 auto;}
 .item .n{flex:1;min-width:0;font-family:"Cormorant Garamond",Georgia,serif;font-size:19px;font-weight:600;line-height:1.05;}
 .item .n small{display:block;font-family:Inter,sans-serif;font-size:11px;font-weight:400;color:var(--dim);}
-.item .ml{font-size:24px;font-weight:700;white-space:nowrap;}
+.item .ml{font-size:22px;font-weight:700;white-space:nowrap;}
+.item .nro{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--c);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center;}
+.item img{width:38px !important;height:38px !important;}
+.item.base img{width:48px !important;height:48px !important;}
 .item.base img{width:58px;height:58px;}
 .item.base .ml{font-size:30px;}
 .marca{font-size:12px;color:var(--dim);padding:0 4px;}
+.mapa{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:8px;}
+.mapa .est{border-radius:8px;padding:6px 2px;text-align:center;background:var(--soft);opacity:.45;min-width:0;}
+.mapa .est b{display:block;font-size:16px;}
+.mapa .est span{display:block;font-size:10.5px;line-height:1.1;overflow-wrap:anywhere;}
+.mapa .est.usa{opacity:1;color:#fff;}
+.mapa .est.usa.base{background:var(--l-base);} .mapa .est.usa.cor{background:var(--l-cor);} .mapa .est.usa.sal{background:#C79A2E;}
 
 /* imágenes */
 .ficha canvas{width:100%;height:auto;border-radius:10px;box-shadow:0 4px 16px rgba(46,36,32,.15);background:#fff;}
@@ -143,7 +152,7 @@ const tabletN = () => LS.get(KT+'_n', 1);
 const driveUrl = () => LS.get(KT+'_drive', '') || TAB.DRIVE_URL;
 const urlScript = () => LS.get('er_pb_url','') || EVENTO.SCRIPT_URL;
 const vacioP = () => ({nom:'', v:{}, perf:[], wa:'', pn:'', r:null});
-const nuevoGrupo = () => ({paso:'cata', ps:[vacioP(), vacioP(), vacioP(), vacioP()], t0:Date.now()});
+const nuevoGrupo = () => ({paso:'nombres', ps:[vacioP(), vacioP(), vacioP(), vacioP()], t0:Date.now()});
 let G = LS.get(KT+'_grupo', null) || nuevoGrupo();
 const guardar = () => LS.set(KT+'_grupo', G);
 const activos = () => G.ps.map((p,i)=>[p,i]).filter(([p])=>p.nom.trim());
@@ -157,35 +166,48 @@ const VOT = [[3,'♥','encanta'],[2,'✦','gusta'],[1,'◦','poquito'],[0,'✕',
 function barraTop(){
   const pend = LS.get('er_pb_cola',[]).length;
   $('#top').innerHTML = `<span class="wm">Emotional Reminder · Perfume Bar</span>
-    <div class="pasos">${[['cata','1 · Cata'],['formulas','2 · Fórmulas'],['imagenes','3 · Imágenes']].map(([k,t])=>`<span class="${G.paso===k?'on':''}">${t}</span>`).join('')}</div>
+    <div class="pasos">${[['nombres','1 · Nombres'],['cata','2 · Cata'],['formulas','3 · Fórmulas'],['imagenes','4 · Imágenes']].map(([k,t])=>`<span class="${G.paso===k?'on':''}">${t}</span>`).join('')}</div>
     <span class="pend" id="pend">${pendTxt}</span>
     <button class="tab" onclick="abrirPanel()" aria-label="Panel">Tablet ${tabletN()} ⚙</button>`;
 }
 let pendTxt = '';
+/* PASO 1 · nombres y WhatsApp (opcional). El código distingue a dos "Juan". */
+function vNombres(){
+  const card = (p,i) => `<div class="ficha"><span class="letra">${TAB.LETRAS[i]}${p.cod?' · '+esc(p.cod):''}</span>
+      <label for="nom${i}">Nombre</label><input id="nom${i}" class="pn" style="font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:600" value="${esc(p.nom)}" placeholder="Nombre" autocomplete="off" oninput="G.ps[${i}].nom=this.value;guardar();accionesNombres()">
+      <label for="wan${i}">WhatsApp <span class="hint">(opcional, para mandarle la foto)</span></label>
+      <div class="tel"><span>+${esc(EVENTO.WA_PREFIJO)}</span><input id="wan${i}" type="tel" inputmode="numeric" placeholder="11 5555 5555" value="${esc(waLocal(p.wa))}" oninput="G.ps[${i}].wa=this.value;guardar()"></div>
+    </div>`;
+  return `<div class="cab"><div><h1>Paso 1 · ¿Quiénes son?</h1><p class="sub">Anotá nombre y WhatsApp de cada uno. Pueden ser 1, 2, 3 o 4 personas.</p></div><button class="qrmini" onclick="mostrarQR()" aria-label="Mostrar QR para hacerlo desde el celular">${QR_SVG}<span><b>¿Prefieren su celular?</b><small>Tocá para mostrar el QR</small></span></button></div>
+    <div class="aviso-tab">Si lo hacen con la tablet, la foto de su perfume les llega por WhatsApp después de la fiesta. Si la quieren ya, que escaneen el QR con su celular.</div>
+    <div class="cuatro">${G.ps.map(card).join('')}</div>`;
+}
+function accionesNombres(){
+  const n = activos().length;
+  $('#acc').innerHTML = `<button class="btn ghost" onclick="limpiar()">Empezar grupo nuevo</button>
+    <button class="btn terra" ${n?'':'disabled'} onclick="irCata()">Siguiente · cata${n?` (${n})`:''} →</button>`;
+}
+function irCata(){ activos().forEach(([p])=>{ if(!p.cod) p.cod = proximoCodigo(); }); G.paso = 'cata'; guardar(); pintar(); window.scrollTo(0,0); }
 function vCata(){
   const fila = a => `<div class="aroma"><img src="${foto(a.img||a.id)}" alt=""><b>${esc((etapa(a.id)==='base'?'Base ':'')+a.n)}</b></div>` +
     G.ps.map((p,i)=>`<div class="${i%2?'':'col-'+(i?'c':'a')}"><div class="votos ${p.nom.trim()?'':'vacia'}" role="group" aria-label="${esc(a.n)} para ${esc(p.nom||TAB.LETRAS[i])}">
       ${VOT.map(([v,s,t])=>`<button class="${p.v[a.id]===v?'sel v'+v:''}" aria-pressed="${p.v[a.id]===v}" onclick="votarT(${i},'${a.id}',${v})">${s}<small>${t}</small></button>`).join('')}</div></div>`).join('');
   const grupoH = t => `<div class="grupo-h">${t}</div>`;
   const hechos = p => BASES.concat(CORAZON,SALIDA).filter(a=>p.v[a.id]!=null).length;
-  return `<div class="cab"><div><h1>Cata · grupo de 4</h1><p class="sub">Escribí los nombres y marcá cómo le cae cada aroma a cada uno. Sin marcar cuenta como "un poquito".</p></div><button class="qrmini" onclick="mostrarQR()" aria-label="Mostrar QR para hacerlo desde el celular">${QR_SVG}<span><b>¿Preferís tu celular?</b><small>Tocá para mostrar el QR</small></span></button></div>
+  return `<div class="cab"><div><h1>Paso 2 · Cata</h1><p class="sub">Marcá cómo le cae cada aroma a cada uno, en el orden de la mesa. Sin marcar cuenta como "un poquito".</p></div></div>
     <div class="grilla">
       <div class="hd"><span class="sub">Aroma</span></div>
       ${G.ps.map((p,i)=>`<div class="hd"><div class="persona"><span class="letra">${TAB.LETRAS[i]}</span>
-        <input id="nom${i}" value="${esc(p.nom)}" placeholder="Nombre" autocomplete="off" oninput="nombreT(${i},this.value)"><small id="cnt${i}">${p.nom.trim()?hechos(p)+' de 12 marcados':'vacío'}</small></div></div>`).join('')}
+        <b style="font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;line-height:1.05">${esc(p.nom.trim()||'—')}</b><small id="cnt${i}">${p.nom.trim()?esc(p.cod||'')+' · '+hechos(p)+' de 12':'sin invitado'}</small></div></div>`).join('')}
       ${grupoH('Bases')}${BASES.map(fila).join('')}
       ${grupoH('Notas de corazón')}${CORAZON.map(fila).join('')}
       ${grupoH('Notas de salida')}${SALIDA.map(fila).join('')}
     </div>`;
 }
-function nombreT(i, val){ const antes = !!G.ps[i].nom.trim(); G.ps[i].nom = val; guardar();
-  if(antes !== !!val.trim()){ const y = window.scrollY; pintar(); window.scrollTo(0,y); const inp = $('#nom'+i); if(inp){ inp.focus(); inp.setSelectionRange(val.length,val.length); } }
-  else accionesCata(); }
 function votarT(i, id, v){ const p = G.ps[i]; if(p.v[id]===v) delete p.v[id]; else p.v[id] = v; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
 function accionesCata(){
-  const n = activos().length;
-  $('#acc').innerHTML = `<button class="btn ghost" onclick="limpiar()">Empezar grupo nuevo</button>
-    <button class="btn terra" ${n?'':'disabled'} onclick="calcular()">Calcular fórmulas${n?` (${n})`:''} →</button>`;
+  $('#acc').innerHTML = `<button class="btn ghost" onclick="G.paso='nombres';guardar();pintar();window.scrollTo(0,0)">← Nombres</button>
+    <button class="btn terra" onclick="calcular()">Siguiente · fórmulas →</button>`;
 }
 function calcular(){
   activos().forEach(([p])=>{
@@ -200,30 +222,34 @@ function calcular(){
 function vFormulas(){
   const ficha = (p,i) => { if(!p.nom.trim() || !p.r) return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]}</span><div class="vacia">Sin invitado</div></div>`;
     const r = p.r, B = X[r.base];
-    const item = (img, nom, sub, ml, col, cls) => `<div class="item ${cls||''}" style="--c:${col}"><img src="${foto(img)}" alt=""><div class="n">${esc(nom)}${sub?`<small>${esc(sub)}</small>`:''}</div><div class="ml">${ml}</div></div>`;
-    const notas = g => Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1])
-      .map(([id,ml])=>item(id, X[id].n, dosis(ml), fmt(ml)+' ml', g==='cor'?'var(--l-cor)':'var(--l-sal)')).join('');
+    const item = (img, nom, sub, ml, col, cls, nro) => `<div class="item ${cls||''}" style="--c:${col}">${nro?`<span class="nro">${nro}</span>`:''}<img src="${foto(img)}" alt=""><div class="n">${esc(nom)}${sub?`<small>${esc(sub)}</small>`:''}</div><div class="ml">${ml}</div></div>`;
+    const notas = g => Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>porMesa(a[0],b[0]))
+      .map(([id,ml])=>item(id, X[id].n, dosis(ml), fmt(ml)+' ml', g==='cor'?'var(--l-cor)':'var(--l-sal)', '', estacion(id))).join('');
     return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]} · ${esc(p.cod||'')}</span><div class="quien">${esc(p.nom.trim())}</div>
       <input class="pn" value="${esc(p.pn)}" aria-label="Nombre del perfume de ${esc(p.nom)}" oninput="G.ps[${i}].pn=this.value;G.ps[${i}]._pnAuto=false;guardar()">
-      <div class="paso-h">1 · Base terminada · ampolla</div>${item(B.img, 'Base '+B.n, r.baseMl===EVENTO.MARCA_ML ? 'hasta la rayita' : '', r.baseMl+' ml', 'var(--l-base)', 'base')}
+      <div class="paso-h">1 · Base terminada · ampolla</div>${item(B.img, 'Base '+B.n, r.baseMl===EVENTO.MARCA_ML ? 'hasta la rayita' : '', fmt(r.baseMl)+' ml', 'var(--l-base)', 'base', estacion(B.id))}
       <div class="paso-h">2 · Corazón · pipeta</div>${notas('cor')}
       <div class="paso-h">3 · Salida · pipeta</div>${notas('sal')}
     </div>`; };
-  return `<div class="cab"><div><h1>Fórmulas</h1><p class="sub">Base terminada 15 ml + notas 10 ml = 25 ml. El nombre del perfume se puede cambiar.</p></div></div>
-    <div class="cuatro">${G.ps.map(ficha).join('')}</div>`;
+  /* mapa de la mesa visto desde el lado del perfumista: la estación 1 queda a su derecha */
+  const usados = new Set(); activos().forEach(([p])=>{ if(p.r){ usados.add(p.r.base); Object.keys(p.r.notas).forEach(id=>usados.add(id)); } });
+  const mapa = `<div class="mapa" aria-label="Mesa vista desde el perfumista">${ORDEN_MESA.slice().reverse().map(id=>`<div class="est ${usados.has(id)?'usa':''} ${etapa(id)}"><b>${estacion(id)}</b><span>${esc(X[id].n)}</span></div>`).join('')}</div>
+    <p class="hint" style="text-align:center;margin:4px 0 12px">Tu mesa vista desde tu lado: empezás por la derecha (1) y vas hacia la izquierda.</p>`;
+  return `<div class="cab"><div><h1>Paso 3 · Fórmulas</h1><p class="sub">Base terminada 15 ml + notas 10 ml = 25 ml. Cargá en el orden de la mesa. El nombre del perfume se puede cambiar.</p></div></div>
+    ${mapa}<div class="cuatro">${G.ps.map(ficha).join('')}</div>`;
 }
 function accionesFormulas(){
-  $('#acc').innerHTML = `<button class="btn ghost" onclick="G.paso='cata';guardar();pintar();window.scrollTo(0,0)">← Volver a la cata</button>
-    <button class="btn terra" onclick="G.paso='imagenes';guardar();pintar();window.scrollTo(0,0)">Ver las imágenes →</button>`;
+  $('#acc').innerHTML = `<button class="btn ghost" onclick="G.paso='cata';guardar();pintar();window.scrollTo(0,0)">← Cata</button>
+    <button class="btn terra" onclick="G.paso='imagenes';guardar();pintar();window.scrollTo(0,0)">Siguiente · imágenes →</button>`;
 }
 function vImagenes(){
   const ficha = (p,i) => { if(!p.nom.trim() || !p.r) return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]}</span><div class="vacia">Sin invitado</div></div>`;
     return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]} · ${esc(p.cod||'')}</span><div class="quien" style="font-size:26px">${esc(p.nom.trim())}</div>
       <canvas id="cv${i}" width="1080" height="1528" aria-label="Imagen del perfume de ${esc(p.nom)}"></canvas>
-      <label for="wa${i}">¿Te mandamos la foto por WhatsApp? <span class="hint">(opcional)</span></label>
+      <label for="wa${i}">WhatsApp <span class="hint">(opcional)</span></label>
       <div class="tel"><span>+${esc(EVENTO.WA_PREFIJO)}</span><input id="wa${i}" type="tel" inputmode="numeric" placeholder="11 5555 5555" value="${esc(waLocal(p.wa))}" oninput="G.ps[${i}].wa=this.value;guardar()"></div>
     </div>`; };
-  return `<div class="aviso-tab">La imagen de cada perfume se guarda en esta tablet y les llega por WhatsApp después de la fiesta. Si quieren tenerla ya, pueden escanear el QR y hacer su perfume desde el celular.</div>
+  return `<div class="cab"><div><h1>Paso 4 · Imágenes</h1><p class="sub">Revisá el WhatsApp y guardá. Las imágenes les llegan después de la fiesta.</p></div></div>
     <div class="cuatro">${G.ps.map(ficha).join('')}</div>`;
 }
 function accionesImagenes(){
@@ -386,11 +412,12 @@ function abrirPanel(){
 function medirTop(){ const t = document.querySelector('.top'); if(t) document.documentElement.style.setProperty('--alto-top', t.offsetHeight+'px'); }
 window.addEventListener('resize', medirTop);
 function pintar(){
-  if(G.paso!=='cata' && !activos().some(([p])=>p.r)) G.paso = 'cata';
+  if(G.paso!=='nombres' && !activos().length) G.paso = 'nombres';
+  if(['formulas','imagenes'].includes(G.paso) && !activos().some(([p])=>p.r)) G.paso = 'cata';
   P.paso = G.paso==='imagenes' ? 'final' : '';
   barraTop();
-  $('#app').innerHTML = {cata:vCata, formulas:vFormulas, imagenes:vImagenes}[G.paso]();
-  ({cata:accionesCata, formulas:accionesFormulas, imagenes:accionesImagenes})[G.paso]();
+  $('#app').innerHTML = {nombres:vNombres, cata:vCata, formulas:vFormulas, imagenes:vImagenes}[G.paso]();
+  ({nombres:accionesNombres, cata:accionesCata, formulas:accionesFormulas, imagenes:accionesImagenes})[G.paso]();
   if(G.paso==='imagenes') dibujarTodas();
   medirTop();
 }

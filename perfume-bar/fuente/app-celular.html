@@ -217,13 +217,6 @@ const BASES = [
     redondeo:{cor:'peonia', sal:'bergamota'},
     fm:{citrica:.45, amaderada:.2, almizclada:.15, frutal:.1, aromatica:.1}, ref:['light blue'],
     S:['Limón','Manzana verde'], C:['Jazmín','Rosa blanca'], F:['Cedro','Almizcle blanco','Ámbar']},
-  /* Gourmand: vainilla 34,2 % · haba tonka 28,1 % · tipo Tobacco Vanille 24,4 % · Iso E Super 7,1 % · Galaxolide 6,2 % */
-  {id:'gourmand', n:'Gourmand', ml:15, pura:15, frase:'Dulce, cálido y envolvente',       img:'gourmand',
-    mol:{},
-    rango:{bergamota:[2,4], grosella:[1,3], pera:[1,4], bruma:[1,1], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[1,3]},
-    redondeo:{cor:'rosas', sal:'bergamota'},
-    fm:{gourmand:.65, especiada:.15, amaderada:.1, almizclada:.1}, ref:['tobacco vanille'],
-    S:['Hoja de tabaco','Especias suaves'], C:['Vainilla','Haba tonka','Cacao'], F:['Frutos secos','Maderas aterciopeladas','Almizcle']},
   /* Sándalo: tipo Santal 33 + acorde de roble */
   {id:'sandalo',  n:'Sándalo',  ml:15, pura:15, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
     mol:{},
@@ -237,7 +230,14 @@ const BASES = [
     rango:{bergamota:[2,6], grosella:[1,3], pera:[1,3], bruma:[1,1], peonia:[1,3], rosas:[1,5], jazmin:[1,2], higo:[1,4]},
     redondeo:{cor:'rosas', sal:'bergamota'},
     fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15}, ref:['tobacco absolute'],
-    S:['Bergamota','Pomelo'], C:['Nuez moscada','Palisandro'], F:['Tabaco','Bálsamo','Cuero']}
+    S:['Bergamota','Pomelo'], C:['Nuez moscada','Palisandro'], F:['Tabaco','Bálsamo','Cuero']},
+  /* Gourmand: vainilla 34,2 % · haba tonka 28,1 % · tipo Tobacco Vanille 24,4 % · Iso E Super 7,1 % · Galaxolide 6,2 % */
+  {id:'gourmand', n:'Gourmand', ml:15, pura:15, frase:'Dulce, cálido y envolvente',       img:'gourmand',
+    mol:{},
+    rango:{bergamota:[2,4], grosella:[1,3], pera:[1,4], bruma:[1,1], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[1,3]},
+    redondeo:{cor:'rosas', sal:'bergamota'},
+    fm:{gourmand:.65, especiada:.15, amaderada:.1, almizclada:.1}, ref:['tobacco vanille'],
+    S:['Hoja de tabaco','Especias suaves'], C:['Vainilla','Haba tonka','Cacao'], F:['Frutos secos','Maderas aterciopeladas','Almizcle']}
 ];
 const CORAZON = [
   {id:'peonia', n:'Peonía',       d:'Rosa limpia y delicada',   fm:{floral:1}},
@@ -404,6 +404,11 @@ function recetaTxt(r){ if(!r) return '';
   return l.join(' · '); }
 /* moduladores premezclados en la base, solo como dato */
 const modTxt = r => Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>`${X[id].mol} ${fmt(ml)} ml`).join(', ');
+/* ORDEN DE LA MESA: el invitado camina de izquierda a derecha; el perfumista, del otro lado, de derecha a izquierda.
+   Los dos encuentran las cosas en este orden: primero las 4 ampollas de bases y después los goteros de notas. */
+const ORDEN_MESA = ['musky','sandalo','tabaco','gourmand','peonia','rosas','jazmin','higo','bergamota','grosella','pera','bruma'];
+const estacion = id => ORDEN_MESA.indexOf(id) + 1;
+const porMesa = (a,b) => ORDEN_MESA.indexOf(a) - ORDEN_MESA.indexOf(b);
 /*@@FIN1*/
 /* ======================= ESTADO ======================= */
 const PASOS = ['registro','bases','corazon','salida','receta','final'];
@@ -527,10 +532,10 @@ function vNombre(){
 function vReceta(){
   const r = P.r, B = X[r.base];
   const fila = (img, nom, sub, cant, unidad, col) => `<li class="grande" style="--c:${col}"><img src="${foto(img)}" alt=""><div class="t"><b>${esc(nom)}</b><small>${sub}</small></div><div class="ml"><b>${cant}</b><small>${unidad}</small></div></li>`;
-  const notas = (g, tit, col) => { const l = Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1]);
+  const notas = (g, tit, col) => { const l = Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>porMesa(a[0],b[0]));
     return l.length ? `<div class="grp">${tit}</div>` + l.map(([id,ml])=>fila(id, X[id].n, dosis(ml), fmt(ml)+' ml', '', col)).join('') : ''; };
   return `<div class="cab"><div class="eb">Paso 5 · Tu receta</div><h1>${esc(P.pn.trim())}</h1>
-      <p class="sub">Base ${esc(B.n)}, la que mejor va con vos. Cargá en este orden.</p></div>
+      <p class="sub">Base ${esc(B.n)}, la que mejor va con vos. Cargá en este orden, de izquierda a derecha por la mesa.</p></div>
     <div class="form" style="max-width:620px"><ol class="pasos">
       <div class="grp">1 · Base · con la ampolla</div>
       ${fila(B.img, 'Base '+B.n, r.baseMl===EVENTO.MARCA_ML ? `Llená la probeta hasta la rayita de ${EVENTO.MARCA_ML}` : `Llená la probeta hasta ${r.baseMl} ml`, r.baseMl+' ml', '', 'var(--l-base)')}

@@ -204,36 +204,36 @@ const FAMN = {citrica:'Cítrica',frutal:'Frutal',verde:'Verde',floral:'Floral',a
   amaderada:'Amaderada',oriental:'Oriental',cuero:'Cuero',especiada:'Especiada',almizclada:'Almizclada'};
 
 /* BASES · 15 ml de base terminada = base pura (pura) + moduladores (mol), mezclados en la ampolla de 250 ml antes del evento.
-   Moduladores (21/11): Musky y Gourmand 20 % (necesitan refuerzo), Sándalo 10 %, Tabaco 5 % (ya es una base completa).
+   Moduladores (21/11, definitivo): solo Musky lleva 10 % de Galaxolide (25 ml por ampolla de 250 ml). Las otras van tal cual.
    Musky = María Cher (réplica de Light Blue). Sándalo = Bois de Chêne + Santal 33. Tabaco = Tobacco Absolute (Molton Brown).
    rango = [mínimo, máximo] en ml enteros de cada nota sobre esta base. redondeo = nota que se suma si faltan notas.
    fm = perfil para comparar con los gustos. ref = perfumes que forman la base (suman puntos; nunca se muestran).
    S/C/F = notas que aparecen en la imagen final. */
 const BASES = [
   /* Musky: tipo Light Blue · ya tiene almizcle, no lleva Galaxolide */
-  {id:'musky',    n:'Musky',    ml:15, pura:12, frase:'Fresco, limpio y luminoso',        img:'musky',
-    mol:{galaxolide:1.8, isoe:1.2},
+  {id:'musky',    n:'Musky',    ml:15, pura:13.5, frase:'Fresco, limpio y luminoso',        img:'musky',
+    mol:{galaxolide:1.5},
     rango:{bergamota:[2,5], grosella:[1,3], pera:[1,4], bruma:[1,3], peonia:[2,5], rosas:[1,4], jazmin:[1,3], higo:[2,4]},
     redondeo:{cor:'peonia', sal:'bergamota'},
     fm:{citrica:.45, amaderada:.2, almizclada:.15, frutal:.1, aromatica:.1}, ref:['light blue'],
     S:['Limón','Manzana verde'], C:['Jazmín','Rosa blanca'], F:['Cedro','Almizcle blanco','Ámbar']},
   /* Gourmand: vainilla 34,2 % · haba tonka 28,1 % · tipo Tobacco Vanille 24,4 % · Iso E Super 7,1 % · Galaxolide 6,2 % */
-  {id:'gourmand', n:'Gourmand', ml:15, pura:12, frase:'Dulce, cálido y envolvente',       img:'gourmand',
-    mol:{isoe:1.8, hedione:1.2},
+  {id:'gourmand', n:'Gourmand', ml:15, pura:15, frase:'Dulce, cálido y envolvente',       img:'gourmand',
+    mol:{},
     rango:{bergamota:[2,4], grosella:[1,3], pera:[1,4], bruma:[1,1], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[1,3]},
     redondeo:{cor:'rosas', sal:'bergamota'},
     fm:{gourmand:.65, especiada:.15, amaderada:.1, almizclada:.1}, ref:['tobacco vanille'],
     S:['Hoja de tabaco','Especias suaves'], C:['Vainilla','Haba tonka','Cacao'], F:['Frutos secos','Maderas aterciopeladas','Almizcle']},
   /* Sándalo: tipo Santal 33 + acorde de roble */
-  {id:'sandalo',  n:'Sándalo',  ml:15, pura:13.5, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
-    mol:{isoe:1.2, hedione:.3},
+  {id:'sandalo',  n:'Sándalo',  ml:15, pura:15, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
+    mol:{},
     rango:{bergamota:[2,5], grosella:[1,3], pera:[1,3], bruma:[1,2], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[2,5]},
     redondeo:{cor:'higo', sal:'bergamota'},
     fm:{amaderada:.55, cuero:.2, almizclada:.15, floral:.1}, ref:['santal 33'],
     S:[], C:['Iris','Papiro'], F:['Sándalo cremoso','Roble','Cedro','Cuero suave']},
   /* Tabaco: tipo Tobacco Absolute */
-  {id:'tabaco',   n:'Tabaco',   ml:15, pura:14.25, frase:'Especiado, intenso y magnético',   img:'tabaco',
-    mol:{isoe:.75},
+  {id:'tabaco',   n:'Tabaco',   ml:15, pura:15, frase:'Especiado, intenso y magnético',   img:'tabaco',
+    mol:{},
     rango:{bergamota:[2,6], grosella:[1,3], pera:[1,3], bruma:[1,1], peonia:[1,3], rosas:[1,5], jazmin:[1,2], higo:[1,4]},
     redondeo:{cor:'rosas', sal:'bergamota'},
     fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15}, ref:['tobacco absolute'],
@@ -426,7 +426,7 @@ function fila(p){
   cols.push(['Base sugerida',p.sug?X[p.sug].n:''],['Base',p.r?X[p.r.base].n:''],
     ['Corazón',p.r?Object.keys(p.r.notas).filter(id=>etapa(id)==='cor').map(id=>X[id].n).join(' · '):''],
     ['Salida',p.r?Object.keys(p.r.notas).filter(id=>etapa(id)==='sal').map(id=>X[id].n).join(' · '):''],
-    ['Receta (ml)',recetaTxt(p.r)],['Moduladores (en la base)',p.r?modTxt(p.r):''],['Receta usada',rc?(rc.sub?`${rc.n} (${rc.sub.toLowerCase()})`:rc.n):'personalizada'],['Nombre del perfume',p.pn.trim()]);
+    ['Receta (ml)',recetaTxt(p.r)],['Receta usada',rc?(rc.sub?`${rc.n} (${rc.sub.toLowerCase()})`:rc.n):'personalizada'],['Nombre del perfume',p.pn.trim()]);
   return {clave:EVENTO.CLAVE, hoja:EVENTO.HOJA, id:p.id, columnas:cols, t:Date.now()};
 }
 function registrar(p, estado){ p.est = estado; guardar();

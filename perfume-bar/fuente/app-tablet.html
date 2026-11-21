@@ -247,7 +247,7 @@ function filaTablet(p, archivo){
   cols.push(['Base sugerida',X[p.r.base].n],['Base',X[p.r.base].n],
     ['Corazón',Object.keys(p.r.notas).filter(id=>grupo(id)==='cor').map(id=>X[id].n).join(' · ')],
     ['Salida',Object.keys(p.r.notas).filter(id=>grupo(id)==='sal').map(id=>X[id].n).join(' · ')],
-    ['Receta (ml)',recetaTxt(p.r)],['Moduladores (en la base)',modTxt(p.r)],
+    ['Receta (ml)',recetaTxt(p.r)],
     ['Perfil',p.r.perfil],['Nombre del perfume',p.pn.trim()],['Archivo imagen',archivo]);
   return {clave:EVENTO.CLAVE, hoja:EVENTO.HOJA, id:p.cod, columnas:cols, t:Date.now()};
 }

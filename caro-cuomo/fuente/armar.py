@@ -8,8 +8,8 @@ def ruta(n):
         p=os.path.join(d,n+'.webp')
         if os.path.exists(p): return p
     raise FileNotFoundError(n)
-M={'musky':'x_musky','sandalo':'e_sandalo_iris','tabaco':'e_tabaco_pimienta','gourmand':'x_gourmand_caro',
- 'peonia':'p_peonia','rosas':'p_rosas','higo':'p_higo','aromatico':'p_lavanda','jazmin':'p_jazmin',
+M={'musky':'caro_musky','sandalo':'caro_woody','tabaco':'caro_tabaco','gourmand':'caro_gourmand',
+ 'peonia':'p_peonia','rosas':'p_rosas','higo':'p_higo','aromatico':'caro_aromatico','jazmin':'p_jazmin',
  'bergamota':'p_bergamota','grosella':'p_grosellas','pera':'p_pera','bruma':'p_bruma',
  'galaxolide':'e_galaxolide','isoe':'e_iso_e_super','hedione':'e_hedione',
  'n_lima':'p_lima','n_azahar':'p_azahar','n_cedro':'p_cedro','n_ambar':'p_ambar','n_tabaco':'p_tabaco','n_oriental':'p_oriental',

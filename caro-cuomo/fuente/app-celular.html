@@ -580,17 +580,17 @@ function vReceta(){
       ${notas('sal','3 · Salida · con jeringa','var(--l-sal)')}
     </ol>
     <div class="total"><span>Total</span><b>${EVENTO.ML} ml</b><small>Volcalo en tu frasco</small></div>
-    <button class="btn ghost" onclick="modoBartender()">Pedírselo al bartender</button>
-    <p class="hint" style="text-align:center;margin-top:6px">Muestra tu receta en grande para que el equipo te la cargue.</p>
+    <button class="btn ghost" onclick="modoBartender()">Pedírselo al perfumista</button>
+    <p class="hint" style="text-align:center;margin-top:6px">Muestra tu receta en grande para que el perfumista te la cargue.</p>
     <button class="btn terra" onclick="terminar()">Listo · ver mi perfume</button></div>${pie()}`;
 }
 function terminar(){ registrar(P,'Terminó'); ir('final'); }
-/* modo bartender: la receta en grande, para mostrarle el celular al equipo que la carga */
+/* modo perfumista: la receta en grande, para mostrarle el celular al perfumista que la carga */
 function modoBartender(){
   const r = P.r, B = X[r.base];
   const linea = (nom, ml, col) => `<div class="bt-l" style="--c:${col}"><span>${esc(nom)}</span><b>${ml} ml</b></div>`;
   const orden = g => Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1] || porMesa(a[0],b[0]));
-  const d = document.createElement('div'); d.className = 'bartender'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','Receta para el bartender');
+  const d = document.createElement('div'); d.className = 'bartender'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','Receta para el perfumista');
   d.innerHTML = `<div class="bt-cab"><small>${esc(P.nom.trim())} · ${esc(P.pn.trim())}</small><h2>Mi receta · ${EVENTO.ML} ml</h2></div>
     ${linea('Base '+B.n, r.baseMl, 'var(--l-base)')}
     ${orden('cor').map(([id,ml])=>linea(X[id].n, ml, 'var(--l-cor)')).join('')}

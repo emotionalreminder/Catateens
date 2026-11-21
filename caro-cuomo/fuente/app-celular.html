@@ -181,7 +181,7 @@ const FRA = __FRA__;
    EVENTO · todo lo que cambia entre Cafayate, Caro Cuomo, etc. está acá
    =================================================================== */
 const EVENTO = {
-  nombre: 'Caro Cuomo',
+  nombre: 'Caro Cuomo',   // Cumpleaños de Carolina Cuomo · 22/11/2026 · Exaltación de la Cruz
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwkMzVVILGvF1Ctx53JR3hvndsLlbkjoLsSwF9MDSjhcGSp2gZfTo6hd_Cx3UoI_aV3AA/exec',
   CLAVE: 'ER-ninas-2026',
   HOJA: 'Caro Cuomo',       // pestaña de la planilla "App cata teens"
@@ -193,9 +193,9 @@ const EVENTO = {
   LOGO: '',                // logo de Emotional Reminder (data:image/... o URL). Vacío = marca en texto.
   LOGO_EVENTO: 'logo_caro',// monograma de la boda (en IMGS). Vacío = sin logo.
   FIRMA: ['Método Emotional Reminder', 'Diseñado por Lic. Agustín Melazo Díaz · MP 240.297'],
-  ML: 20,                  // probeta / frasco: base 13 + moduladores 2 + notas 10 (reglas 18/11)
-  BASE_ML: 12, NOTAS_ML: 8,   // frasco de 20 ml: 12 ml de base terminada + 8 ml de notas (60/40)
-  MARCA_ML: 12,            // rayita marcada con fibrón en la probeta
+  ML: 18,                  // probeta / frasco: base 13 + moduladores 2 + notas 10 (reglas 18/11)
+  BASE_ML: 10, NOTAS_ML: 8,   // 18 ml: 10 ml de base + 8 ml de notas, con jeringa de 1 ml (solo ml enteros)
+  MARCA_ML: 10,            // rayita de la base en la probeta
   TERMINOS: 'Acepto que Emotional Reminder guarde mis datos y me escriba por WhatsApp para mandarme mi receta.'
 };
 /* Familias olfativas (mismo orden que el perfil de FRA) */
@@ -203,47 +203,51 @@ const FK = ['citrica','frutal','verde','floral','aromatica','ambar','gourmand','
 const FAMN = {citrica:'Cítrica',frutal:'Frutal',verde:'Verde',floral:'Floral',aromatica:'Aromática',ambar:'Ambarada',gourmand:'Gourmand',
   amaderada:'Amaderada',oriental:'Oriental',cuero:'Cuero',especiada:'Especiada',almizclada:'Almizclada'};
 
-/* BASES · Caro Cuomo · frasco de 20 ml: 12 ml de base terminada + 8 ml de notas.
-   rango = [mín, máx] en ml de cada nota sobre esta base (pasos de 0,25). PROVISORIO: revisar con química.
-   Musky = María Cher (réplica de Light Blue) + Galaxolide 10 %. Woody = Bois de Chêne (sándalo cremoso).
-   Gourmand = tipo Scandal (miel, azahar, pachulí). Tabaco = Tobacco Absolute (Molton Brown). */
+/* BASES · Caro Cuomo (brief técnico 21/11/2026) · 18 ml = base 10 ml + notas 8 ml, todo al 20 %, sin moléculas sueltas.
+   tope = máximo de ml de cada nota sobre esta base. redondeo = nota que se suma si falta un grupo.
+   ref = perfumes que usa el invitado y que llevan a esta base (punto 5.8 A). real = producto real (solo planilla).
+   S/C/F = pirámide de la base (Fragrantica 21/11) para la imagen final. Orden = rack del Bar Butler 1. */
 const BASES = [
-  {id:'musky',    n:'Musky',    ml:12, pura:10.8, frase:'Fresco, limpio y luminoso',        img:'musky',
-    mol:{galaxolide:1.2},
-    rango:{bergamota:[1,4], grosella:[1,2], pera:[1,3], bruma:[1,2], peonia:[1,4], rosas:[1,3], higo:[1,3], aromatico:[1,3]},
+  {id:'gourmand', n:'Gourmand', ml:10, frase:'Dulce, amielado y floral',        img:'gourmand', mol:{},
+    tope:{bergamota:4, grosella:2, pera:3, bruma:1, peonia:4, rosas:3, higo:3, aromatico:1},
+    redondeo:{cor:'rosas', sal:'bergamota'},
+    fm:{gourmand:.45, floral:.3, ambar:.15, oriental:.1},
+    ref:['scandal','la vie est belle','good girl','black opium','libre','idole'],
+    real:'Scandal JPG fem 20 % + Vainilla Crema 20 % (89,6/10,4)',
+    S:['Naranja sanguina','Mandarina'], C:['Miel','Gardenia','Azahar','Durazno'], F:['Cera de abeja','Caramelo','Pachulí','Vainilla crema']},
+  {id:'musky',    n:'Musky',    ml:10, frase:'Limpio, luminoso y afrutado',     img:'musky', mol:{},
+    tope:{bergamota:4, grosella:2, pera:3, bruma:2, peonia:4, rosas:3, higo:4, aromatico:3},
     redondeo:{cor:'peonia', sal:'bergamota'},
-    fm:{citrica:.45, amaderada:.2, almizclada:.15, frutal:.1, aromatica:.1}, ref:['light blue'],
-    S:['Limón','Manzana verde'], C:['Jazmín','Rosa blanca'], F:['Cedro','Almizcle blanco','Ámbar']},
-  {id:'sandalo',  n:'Woody',    ml:12, pura:12, frase:'Amaderado, cremoso y profundo',    img:'sandalo',
-    mol:{},
-    rango:{bergamota:[1,4], grosella:[1,2], pera:[1,2], bruma:[1,2], peonia:[1,3], rosas:[1,4], higo:[1,4], aromatico:[1,3]},
+    fm:{citrica:.35, almizclada:.25, frutal:.2, amaderada:.2},
+    ref:['light blue','chance','ck one','acqua di gioia','si'],
+    real:'LB Summer Vibes fem 20 %',
+    S:['Bergamota de Calabria'], C:['Durazno'], F:['Cedro','Almizcles']},
+  {id:'tabaco',   n:'Tabaco',   ml:10, frase:'Balsámico, especiado y oscuro',   img:'tabaco', mol:{},
+    tope:{bergamota:4, grosella:2, pera:2, bruma:1, peonia:3, rosas:3, higo:4, aromatico:3},
     redondeo:{cor:'higo', sal:'bergamota'},
-    fm:{amaderada:.6, aromatica:.15, cuero:.1, almizclada:.15}, ref:['chene'],
-    S:['Romero'], C:['Cedro','Abedul'], F:['Sándalo cremoso','Roble','Haba tonka','Cuero suave']},
-  {id:'tabaco',   n:'Tabaco',   ml:12, pura:12, frase:'Especiado, intenso y magnético',   img:'tabaco',
-    mol:{},
-    rango:{bergamota:[1,5], grosella:[1,2], pera:[1,2], bruma:[1,1], peonia:[1,2], rosas:[1,4], higo:[1,3], aromatico:[1,3]},
-    redondeo:{cor:'rosas', sal:'bergamota'},
-    fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15}, ref:['tobacco absolute'],
-    S:['Bergamota','Pomelo'], C:['Nuez moscada','Palisandro'], F:['Tabaco','Bálsamo','Cuero']},
-  {id:'gourmand', n:'Gourmand', ml:12, pura:12, frase:'Miel, azahar y calidez',           img:'gourmand',
-    mol:{},
-    rango:{bergamota:[1,4], grosella:[1,3], pera:[1,3], bruma:[1,1], peonia:[1,3], rosas:[1,4], higo:[1,2], aromatico:[1,2]},
-    redondeo:{cor:'rosas', sal:'bergamota'},
-    fm:{gourmand:.4, floral:.3, ambar:.15, oriental:.15}, ref:['scandal'],
-    S:['Mandarina','Naranja sanguina'], C:['Miel','Gardenia','Azahar'], F:['Cera de abeja','Caramelo','Pachulí']}
-];
-const CORAZON = [
-  {id:'peonia',    n:'Peonía',       d:'Rosa limpia y delicada',   fm:{floral:1}},
-  {id:'rosas',     n:'Rosas',        d:'Romántica, aterciopelada', fm:{floral:.85, especiada:.15}},
-  {id:'higo',      n:'Flor de Higo', d:'Verde, lechosa y soleada', fm:{verde:.7, frutal:.3}},
-  {id:'aromatico', n:'Aromático',    d:'Hierbas frescas y lavanda', fm:{aromatica:.8, verde:.2}}
+    fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15},
+    ref:['tobacco vanille','spicebomb','aventus','invictus','1 million','one million','sauvage','tobacco absolute'],
+    real:'Tobacco Absolute (Molton Brown) 20 %',
+    S:['Bergamota','Elemí','Pomelo'], C:['Cedro','Palisandro','Nuez moscada'], F:['Tabaco','Bálsamo del Perú','Cuero']},
+  {id:'sandalo',  n:'Woody',    ml:10, frase:'Cremoso, seco y elegante',        img:'sandalo', mol:{},
+    tope:{bergamota:4, grosella:2, pera:3, bruma:2, peonia:4, rosas:3, higo:4, aromatico:3},
+    redondeo:{cor:'higo', sal:'bergamota'},
+    fm:{amaderada:.6, especiada:.15, almizclada:.15, floral:.1},
+    ref:['santal 33','bleu de chanel','terre d hermes','wood sage'],
+    real:'Bois de Chêne + Iso E Super 20 %',
+    S:['Especias suaves'], C:['Orquídea'], F:['Sándalo cremoso','Madera aterciopelada']}
 ];
 const SALIDA = [
-  {id:'bergamota', n:'Bergamota',    d:'Cítrica y chispeante', fm:{citrica:1}},
-  {id:'grosella',  n:'Grosella',     d:'Fruto rojo, ácida',    fm:{frutal:1}},
-  {id:'pera',      n:'Pera',         d:'Jugosa y verde',       fm:{frutal:.7, verde:.3}},
-  {id:'bruma',     n:'Bruma de mar', d:'Aire fresco y salino', fm:{aromatica:.5, citrica:.3, verde:.2}}
+  {id:'bergamota', n:'Bergamota',    d:'Chispa efervescente y luminosa', fm:{citrica:1},              real:'Bergamota AA 20 %'},
+  {id:'grosella',  n:'Grosella',     d:'Ácida y jugosa, tipo caipirinha', fm:{frutal:1},              real:'Blackcurrant 20 %'},
+  {id:'pera',      n:'Pera',         d:'Jugosa, suave y veraniega',      fm:{frutal:.7, verde:.3},     real:'Pera 20 %'},
+  {id:'bruma',     n:'Bruma de mar', d:'Brisa salada y mineral',         fm:{aromatica:.5, citrica:.3, verde:.2}, real:'Acorde Marino M 20 %'}
+];
+const CORAZON = [
+  {id:'peonia',    n:'Peonía',       d:'Lino blanco, limpio y delicado', fm:{floral:1},                real:'Peonías 20 %'},
+  {id:'rosas',     n:'Rosas',        d:'Jardín y pétalos de rosa',       fm:{floral:.85, especiada:.15}, real:'Rosario pétalos de rosa 20 %'},
+  {id:'higo',      n:'Flor de Higo', d:'Higuera, sombra fresca, verde',  fm:{verde:.7, frutal:.3},     real:'Flor de Higo 20 %'},
+  {id:'aromatico', n:'Aromático',    d:'Fougère fresco, hierbas',        fm:{aromatica:.8, verde:.2},  real:'Y EDP (YSL) 20 %'}
 ];
 /* Moléculas "mágicas": frascos de 100 ml, van al final con jeringa. No se votan. n = como está rotulado el frasco. */
 const MAGIA = [
@@ -252,7 +256,25 @@ const MAGIA = [
   {id:'hedione',    n:'Base Floral', mol:'Hedione',     d:'Luz floral, da aire',        img:'hedione'}
 ];
 /* Nombres sugeridos por perfil (para la tablet y como ideas en el celular) */
-const NOMBRES = {   /* PROVISORIOS: para aprobar */
+/* Recetas modelo (punto 6): si la fórmula coincide, se usa su nombre y queda como "Receta usada" */
+const MODELOS = [
+  {n:'Miel ácida',         b:'gourmand', notas:{grosella:2, bergamota:3, peonia:3}},
+  {n:'Gourmand frutal',    b:'gourmand', notas:{pera:3, grosella:2, bergamota:2, peonia:1}},
+  {n:'Gourmand con rosa',  b:'gourmand', notas:{bergamota:3, rosas:3, peonia:2}},
+  {n:'Bruma sobre miel',   b:'gourmand', notas:{bruma:1, bergamota:4, peonia:3}},
+  {n:'Rosa efervescente',  b:'musky',    notas:{bergamota:3, rosas:3, peonia:2}},
+  {n:'Lino al sol',        b:'musky',    notas:{bruma:2, bergamota:3, peonia:3}},
+  {n:'Huerto',             b:'musky',    notas:{pera:3, grosella:2, higo:3}},
+  {n:'Rosa y tabaco',      b:'tabaco',   notas:{bergamota:3, rosas:3, higo:2}},
+  {n:'Tabaco verde',       b:'tabaco',   notas:{bergamota:2, higo:3, aromatico:3}},
+  {n:'Tabaco costero',     b:'tabaco',   notas:{bruma:1, bergamota:4, aromatico:3}},
+  {n:'Tabaco frutal',      b:'tabaco',   notas:{grosella:2, pera:2, bergamota:3, higo:1}},
+  {n:'Higo y sándalo',     b:'sandalo',  notas:{bergamota:2, higo:4, peonia:2}},
+  {n:'Madera marina',      b:'sandalo',  notas:{bruma:2, bergamota:3, aromatico:3}},
+  {n:'Rosa de madera',     b:'sandalo',  notas:{bergamota:2, rosas:3, peonia:3}},
+  {n:'Madera aromática',   b:'sandalo',  notas:{bergamota:2, aromatico:3, higo:3}}
+];
+const NOMBRES = {   /* para fórmulas que no coinciden con ninguna receta modelo */
   floral:    ['Solo una vez','Pétalos de verano','Primavera eterna'],
   fresco:    ['Aire libre','Brisa de mar','Vuelo'],
   amaderado: ['Raíces','Bosque de roble','Madera noble'],
@@ -294,113 +316,125 @@ function perfil(p){
 const afin = (fm, P) => Object.entries(fm).reduce((a,[k,w])=>a + w*(P[k]||0), 0);
 const tops = P => Object.entries(P).filter(([,v])=>v>.08).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k])=>FAMN[k]);
 
-/* ======================= MOTOR QUÍMICO (reglas 18/11) =======================
-   Base 13 ml + moduladores 2 ml (fijos por base) + notas 10 ml.
-   Votos: me encanta 3 · me gusta 2 · un poquito 1 (va a su mínimo) · nada 0 (nunca entra). Sin votar = un poquito. */
+/* ======================= MOTOR QUÍMICO · Caro Cuomo (brief 21/11/2026) =======================
+   Base 10 ml + notas 8 ml, ml enteros. Votos: me encanta 3 · me gusta 2 · un poquito 1 (solo como soporte, 1 ml) · no me gusta 0 (nunca).
+   Sin votar cuenta como "un poquito". Reparto: protagonista 3 ml · segunda 2 ml · soportes 1 ml; el sobrante va al soporte
+   universal de su grupo (Bergamota / Peonía). 3 a 5 notas, al menos 1 de salida y 1 de corazón. Topes por base y soportes obligatorios. */
 const voto = (p,id) => p.v[id]==null ? 1 : p.v[id];
-const NOTAS_TODAS = () => CORAZON.concat(SALIDA);
+const NOTAS_TODAS = () => SALIDA.concat(CORAZON);
 const grupo = id => CORAZON.some(c=>c.id===id) ? 'cor' : 'sal';
-const usaRef = (p, b) => (p.perf||[]).some(t=>(b.ref||[]).some(r=>nz(t).startsWith(r)));
-/* base: la más votada; si hay empate entre "me encanta", decide según las notas que le encantan */
-const DESEMPATE = {bruma:['musky'], peonia:['musky'], aromatico:['sandalo','tabaco'], rosas:['gourmand','tabaco'], grosella:['gourmand'], higo:['sandalo'], bergamota:['tabaco','sandalo']};
-function puntajeBase(p, b){ const {P} = perfil(p); return 4*voto(p,b.id) + 2*afin(b.fm,P) + (usaRef(p,b)?3:0); }
+const UNIVERSAL = {sal:'bergamota', cor:'peonia'};
+const ALTERNATIVO = {sal:'pera', cor:'peonia'};
+const usaRef = (p, b) => (p.perf||[]).some(t=>{ const q = nz(t); return (b.ref||[]).some(r=>q===r || q.startsWith(r+' ')); });
+/* base recomendada: votos de las bases + perfumes que usa + desempate por la nota que más le encanta */
+const DESEMPATE = {bruma:['musky','sandalo'], peonia:['musky','gourmand'], rosas:['gourmand','tabaco'], grosella:['gourmand','musky'],
+  pera:['gourmand','musky'], higo:['sandalo'], aromatico:['sandalo','tabaco'], bergamota:['tabaco']};
+function puntajeBase(p, b){ const {P} = perfil(p); return 4*voto(p,b.id) + 1.5*afin(b.fm,P) + (usaRef(p,b)?4:0); }
 function baseSugerida(p){
   const enc = NOTAS_TODAS().filter(n=>voto(p,n.id)===3).map(n=>n.id);
-  let cands = BASES.map(b=>({b, s:puntajeBase(p,b)}));
-  const mx = Math.max.apply(null, cands.map(c=>c.s));
-  let top = cands.filter(c=>c.s >= mx - 1);                       /* empatadas o casi */
-  if(top.length > 1){
-    if(enc.includes('bruma') && top.some(c=>!['gourmand','tabaco'].includes(c.b.id))) top = top.filter(c=>!['gourmand','tabaco'].includes(c.b.id));
-    top.forEach(c=>{ c.d = c.s + enc.reduce((a,id)=>a + ((DESEMPATE[id]||[]).includes(c.b.id) ? 2 : 0) + c.b.rango[id][1]*.3, 0); });
-    top.sort((x,y)=>y.d-x.d); return top[0].b.id;
-  }
-  return cands.sort((x,y)=>y.s-x.s)[0].b.id;
+  const c = BASES.map(b=>({b, s:puntajeBase(p,b)}));
+  c.forEach(x=>{ x.d = x.s + enc.reduce((a,id)=>a + ((DESEMPATE[id]||[]).includes(x.b.id) ? .9 : 0), 0); });
+  if(enc.includes('bruma')) c.forEach(x=>{ if(['gourmand','tabaco'].includes(x.b.id)) x.d -= 1; });
+  return c.sort((x,y)=>y.d-x.d)[0].b.id;
 }
-/* perfil del invitado → cuántos ml van a corazón y a salida */
-const PERFILES = {floral:{cor:7, sal:3}, citrico:{cor:4, sal:6}, amaderado:{cor:6, sal:4}, neutro:{cor:5, sal:5}};
+/* perfil → cuántos ml de salida y de corazón (punto 5.6) */
+const PERF_ML = {floral:{sal:3, cor:5}, citrico:{sal:5, cor:3}, amaderado:{sal:4, cor:4}, neutro:{sal:4, cor:4}};
 function perfilNotas(p, base){
-  const {P} = perfil(p), w = id => voto(p,id);
+  const {P} = perfil(p), w = id => voto(p,id), pts = id => w(id)===3 ? 2 : w(id)===2 ? 1 : 0;
   const sc = {
-    floral:    ['peonia','rosas'].reduce((a,id)=>a + (w(id)===3?2:w(id)===2?1:0), 0) + 3*P.floral,
-    citrico:   ['bergamota','grosella','pera'].reduce((a,id)=>a + (w(id)===3?2:w(id)===2?1:0), 0) + 3*(P.citrica+P.frutal),
-    amaderado: (['sandalo','tabaco'].includes(base)?2:0) + (voto(p,'aromatico')===3?2:voto(p,'aromatico')===2?1:0) + 3*(P.amaderada+P.especiada+P.cuero+P.ambar*.5)
+    floral:    pts('peonia') + pts('rosas') + 3*P.floral,
+    citrico:   pts('bergamota') + pts('grosella') + pts('pera') + 3*(P.citrica+P.frutal),
+    amaderado: (['sandalo','tabaco'].includes(base)?2:0) + pts('higo') + pts('aromatico') + 3*(P.amaderada+P.especiada+P.cuero)
   };
   const ord = Object.entries(sc).sort((a,b)=>b[1]-a[1]);
   return (ord[0][1] >= 2 && ord[0][1] >= ord[1][1]*1.25) ? ord[0][0] : 'neutro';
 }
-/* elige las notas: las que le encantan y le gustan (4, o 5 si tiene muchos "me encanta"),
-   al menos 1 de corazón y 1 de salida, y redondea con la nota de la base si faltan */
-function elegirNotas(p, base){
-  const B = X[base], {P} = perfil(p), w = id => voto(p,id);
-  const rank = n => w(n.id)*10 + afin(n.fm,P) + ((DESEMPATE[n.id]||[]).includes(base)?.5:0);
-  const todas = NOTAS_TODAS().filter(n=>w(n.id)>=1).sort((a,b)=>rank(b)-rank(a));
-  const nEnc = todas.filter(n=>w(n.id)===3).length, N = nEnc >= 4 ? 5 : 4;
-  let ids = todas.filter(n=>w(n.id)>=2).slice(0, N).map(n=>n.id);
-  const hay = g => ids.some(id=>grupo(id)===g);
-  const redondeo = g => { const op = [B.redondeo[g], g==='sal' ? 'pera' : 'rosas'].concat(todas.filter(n=>grupo(n.id)===g).map(n=>n.id));
-    return op.find(id=>!ids.includes(id) && w(id)>=1); };
-  ['cor','sal'].forEach(g=>{ if(!hay(g)){ const r = redondeo(g); if(r){ if(ids.length >= N) ids.pop(); ids.push(r); } } });
-  while(ids.length < 4){
-    const nc = ids.filter(id=>grupo(id)==='cor').length, ns = ids.length - nc;
-    const r = redondeo(nc <= ns ? 'cor' : 'sal') || redondeo(nc <= ns ? 'sal' : 'cor'); if(!r) break; ids.push(r);
-  }
-  return ids;
-}
-/* Reparto de los 10 ml de notas (21/11): sin proporción fija entre corazón y salida.
-   Cada nota arranca en su mínimo y el resto se llena de a 0,25 ml (pipetas de 1 ml graduadas cada 0,25),
-   creciendo más rápido cuanto más le gustó: "me encanta" crece 1,5 veces más que "me gusta".
-   "Un poquito" se queda en su mínimo. Ninguna nota pasa su máximo para esa base. */
-const PASO = 0.25;
-const r2 = n => Math.round(n*100)/100;
-function repartirNotas(total, ids, p, B){
-  const o = {}, w = id => voto(p,id), r = id => B.rango[id];
-  ids.forEach(id=>o[id] = r(id)[0]);
-  let resto = r2(total - ids.reduce((a,id)=>a+o[id],0));
-  if(resto < 0) return {o, resto};
-  for(let i=0; resto >= PASO && i<400; i++){
-    let libres = ids.filter(id=>w(id)>=2 && o[id] < r(id)[1]);
-    if(!libres.length) libres = ids.filter(id=>o[id] < r(id)[1]);      /* último recurso: también los "un poquito" */
-    if(!libres.length) break;
-    const k = libres.sort((a,b)=> (o[a]-r(a)[0])/Math.max(w(a),.5) - (o[b]-r(b)[0])/Math.max(w(b),.5) || w(b)-w(a))[0];
-    o[k] = r2(o[k] + PASO); resto = r2(resto - PASO);
-  }
-  return {o, resto};
-}
 function armar(p, base){
-  const B = X[base], pf = perfilNotas(p, base), tot = EVENTO.NOTAS_ML;
-  let notas = {}, quedan = elegirNotas(p, base), resto = 0;
-  for(let intento=0; intento<5; intento++){
-    const a = repartirNotas(tot, quedan, p, B); notas = a.o; resto = a.resto;
-    if(resto === 0) break;
-    if(resto < 0){ /* los mínimos no entran: saco la de menor voto, sin dejar a un grupo vacío */
-      const k = quedan.filter(id=>quedan.filter(x=>grupo(x)===grupo(id)).length > 1).sort((x,y)=>voto(p,x)-voto(p,y))[0];
-      if(!k) break; quedan = quedan.filter(id=>id!==k); continue; }
-    /* faltan ml: sumo una nota de redondeo */
-    const nc = quedan.filter(id=>grupo(id)==='cor').length, g = nc <= quedan.length - nc ? 'cor' : 'sal';
-    const r = [B.redondeo[g], B.redondeo[g==='cor'?'sal':'cor'], 'pera', 'rosas'].concat(NOTAS_TODAS().map(n=>n.id)).find(id=>!quedan.includes(id) && voto(p,id)>=1);
-    if(!r) break; quedan.push(r);
+  const B = X[base], w = id => voto(p,id), tope = id => B.tope[id], pf = perfilNotas(p, base), meta = PERF_ML[pf];
+  const fuerza = id => tope(id) + (pf==='amaderado' && ['higo','aromatico'].includes(id) ? 1 : 0);
+  const rank = (a,b) => w(b)-w(a) || fuerza(b)-fuerza(a) || porMesa(a,b);
+  const esUniv = id => id===UNIVERSAL.sal || id===UNIVERSAL.cor;
+  const o = {}, lim = {}, suma = () => Object.values(o).reduce((a,b)=>a+b,0), en = g => Object.keys(o).filter(id=>grupo(id)===g);
+  /* máximo de cada nota: su tope; "un poquito" solo 1 ml (salvo Bergamota/Peonía cuando hacen de soporte) */
+  const maxNota = id => Math.min(lim[id]!=null ? lim[id] : 99, (w(id)===1 && !esUniv(id)) ? 1 : tope(id));
+  const puede = id => w(id) >= 1 && maxNota(id) >= 1;
+  const todas = () => NOTAS_TODAS().map(n=>n.id);
+  /* 1) notas: las que le encantan y le gustan (4, o 5 si le encantan muchas) */
+  const buenas = todas().filter(id=>w(id)>=2 && puede(id)).sort(rank);
+  const N = buenas.filter(id=>w(id)===3).length >= 4 ? 5 : 4;
+  let ids = buenas.slice(0, N);
+  const redondeo = g => [B.redondeo[g], ALTERNATIVO[g]].concat(todas().filter(id=>grupo(id)===g).sort(rank)).find(id=>!(id in o) && !ids.includes(id) && puede(id));
+  ['sal','cor'].forEach(g=>{ if(!ids.some(id=>grupo(id)===g)){ const r = redondeo(g); if(r){
+    if(ids.length >= 4){ const k = ids.slice().reverse().find(id=>ids.filter(x=>grupo(x)===grupo(id)).length > 1); if(k) ids = ids.filter(id=>id!==k); }
+    ids.push(r); } } });
+  /* 2) protagonista 3 · segunda 2 · soportes 1 */
+  ids.sort(rank).forEach((id,i)=>{ o[id] = Math.min(i===0 ? 3 : i===1 ? 2 : 1, maxNota(id)); });
+  /* 3) completar hasta 8 ml: cada grupo hacia su meta del perfil; el sobrante va primero al soporte universal */
+  const sumar = g => {
+    const cands = [UNIVERSAL[g]].concat(en(g).sort(rank)).filter((id,i,a)=>a.indexOf(id)===i);
+    for(const id of cands){ if(!puede(id)) continue; if(!(id in o) && Object.keys(o).length >= 5) continue;
+      if((o[id]||0) < maxNota(id)){ o[id] = (o[id]||0) + 1; return true; } }
+    if(Object.keys(o).length < 5){ const n = redondeo(g); if(n){ o[n] = 1; return true; } }
+    return false; };
+  const llenar = () => { for(let i=0; suma() < EVENTO.NOTAS_ML && i<40; i++){
+    const tot = g => en(g).reduce((a,id)=>a+o[id],0);
+    const g = !en('sal').length ? 'sal' : !en('cor').length ? 'cor' : (meta.sal - tot('sal')) >= (meta.cor - tot('cor')) ? 'sal' : 'cor';
+    if(!sumar(g) && !sumar(g==='sal'?'cor':'sal')) break; } };
+  llenar();
+  /* 4) soportes obligatorios (5.5): se repite hasta que todas se cumplan */
+  const prot = new Set();   /* soportes ya asegurados: no se les saca ml */
+  const asegurar = (id, min) => {
+    if(!puede(id) || maxNota(id) < min) return false;
+    if(!(id in o) && Object.keys(o).length >= 5){
+      const sop = Object.keys(o).filter(x=>o[x]===1 && en(grupo(x)).length > 1).sort((a,b)=>w(a)-w(b))[0]; if(!sop) return false; delete o[sop]; }
+    o[id] = o[id] || 0;
+    while(o[id] < min){ o[id]++;
+      while(suma() > EVENTO.NOTAS_ML){
+        const k = Object.keys(o).filter(x=>x!==id && !prot.has(x) && o[x] > 1).sort((a,b)=>o[b]-o[a] || w(a)-w(b))[0]
+               || Object.keys(o).filter(x=>x!==id && !prot.has(x) && en(grupo(x)).length > 1).sort((a,b)=>w(a)-w(b))[0];
+        if(!k){ o[id]--; if(!o[id]) delete o[id]; return false; }
+        o[k]--; if(!o[k]) delete o[k]; } }
+    prot.add(id); return true; };
+  const limitar = (id, ml) => { lim[id] = ml; if(!ml) delete o[id]; else if(o[id] > ml) o[id] = ml; llenar(); };
+  for(let vuelta=0; vuelta<4; vuelta++){
+    let cambio = false;
+    if(o.bruma){ if((o.bergamota||0)>=2) prot.add('bergamota'); else if((o.aromatico||0)>=2) prot.add('aromatico'); if(base==='gourmand' && (o.peonia||0)>=2) prot.add('peonia'); }
+    if(base==='gourmand' && (o.grosella===2 || o.aromatico) && (o.bergamota||0)>=2) prot.add('bergamota');
+    if(base==='tabaco' && o.pera && (o.bergamota||0)>=2) prot.add('bergamota');
+    if(o.bruma && !((o.bergamota||0)>=2 || (o.aromatico||0)>=2) && !asegurar('bergamota',2) && !asegurar('aromatico',2)){ limitar('bruma',0); cambio = true; }
+    if(o.bruma && base==='gourmand' && (o.peonia||0)<2 && !asegurar('peonia',2)){ limitar('bruma',0); cambio = true; }
+    if(base==='gourmand' && o.grosella===2 && (o.bergamota||0)<2 && !asegurar('bergamota',2)){ limitar('grosella',1); cambio = true; }
+    if(base==='gourmand' && o.aromatico && (o.bergamota||0)<2 && !asegurar('bergamota',2)){ limitar('aromatico',0); cambio = true; }
+    if(base==='tabaco' && o.pera && (o.bergamota||0)<2 && !asegurar('bergamota',2)){ limitar('pera',0); cambio = true; }
+    llenar();
+    if(!cambio) break;
   }
-  /* si votó "nada" a casi todo y las notas no llegan a 10 ml, lo que falta va a la base */
-  const suma = r2(Object.values(notas).reduce((x,y)=>x+y,0));
-  return {base, baseMl:r2(B.ml + Math.max(0, tot - suma)), notas, magia: Object.fromEntries(Object.entries(B.mol).filter(([,v])=>v>0)), perfil:pf, receta:null, falta:0};
+  /* 5) receta modelo: si coincide, se usa su nombre */
+  const modelo = MODELOS.find(m=>m.b===base && Object.keys(m.notas).length===Object.keys(o).length && Object.entries(m.notas).every(([id,ml])=>o[id]===ml));
+  return {base, baseMl:B.ml + Math.max(0, EVENTO.NOTAS_ML - suma()), notas:o, magia:{}, perfil:pf, receta: modelo ? modelo.n : null, falta:0};
 }
-/* cómo se carga cada nota con la pipeta de 1 ml: "3 pipetas + 0,25" */
-function dosis(ml){ const n = Math.floor(ml + 1e-9), f = r2(ml - n);
-  const p = n ? (n===1 ? '1 pipeta' : n+' pipetas') : '';
-  return f ? (p ? p + ' + ' + fmt(f) : fmt(f) + ' de pipeta') : p; }
+/* se carga con jeringa de 1 ml: "4 jeringas" */
+const dosis = ml => ml===1 ? '1 jeringa' : ml+' jeringas';
+const r2 = n => Math.round(n*100)/100;
 function nombreSugerido(r, quien){
-  const tipo = r.perfil==='floral' ? 'floral' : r.perfil==='citrico' ? 'fresco' : ['sandalo'].includes(r.base) ? 'amaderado' : ['tabaco','gourmand'].includes(r.base) ? 'intenso' : 'fresco';
-  const l = NOMBRES[tipo]; return l[Math.floor(Math.random()*l.length)] + (quien ? ' by ' + quien : '');
+  let n = r.receta;
+  if(!n){ /* la receta modelo más parecida de su base, si comparte protagonista y otra nota */
+    const prot = Object.entries(r.notas).sort((a,b)=>b[1]-a[1])[0][0];
+    const m = MODELOS.filter(m=>m.b===r.base && m.notas[prot]).map(m=>({m, k:Object.keys(m.notas).filter(id=>r.notas[id]).length})).sort((a,b)=>b.k-a.k)[0];
+    if(m && m.k >= 2) n = m.m.n;
+    else { const tipo = r.perfil==='floral' ? 'floral' : r.perfil==='citrico' ? 'fresco' : r.base==='sandalo' ? 'amaderado' : ['tabaco','gourmand'].includes(r.base) ? 'intenso' : 'fresco';
+      const l = NOMBRES[tipo]; n = l[Math.floor(Math.random()*l.length)]; }
+  }
+  return n + (quien ? ' by ' + quien : '');
 }
-
 function recetaTxt(r){ if(!r) return '';
-  const l = [`Base ${X[r.base].n} terminada ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${fmt(ml)} ml`));
+  const l = [`Base ${X[r.base].n} ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${fmt(ml)} ml`));
   return l.join(' · '); }
 /* moduladores premezclados en la base, solo como dato */
 const modTxt = r => Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>`${X[id].mol} ${fmt(ml)} ml`).join(', ');
 /* ORDEN DE LA MESA: el invitado camina de izquierda a derecha; el perfumista, del otro lado, de derecha a izquierda.
    Los dos encuentran las cosas en este orden: primero las 4 ampollas de bases y después los goteros de notas. */
-const ORDEN_MESA = ['musky','sandalo','tabaco','gourmand','peonia','rosas','higo','aromatico','bergamota','grosella','pera','bruma'];   /* PROVISORIO */
+const ORDEN_MESA = ['gourmand','musky','tabaco','sandalo','bergamota','grosella','pera','bruma','peonia','rosas','higo','aromatico'];   /* Bar Butler 1 y 2 */
 const estacion = id => ORDEN_MESA.indexOf(id) + 1;
 const porMesa = (a,b) => ORDEN_MESA.indexOf(a) - ORDEN_MESA.indexOf(b);
 /*@@FIN1*/
@@ -425,7 +459,7 @@ function fila(p){
   cols.push(['Base sugerida',p.sug?X[p.sug].n:''],['Base',p.r?X[p.r.base].n:''],
     ['Corazón',p.r?Object.keys(p.r.notas).filter(id=>etapa(id)==='cor').map(id=>X[id].n).join(' · '):''],
     ['Salida',p.r?Object.keys(p.r.notas).filter(id=>etapa(id)==='sal').map(id=>X[id].n).join(' · '):''],
-    ['Receta (ml)',recetaTxt(p.r)],['Receta usada',rc?(rc.sub?`${rc.n} (${rc.sub.toLowerCase()})`:rc.n):'personalizada'],['Nombre del perfume',p.pn.trim()]);
+    ['Receta (ml)',recetaTxt(p.r)],['Receta usada',p.r&&p.r.receta?p.r.receta:'libre'],['Base (producto real)',p.r?X[p.r.base].real:''],['Nombre del perfume',p.pn.trim()]);
   return {clave:EVENTO.CLAVE, hoja:EVENTO.HOJA, id:p.id, columnas:cols, t:Date.now()};
 }
 function registrar(p, estado){ p.est = estado; guardar();
@@ -526,20 +560,22 @@ function vNombre(){
 function vReceta(){
   const r = P.r, B = X[r.base];
   const fila = (img, nom, sub, cant, unidad, col) => `<li class="grande" style="--c:${col}"><img src="${foto(img)}" alt=""><div class="t"><b>${esc(nom)}</b><small>${sub}</small></div><div class="ml"><b>${cant}</b><small>${unidad}</small></div></li>`;
-  const notas = (g, tit, col) => { const l = Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>porMesa(a[0],b[0]));
+  const notas = (g, tit, col) => { const l = Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1] || porMesa(a[0],b[0]));
     return l.length ? `<div class="grp">${tit}</div>` + l.map(([id,ml])=>fila(id, X[id].n, dosis(ml), fmt(ml)+' ml', '', col)).join('') : ''; };
   return `<div class="cab"><div class="eb">Paso 5 · Tu receta</div><h1>${esc(P.pn.trim())}</h1>
-      <p class="sub">Base ${esc(B.n)}, la que mejor va con vos. Cargá en este orden, de izquierda a derecha por la mesa.</p></div>
+      <p class="sub">Base ${esc(B.n)}${r.base===P.sug?', la que mejor va con vos':''}. Cargá en este orden: base, corazón y al final la salida.</p>
+      <div class="tend">${BASES.map(b=>`<button class="chip" aria-pressed="${r.base===b.id}" onclick="cambiarBase('${b.id}')">${esc(b.n)}${b.id===P.sug?' ★':''}</button>`).join('')}</div></div>
     <div class="form" style="max-width:620px"><ol class="pasos">
-      <div class="grp">1 · Base · con la ampolla</div>
-      ${fila(B.img, 'Base '+B.n, r.baseMl===EVENTO.MARCA_ML ? `Llená la probeta hasta la rayita de ${EVENTO.MARCA_ML}` : `Llená la probeta hasta ${r.baseMl} ml`, r.baseMl+' ml', '', 'var(--l-base)')}
-      ${notas('cor','2 · Notas de corazón · con pipeta','var(--l-cor)')}
-      ${notas('sal','3 · Notas de salida · con pipeta','var(--l-sal)')}
+      <div class="grp">1 · Base · con jeringa</div>
+      ${fila(B.img, 'Base '+B.n, dosis(r.baseMl), r.baseMl+' ml', '', 'var(--l-base)')}
+      ${notas('cor','2 · Corazón · con jeringa','var(--l-cor)')}
+      ${notas('sal','3 · Salida · con jeringa','var(--l-sal)')}
     </ol>
     <div class="total"><span>Total</span><b>${EVENTO.ML} ml</b><small>Volcalo en tu frasco</small></div>
     <button class="btn terra" onclick="terminar()">Listo · ver mi perfume</button></div>${pie()}`;
 }
 function terminar(){ registrar(P,'Terminó'); ir('final'); }
+function cambiarBase(b){ P.r = armar(P, b); guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); registrar(P,'Votó'); }
 
 /* 6 · final */
 function vFinal(){
@@ -583,8 +619,9 @@ function otro(){ if(!confirm('¿Empezar un perfume nuevo? Este ya quedó guardad
 /*@@COMUN2*/
 /* ======================= IMAGEN FINAL ======================= */
 const BGS = {blanco:{bg:'#FFFFFF', ink:'#2B2420', acc:'#A4553A', dim:'#8a7a6e'}, marfil:{bg:'#F7F1E8', ink:'#2B2420', acc:'#A4553A', dim:'#7d6e62'},
-  terracota:{bg:'#8E4A33', ink:'#F8EFE6', acc:'#F1C9A4', dim:'#E6CDBB'}};
-const fondoImg = () => LS.get('er_pb_fondo2','blanco');
+  terracota:{bg:'#8E4A33', ink:'#F8EFE6', acc:'#F1C9A4', dim:'#E6CDBB'},
+  negro:{bg:'#0E0C0B', ink:'#F4EBDD', acc:'#C9A45C', dim:'#B9A98F', oscuro:true}};   /* negro y dorado, como las bolsas del evento */
+const fondoImg = () => LS.get('er_caro_fondo','negro');
 const IMC = {};
 function imgEl(k){ if(IMC[k]) return IMC[k]; const im = new Image(); im.onload = ()=>{ im._ok = 1; if(typeof alCargarImagen==='function') alCargarImagen(); }; im.src = foto(k); return IMC[k] = im; }
 const foto = k => IMGS[k] || '';
@@ -663,7 +700,7 @@ function dibujar(p, c){
   c.textAlign = 'center'; c.textBaseline = 'alphabetic';
   /* monograma de la boda arriba */
   let top = 0;
-  if(EVENTO.LOGO_EVENTO){ const lg = imgEl(fondoImg()==='terracota' ? EVENTO.LOGO_EVENTO+'_claro' : EVENTO.LOGO_EVENTO);
+  if(EVENTO.LOGO_EVENTO){ const lg = imgEl(['terracota','negro'].includes(fondoImg()) ? EVENTO.LOGO_EVENTO+'_claro' : EVENTO.LOGO_EVENTO);
     if(lg._ok){ const h = 190, w = lg.width*h/lg.height; c.drawImage(lg, W/2-w/2, 36, w, h); } top = 186; }
   c.fillStyle = T.ink; let fs = 92; c.font = `600 ${fs}px ${SERIF}`; const tit = p.pn.trim() || 'Mi perfume';
   while(c.measureText(tit).width > W-120 && fs > 56){ fs -= 4; c.font = `600 ${fs}px ${SERIF}`; }
@@ -755,8 +792,8 @@ function abrirPanel(){
   d.innerHTML = panelOk ? `<div class="in"><h2>Panel</h2><p class="hint" style="margin:6px 0">Pendientes de enviar a la planilla: <b>${cola.length}</b>${navigator.onLine?'':' · sin conexión'}</p>
     <div class="fld"><label for="purl">URL del script</label><input id="purl" value="${esc(urlScript())}"></div>
     <button class="btn" onclick="LS.set('er_pb_url',document.getElementById('purl').value.trim());vaciar();aviso('Guardado');this.closest('.modal').remove()">Guardar y reenviar</button>
-    <div class="fld"><label for="pfondo">Fondo de la imagen final</label><select id="pfondo" onchange="LS.set('er_pb_fondo2',this.value);dibujarCv()">
-      ${[['blanco','Blanco'],['marfil','Marfil'],['terracota','Terracota']].map(([v,t])=>`<option value="${v}" ${fondoImg()===v?'selected':''}>${t}</option>`).join('')}</select></div>
+    <div class="fld"><label for="pfondo">Fondo de la imagen final</label><select id="pfondo" onchange="LS.set('er_caro_fondo',this.value);dibujarCv()">
+      ${[['blanco','Blanco'],['negro','Negro y dorado'],['marfil','Marfil'],['terracota','Terracota']].map(([v,t])=>`<option value="${v}" ${fondoImg()===v?'selected':''}>${t}</option>`).join('')}</select></div>
     <button class="btn ghost" onclick="this.closest('.modal').remove();P=nuevo();guardar();pintar()">Empezar de cero en este celular</button>
     <button class="btn ghost" onclick="this.closest('.modal').remove()">Cerrar</button></div>`
   : `<div class="in"><h2>Panel</h2><div class="fld"><label for="ppin">PIN</label><input id="ppin" type="password" inputmode="numeric"></div>

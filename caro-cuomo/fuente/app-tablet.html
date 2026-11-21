@@ -86,8 +86,11 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:30px
 .item img{width:38px !important;height:38px !important;}
 .item.base img{width:48px !important;height:48px !important;}
 .item.base img{width:58px;height:58px;}
-.item.base .ml{font-size:30px;}
+.item.base .ml{font-size:26px;}
 .marca{font-size:12px;color:var(--dim);padding:0 4px;}
+.cambia-base{display:flex;flex-wrap:wrap;gap:4px;}
+.cambia-base button{flex:1 1 auto;padding:6px 6px;border-radius:999px;border:1.5px solid var(--line);font-size:12px;font-weight:600;background:#fff;}
+.cambia-base button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
 .elegir-tab{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:6px;font-size:13px;color:var(--dim);}
 .elegir-tab button{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);font-weight:700;font-size:16px;}
 .elegir-tab button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
@@ -222,7 +225,7 @@ function accionesCata(){
 }
 function calcular(){
   activos().forEach(([p])=>{
-    const nuevaBase = baseSugerida(p);
+    const nuevaBase = p.baseElegida || baseSugerida(p); p.sug = baseSugerida(p);
     const igual = p.r && p.r.base===nuevaBase && JSON.stringify(p.r._v)===JSON.stringify(p.v);
     if(!igual){ p.r = armar(p, nuevaBase); p.r._v = JSON.parse(JSON.stringify(p.v)); }
     if(!p.pn.trim() || p._pnAuto){ p.pn = nombreSugerido(p.r, p.nom.trim()); p._pnAuto = true; }
@@ -230,23 +233,26 @@ function calcular(){
   });
   G.paso = 'formulas'; guardar(); pintar(); window.scrollTo(0,0);
 }
+function cambiarBaseT(i, b){ const p = G.ps[i]; p.baseElegida = b; p.r = armar(p, b); p.r._v = JSON.parse(JSON.stringify(p.v));
+  if(p._pnAuto) p.pn = nombreSugerido(p.r, p.nom.trim()); guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
 function vFormulas(){
   const ficha = (p,i) => { if(!p.nom.trim() || !p.r) return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]}</span><div class="vacia">Sin invitado</div></div>`;
     const r = p.r, B = X[r.base];
     const item = (img, nom, sub, ml, col, cls, nro) => `<div class="item ${cls||''}" style="--c:${col}">${nro?`<span class="nro">${nro}</span>`:''}<img src="${foto(img)}" alt=""><div class="n">${esc(nom)}${sub?`<small>${esc(sub)}</small>`:''}</div><div class="ml">${ml}</div></div>`;
-    const notas = g => Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>porMesa(a[0],b[0]))
+    const notas = g => Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1] || porMesa(a[0],b[0]))
       .map(([id,ml])=>item(id, X[id].n, dosis(ml), fmt(ml)+' ml', g==='cor'?'var(--l-cor)':'var(--l-sal)', '', estacion(id))).join('');
     return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]} · ${esc(p.cod||'')}</span><div class="quien">${esc(p.nom.trim())}</div>
       <input class="pn" value="${esc(p.pn)}" aria-label="Nombre del perfume de ${esc(p.nom)}" oninput="G.ps[${i}].pn=this.value;G.ps[${i}]._pnAuto=false;guardar()">
-      <div class="paso-h">1 · Base terminada · ampolla</div>${item(B.img, 'Base '+B.n, r.baseMl===EVENTO.MARCA_ML ? 'hasta la rayita' : '', fmt(r.baseMl)+' ml', 'var(--l-base)', 'base', estacion(B.id))}
-      <div class="paso-h">2 · Corazón · pipeta</div>${notas('cor')}
-      <div class="paso-h">3 · Salida · pipeta</div>${notas('sal')}
+      <div class="cambia-base">${BASES.map(b=>`<button class="${r.base===b.id?'on':''}" onclick="cambiarBaseT(${i},'${b.id}')">${esc(b.n)}${b.id===p.sug?' ★':''}</button>`).join('')}</div>
+      <div class="paso-h">1 · Base · jeringa</div>${item(B.img, 'Base '+B.n, dosis(r.baseMl), fmt(r.baseMl)+' ml', 'var(--l-base)', 'base', estacion(B.id))}
+      <div class="paso-h">2 · Corazón · jeringa</div>${notas('cor')}
+      <div class="paso-h">3 · Salida · jeringa</div>${notas('sal')}
     </div>`; };
   /* mapa de la mesa visto desde el lado del perfumista: la estación 1 queda a su derecha */
   const usados = new Set(); activos().forEach(([p])=>{ if(p.r){ usados.add(p.r.base); Object.keys(p.r.notas).forEach(id=>usados.add(id)); } });
   const mapa = `<div class="mapa" aria-label="Mesa vista desde el perfumista">${ORDEN_MESA.slice().reverse().map(id=>`<div class="est ${usados.has(id)?'usa':''} ${etapa(id)}"><b>${estacion(id)}</b><span>${esc(X[id].n)}</span></div>`).join('')}</div>
     <p class="hint" style="text-align:center;margin:4px 0 12px">Tu mesa vista desde tu lado: empezás por la derecha (1) y vas hacia la izquierda.</p>`;
-  return `<div class="cab"><div><h1>Paso 3 · Fórmulas</h1><p class="sub">Base terminada 12 ml + notas 8 ml = 20 ml. Cargá en el orden de la mesa. El nombre del perfume se puede cambiar.</p></div></div>
+  return `<div class="cab"><div><h1>Paso 3 · Fórmulas</h1><p class="sub">Base 10 ml + notas 8 ml = 18 ml, todo con jeringa de 1 ml. Se puede cambiar la base (★ = recomendada). Cargá en el orden de la mesa. El nombre del perfume se puede cambiar.</p></div></div>
     ${mapa}<div class="cuatro">${G.ps.map(ficha).join('')}</div>`;
 }
 function accionesFormulas(){
@@ -284,7 +290,7 @@ function filaTablet(p, archivo){
   cols.push(['Base sugerida',X[p.r.base].n],['Base',X[p.r.base].n],
     ['Corazón',Object.keys(p.r.notas).filter(id=>grupo(id)==='cor').map(id=>X[id].n).join(' · ')],
     ['Salida',Object.keys(p.r.notas).filter(id=>grupo(id)==='sal').map(id=>X[id].n).join(' · ')],
-    ['Receta (ml)',recetaTxt(p.r)],
+    ['Receta (ml)',recetaTxt(p.r)],['Receta usada',p.r.receta||'libre'],['Base (producto real)',X[p.r.base].real],
     ['Perfil',p.r.perfil],['Nombre del perfume',p.pn.trim()],['Archivo imagen',archivo]);
   return {clave:EVENTO.CLAVE, hoja:EVENTO.HOJA, id:p.cod, columnas:cols, t:Date.now()};
 }

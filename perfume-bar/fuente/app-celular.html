@@ -203,36 +203,37 @@ const FK = ['citrica','frutal','verde','floral','aromatica','ambar','gourmand','
 const FAMN = {citrica:'Cítrica',frutal:'Frutal',verde:'Verde',floral:'Floral',aromatica:'Aromática',ambar:'Ambarada',gourmand:'Gourmand',
   amaderada:'Amaderada',oriental:'Oriental',cuero:'Cuero',especiada:'Especiada',almizclada:'Almizclada'};
 
-/* BASES (reglas 18/11, revisión moduladores premezclados) · 15 ml de base terminada:
-   base pura (pura) + moduladores (mol) mezclados en el laboratorio. En el evento solo se cargan 15 ml de base.
+/* BASES · 15 ml de base terminada = base pura (pura) + moduladores (mol), mezclados en la ampolla de 250 ml antes del evento.
+   Moduladores (21/11): Musky y Gourmand 20 % (necesitan refuerzo), Sándalo 10 %, Tabaco 5 % (ya es una base completa).
+   Musky = María Cher (réplica de Light Blue). Sándalo = Bois de Chêne + Santal 33. Tabaco = Tobacco Absolute (Molton Brown).
    rango = [mínimo, máximo] en ml enteros de cada nota sobre esta base. redondeo = nota que se suma si faltan notas.
    fm = perfil para comparar con los gustos. ref = perfumes que forman la base (suman puntos; nunca se muestran).
    S/C/F = notas que aparecen en la imagen final. */
 const BASES = [
   /* Musky: tipo Light Blue · ya tiene almizcle, no lleva Galaxolide */
-  {id:'musky',    n:'Musky',    ml:15, pura:13.5, frase:'Fresco, limpio y luminoso',        img:'musky',
-    mol:{hedione:1, isoe:.5},
+  {id:'musky',    n:'Musky',    ml:15, pura:12, frase:'Fresco, limpio y luminoso',        img:'musky',
+    mol:{galaxolide:1.8, isoe:1.2},
     rango:{bergamota:[2,5], grosella:[1,3], pera:[1,4], bruma:[1,3], peonia:[2,5], rosas:[1,4], jazmin:[1,3], higo:[2,4]},
     redondeo:{cor:'peonia', sal:'bergamota'},
     fm:{citrica:.45, amaderada:.2, almizclada:.15, frutal:.1, aromatica:.1}, ref:['light blue'],
     S:['Limón','Manzana verde'], C:['Jazmín','Rosa blanca'], F:['Cedro','Almizcle blanco','Ámbar']},
   /* Gourmand: vainilla 34,2 % · haba tonka 28,1 % · tipo Tobacco Vanille 24,4 % · Iso E Super 7,1 % · Galaxolide 6,2 % */
-  {id:'gourmand', n:'Gourmand', ml:15, pura:13.5, frase:'Dulce, cálido y envolvente',       img:'gourmand',
-    mol:{hedione:1, isoe:.5},
+  {id:'gourmand', n:'Gourmand', ml:15, pura:12, frase:'Dulce, cálido y envolvente',       img:'gourmand',
+    mol:{isoe:1.8, hedione:1.2},
     rango:{bergamota:[2,4], grosella:[1,3], pera:[1,4], bruma:[1,1], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[1,3]},
     redondeo:{cor:'rosas', sal:'bergamota'},
     fm:{gourmand:.65, especiada:.15, amaderada:.1, almizclada:.1}, ref:['tobacco vanille'],
     S:['Hoja de tabaco','Especias suaves'], C:['Vainilla','Haba tonka','Cacao'], F:['Frutos secos','Maderas aterciopeladas','Almizcle']},
   /* Sándalo: tipo Santal 33 + acorde de roble */
-  {id:'sandalo',  n:'Sándalo',  ml:15, pura:13, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
-    mol:{isoe:1, hedione:.5, galaxolide:.5},
+  {id:'sandalo',  n:'Sándalo',  ml:15, pura:13.5, frase:'Amaderado, cremoso y sofisticado', img:'sandalo',
+    mol:{isoe:1.2, hedione:.3},
     rango:{bergamota:[2,5], grosella:[1,3], pera:[1,3], bruma:[1,2], peonia:[2,4], rosas:[1,5], jazmin:[1,3], higo:[2,5]},
     redondeo:{cor:'higo', sal:'bergamota'},
     fm:{amaderada:.55, cuero:.2, almizclada:.15, floral:.1}, ref:['santal 33'],
     S:[], C:['Iris','Papiro'], F:['Sándalo cremoso','Roble','Cedro','Cuero suave']},
   /* Tabaco: tipo Tobacco Absolute */
-  {id:'tabaco',   n:'Tabaco',   ml:15, pura:13.5, frase:'Especiado, intenso y magnético',   img:'tabaco',
-    mol:{isoe:1, hedione:.5},
+  {id:'tabaco',   n:'Tabaco',   ml:15, pura:14.25, frase:'Especiado, intenso y magnético',   img:'tabaco',
+    mol:{isoe:.75},
     rango:{bergamota:[2,6], grosella:[1,3], pera:[1,3], bruma:[1,1], peonia:[1,3], rosas:[1,5], jazmin:[1,2], higo:[1,4]},
     redondeo:{cor:'rosas', sal:'bergamota'},
     fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15}, ref:['tobacco absolute'],
@@ -351,57 +352,55 @@ function elegirNotas(p, base){
   }
   return ids;
 }
-/* reparte los ml de un grupo: cada nota arranca en su mínimo; el resto, proporcional al voto, sin pasar el máximo.
-   "un poquito" se queda en su mínimo. Lo que sobra por redondeo va a la nota con mayor voto que tenga margen. */
-function repartirGrupo(total, ids, p, B){
+/* Reparto de los 10 ml de notas (21/11): sin proporción fija entre corazón y salida.
+   Cada nota arranca en su mínimo y el resto se llena de a 0,25 ml (pipetas de 1 ml graduadas cada 0,25),
+   creciendo más rápido cuanto más le gustó: "me encanta" crece 1,5 veces más que "me gusta".
+   "Un poquito" se queda en su mínimo. Ninguna nota pasa su máximo para esa base. */
+const PASO = 0.25;
+const r2 = n => Math.round(n*100)/100;
+function repartirNotas(total, ids, p, B){
   const o = {}, w = id => voto(p,id), r = id => B.rango[id];
   ids.forEach(id=>o[id] = r(id)[0]);
-  let resto = total - ids.reduce((a,id)=>a+o[id],0);
-  const crecen = ids.filter(id=>w(id)>=2);
-  for(let vuelta=0; resto>0 && vuelta<4; vuelta++){
-    const libres = crecen.filter(id=>o[id] < r(id)[1]); if(!libres.length) break;
-    const W = libres.reduce((a,id)=>a+w(id),0), antes = resto;
-    libres.forEach(id=>{ const add = Math.min(r(id)[1]-o[id], Math.floor(antes*w(id)/W)); o[id] += add; resto -= add; });
-    if(resto === antes){ const k = libres.sort((a,b)=>w(b)-w(a) || (r(b)[1]-o[b])-(r(a)[1]-o[a]))[0]; o[k]++; resto--; }
+  let resto = r2(total - ids.reduce((a,id)=>a+o[id],0));
+  if(resto < 0) return {o, resto};
+  for(let i=0; resto >= PASO && i<400; i++){
+    let libres = ids.filter(id=>w(id)>=2 && o[id] < r(id)[1]);
+    if(!libres.length) libres = ids.filter(id=>o[id] < r(id)[1]);      /* último recurso: también los "un poquito" */
+    if(!libres.length) break;
+    const k = libres.sort((a,b)=> (o[a]-r(a)[0])/Math.max(w(a),.5) - (o[b]-r(b)[0])/Math.max(w(b),.5) || w(b)-w(a))[0];
+    o[k] = r2(o[k] + PASO); resto = r2(resto - PASO);
   }
-  /* si nadie puede crecer, crecen los "un poquito" como último recurso */
-  while(resto>0){ const k = ids.filter(id=>o[id] < r(id)[1]).sort((a,b)=>w(b)-w(a))[0]; if(!k) break; o[k]++; resto--; }
   return {o, resto};
 }
 function armar(p, base){
-  const B = X[base], ids = elegirNotas(p, base), pf = perfilNotas(p, base), tot = EVENTO.NOTAS_ML;
-  let notas = {}, quedan = ids.slice();
-  for(let intento=0; intento<4; intento++){
-    const cor = quedan.filter(id=>grupo(id)==='cor'), sal = quedan.filter(id=>grupo(id)==='sal');
-    const min = l => l.reduce((a,id)=>a+B.rango[id][0],0), max = l => l.reduce((a,id)=>a+B.rango[id][1],0);
-    /* reparto según el perfil, ajustado a lo que entra en cada grupo */
-    let tc = cor.length ? PERFILES[pf].cor : 0; if(!sal.length) tc = tot;
-    tc = Math.max(min(cor), Math.min(max(cor), tc)); let ts = tot - tc;
-    if(ts > max(sal)){ ts = max(sal); tc = Math.min(max(cor), tot - ts); }
-    if(ts < min(sal)){ ts = min(sal); tc = tot - ts; }
-    const a = repartirGrupo(tc, cor, p, B), b = repartirGrupo(ts, sal, p, B);
-    notas = Object.assign(a.o, b.o);
-    const suma = Object.values(notas).reduce((x,y)=>x+y,0);
-    if(suma === tot) break;
-    if(suma > tot){ /* sobran notas: saco la de menor voto, sin dejar a un grupo vacío */
+  const B = X[base], pf = perfilNotas(p, base), tot = EVENTO.NOTAS_ML;
+  let notas = {}, quedan = elegirNotas(p, base), resto = 0;
+  for(let intento=0; intento<5; intento++){
+    const a = repartirNotas(tot, quedan, p, B); notas = a.o; resto = a.resto;
+    if(resto === 0) break;
+    if(resto < 0){ /* los mínimos no entran: saco la de menor voto, sin dejar a un grupo vacío */
       const k = quedan.filter(id=>quedan.filter(x=>grupo(x)===grupo(id)).length > 1).sort((x,y)=>voto(p,x)-voto(p,y))[0];
       if(!k) break; quedan = quedan.filter(id=>id!==k); continue; }
     /* faltan ml: sumo una nota de redondeo */
-    const g = cor.length <= sal.length ? 'cor' : 'sal';
+    const nc = quedan.filter(id=>grupo(id)==='cor').length, g = nc <= quedan.length - nc ? 'cor' : 'sal';
     const r = [B.redondeo[g], B.redondeo[g==='cor'?'sal':'cor'], 'pera', 'rosas'].concat(NOTAS_TODAS().map(n=>n.id)).find(id=>!quedan.includes(id) && voto(p,id)>=1);
     if(!r) break; quedan.push(r);
   }
   /* si votó "nada" a casi todo y las notas no llegan a 10 ml, lo que falta va a la base */
-  const suma = Object.values(notas).reduce((x,y)=>x+y,0);
-  return {base, baseMl:B.ml + Math.max(0, tot - suma), notas, magia: Object.fromEntries(Object.entries(B.mol).filter(([,v])=>v>0)), perfil:pf, receta:null, falta:0};
+  const suma = r2(Object.values(notas).reduce((x,y)=>x+y,0));
+  return {base, baseMl:r2(B.ml + Math.max(0, tot - suma)), notas, magia: Object.fromEntries(Object.entries(B.mol).filter(([,v])=>v>0)), perfil:pf, receta:null, falta:0};
 }
+/* cómo se carga cada nota con la pipeta de 1 ml: "3 pipetas + 0,25" */
+function dosis(ml){ const n = Math.floor(ml + 1e-9), f = r2(ml - n);
+  const p = n ? (n===1 ? '1 pipeta' : n+' pipetas') : '';
+  return f ? (p ? p + ' + ' + fmt(f) : fmt(f) + ' de pipeta') : p; }
 function nombreSugerido(r, quien){
   const tipo = r.perfil==='floral' ? 'floral' : r.perfil==='citrico' ? 'fresco' : ['sandalo'].includes(r.base) ? 'amaderado' : ['tabaco','gourmand'].includes(r.base) ? 'intenso' : 'fresco';
   const l = NOMBRES[tipo]; return l[Math.floor(Math.random()*l.length)] + (quien ? ' by ' + quien : '');
 }
 
 function recetaTxt(r){ if(!r) return '';
-  const l = [`Base ${X[r.base].n} terminada ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${ml} ml`));
+  const l = [`Base ${X[r.base].n} terminada ${r.baseMl} ml`].concat(Object.entries(r.notas).map(([id,ml])=>`${X[id].n} ${fmt(ml)} ml`));
   return l.join(' · '); }
 /* moduladores premezclados en la base, solo como dato */
 const modTxt = r => Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>`${X[id].mol} ${fmt(ml)} ml`).join(', ');
@@ -525,19 +524,18 @@ function vNombre(){
     </div>${pie()}`;
 }
 /* 5 · receta: lista simple, foto y cantidad bien grande */
-const jeringas = ml => ml===1 ? '1 jeringa' : `${ml} jeringas`;
 function vReceta(){
   const r = P.r, B = X[r.base];
   const fila = (img, nom, sub, cant, unidad, col) => `<li class="grande" style="--c:${col}"><img src="${foto(img)}" alt=""><div class="t"><b>${esc(nom)}</b><small>${sub}</small></div><div class="ml"><b>${cant}</b><small>${unidad}</small></div></li>`;
   const notas = (g, tit, col) => { const l = Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1]);
-    return l.length ? `<div class="grp">${tit}</div>` + l.map(([id,ml])=>fila(id, X[id].n, jeringas(ml)+' de 1 ml', ml+' ml', '', col)).join('') : ''; };
+    return l.length ? `<div class="grp">${tit}</div>` + l.map(([id,ml])=>fila(id, X[id].n, dosis(ml), fmt(ml)+' ml', '', col)).join('') : ''; };
   return `<div class="cab"><div class="eb">Paso 5 · Tu receta</div><h1>${esc(P.pn.trim())}</h1>
       <p class="sub">Base ${esc(B.n)}, la que mejor va con vos. Cargá en este orden.</p></div>
     <div class="form" style="max-width:620px"><ol class="pasos">
       <div class="grp">1 · Base · con la ampolla</div>
       ${fila(B.img, 'Base '+B.n, r.baseMl===EVENTO.MARCA_ML ? `Llená la probeta hasta la rayita de ${EVENTO.MARCA_ML}` : `Llená la probeta hasta ${r.baseMl} ml`, r.baseMl+' ml', '', 'var(--l-base)')}
-      ${notas('cor','2 · Notas de corazón · con jeringa','var(--l-cor)')}
-      ${notas('sal','3 · Notas de salida · con jeringa','var(--l-sal)')}
+      ${notas('cor','2 · Notas de corazón · con pipeta','var(--l-cor)')}
+      ${notas('sal','3 · Notas de salida · con pipeta','var(--l-sal)')}
     </ol>
     <div class="total"><span>Total</span><b>${EVENTO.ML} ml</b><small>Volcalo en tu frasco</small></div>
     <button class="btn terra" onclick="terminar()">Listo · ver mi perfume</button></div>${pie()}`;

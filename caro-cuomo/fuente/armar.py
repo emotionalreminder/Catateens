@@ -60,7 +60,7 @@ const orden=["musky","sandalo","gourmand","tabaco"];
 console.log(JSON.stringify({bases:orden.map(id=>BASES.find(x=>x.id===id)).map(x=>({n:x.n,img:x.img,frase:x.frase,S:x.S,C:x.C,F:x.F})),salida:SALIDA.map(pick),corazon:CORAZON.map(pick)}));
 ''',os.path.join(AQUI,'app-celular.html')],capture_output=True,text=True,check=True).stdout
 ci={k:IM[k] for k in ['musky','sandalo','gourmand','tabaco','bergamota','grosella','pera','bruma','peonia','rosas','higo','aromatico']}
-ci['logo']=IM['logo_caro_claro']
+ci['logo']=IM['logo_caro_claro']; ci['logo_osc']=IM['logo_caro']
 open(os.path.join(out,'carteles.html'),'w').write(open(os.path.join(AQUI,'carteles.html')).read().replace('__IMGS__',json.dumps(ci)).replace('__DATOS__',datos.strip()))
 ic=Image.new('RGBA',(512,512),(247,240,230,255)); lg=Image.open(ruta('logo_caro')).convert('RGBA'); lg.thumbnail((400,400))
 ic.alpha_composite(lg,((512-lg.width)//2,(512-lg.height)//2)); ic.convert('RGB').save(os.path.join(out,'icono.png'))

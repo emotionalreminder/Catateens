@@ -132,6 +132,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 .total span{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);font-weight:600;}
 .total b{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;}
 .total small{color:var(--dim);font-size:14px;}
+.bartender{position:fixed;inset:0;z-index:60;background:#0E0C0B;color:#F4EBDD;display:flex;flex-direction:column;gap:10px;padding:max(20px,env(safe-area-inset-top,0px)) max(18px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));overflow:auto;}
+.bartender .bt-cab small{color:#C9A45C;font-size:15px;letter-spacing:1px;}
+.bartender h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:#F4EBDD;}
+.bartender .bt-l{display:flex;justify-content:space-between;align-items:baseline;border-left:6px solid var(--c);background:#1A1614;border-radius:12px;padding:12px 16px;}
+.bartender .bt-l span{font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;font-weight:600;}
+.bartender .bt-l b{font-size:40px;color:#C9A45C;}
+.bartender p{color:#B9A98F;text-align:center;font-size:15px;}
+.bartender .btn{margin-top:auto;}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
 .grp{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;color:var(--dim);margin:12px 0 2px;}
 .grp:first-child{margin-top:0;}
@@ -572,9 +580,25 @@ function vReceta(){
       ${notas('sal','3 · Salida · con jeringa','var(--l-sal)')}
     </ol>
     <div class="total"><span>Total</span><b>${EVENTO.ML} ml</b><small>Volcalo en tu frasco</small></div>
+    <button class="btn ghost" onclick="modoBartender()">Pedírselo al bartender</button>
+    <p class="hint" style="text-align:center;margin-top:6px">Muestra tu receta en grande para que el equipo te la cargue.</p>
     <button class="btn terra" onclick="terminar()">Listo · ver mi perfume</button></div>${pie()}`;
 }
 function terminar(){ registrar(P,'Terminó'); ir('final'); }
+/* modo bartender: la receta en grande, para mostrarle el celular al equipo que la carga */
+function modoBartender(){
+  const r = P.r, B = X[r.base];
+  const linea = (nom, ml, col) => `<div class="bt-l" style="--c:${col}"><span>${esc(nom)}</span><b>${ml} ml</b></div>`;
+  const orden = g => Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1] || porMesa(a[0],b[0]));
+  const d = document.createElement('div'); d.className = 'bartender'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','Receta para el bartender');
+  d.innerHTML = `<div class="bt-cab"><small>${esc(P.nom.trim())} · ${esc(P.pn.trim())}</small><h2>Mi receta · ${EVENTO.ML} ml</h2></div>
+    ${linea('Base '+B.n, r.baseMl, 'var(--l-base)')}
+    ${orden('cor').map(([id,ml])=>linea(X[id].n, ml, 'var(--l-cor)')).join('')}
+    ${orden('sal').map(([id,ml])=>linea(X[id].n, ml, 'var(--l-sal)')).join('')}
+    <p>1 ml = 1 jeringa · base, corazón y al final salida</p>
+    <button class="btn" onclick="this.closest('.bartender').remove()">Cerrar</button>`;
+  document.body.appendChild(d);
+}
 function cambiarBase(b){ P.r = armar(P, b); guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); registrar(P,'Votó'); }
 
 /* 6 · final */

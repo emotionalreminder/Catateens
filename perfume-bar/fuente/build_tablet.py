@@ -23,7 +23,7 @@ open(f'{out}/sw.js','w').write(f"""/* Guarda la app en la tablet para que abra s
 const CACHE = 'perfume-bar-tablet-{ver}';
 const ARCHIVOS = ['./', './index.html', './manifest.json', './icono.png'];
 self.addEventListener('install', e => {{ e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting())); }});
-self.addEventListener('activate', e => {{ e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); }});
+self.addEventListener('activate', e => {{ e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('perfume-bar-tablet-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); }});
 self.addEventListener('fetch', e => {{
   const u = new URL(e.request.url);
   if(e.request.method !== 'GET' || u.hostname.includes('script.google')) return;

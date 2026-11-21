@@ -1,0 +1,17 @@
+{
+ "name": "Bar de Perfumes · Caro Cuomo",
+ "short_name": "Bar de Perfumes",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "landscape",
+ "background_color": "#F7F0E6",
+ "theme_color": "#2E2420",
+ "icons": [
+  {
+   "src": "icono.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}

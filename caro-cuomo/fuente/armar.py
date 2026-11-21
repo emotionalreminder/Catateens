@@ -33,7 +33,7 @@ open(os.path.join(out,'index.html'),'w').write(tab)
 open(os.path.join(out,'manifest.json'),'w').write(json.dumps({"name":"Bar de Perfumes · Caro Cuomo","short_name":"Bar de Perfumes","start_url":"./","scope":"./","display":"standalone","orientation":"landscape","background_color":"#F7F0E6","theme_color":"#2E2420","icons":[{"src":"icono.png","sizes":"512x512","type":"image/png"}]},ensure_ascii=False,indent=1))
 open(os.path.join(out,'sw.js'),'w').write(f"""/* Guarda la app en la tablet para que abra sin internet. Versión {ver} */
 const PREFIJO = 'caro-tablet-', CACHE = PREFIJO + '{ver}';
-const ARCHIVOS = ['./', './index.html', './manifest.json', './icono.png'];
+const ARCHIVOS = ['./', './index.html', './carteles.html', './manifest.json', './icono.png'];
 self.addEventListener('install', e => {{ e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting())); }});
 self.addEventListener('activate', e => {{ e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith(PREFIJO) && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); }});
 self.addEventListener('fetch', e => {{
@@ -49,6 +49,19 @@ self.addEventListener('fetch', e => {{
   }}
 }});
 """)
+# carteles para las tablets (bases y notas), con los mismos datos de la app
+import subprocess
+datos=subprocess.run(['node','-e',r'''
+const fs=require("fs"); const s=fs.readFileSync(process.argv[1],"utf8");
+const a=s.indexOf("const BASES = ["), b=s.indexOf("/* Moléculas");
+eval(s.slice(a,b).replace(/const /g,"global."));
+const pick=o=>({id:o.id,n:o.n,d:o.d,apodo:o.apodo,fuerza:o.fuerza});
+const orden=["musky","sandalo","gourmand","tabaco"];
+console.log(JSON.stringify({bases:orden.map(id=>BASES.find(x=>x.id===id)).map(x=>({n:x.n,img:x.img,frase:x.frase,S:x.S,C:x.C,F:x.F})),salida:SALIDA.map(pick),corazon:CORAZON.map(pick)}));
+''',os.path.join(AQUI,'app-celular.html')],capture_output=True,text=True,check=True).stdout
+ci={k:IM[k] for k in ['musky','sandalo','gourmand','tabaco','bergamota','grosella','pera','bruma','peonia','rosas','higo','aromatico']}
+ci['logo']=IM['logo_caro_claro']
+open(os.path.join(out,'carteles.html'),'w').write(open(os.path.join(AQUI,'carteles.html')).read().replace('__IMGS__',json.dumps(ci)).replace('__DATOS__',datos.strip()))
 ic=Image.new('RGBA',(512,512),(247,240,230,255)); lg=Image.open(ruta('logo_caro')).convert('RGBA'); lg.thumbnail((400,400))
 ic.alpha_composite(lg,((512-lg.width)//2,(512-lg.height)//2)); ic.convert('RGB').save(os.path.join(out,'icono.png'))
 print('ok', ver)

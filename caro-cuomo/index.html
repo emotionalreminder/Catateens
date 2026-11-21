@@ -8,7 +8,7 @@
 <title>Perfume Bar · Emotional Reminder</title>
 <script>
 /* Si el celular tiene guardada una versión vieja de la app, se recarga sola con la última. */
-const APP_VERSION = '20261121210027';
+const APP_VERSION = '20261121211450';
 (async()=>{ try{
   const r = await fetch(location.pathname + '?nc=' + Date.now(), {cache:'no-store', headers:{Range:'bytes=0-1500'}});
   /* lee solo el principio del archivo y corta la descarga */
@@ -208,28 +208,28 @@ const FAMN = {citrica:'Cítrica',frutal:'Frutal',verde:'Verde',floral:'Floral',a
    ref = perfumes que usa el invitado y que llevan a esta base (punto 5.8 A). real = producto real (solo planilla).
    S/C/F = pirámide de la base (Fragrantica 21/11) para la imagen final. Orden = rack del Bar Butler 1. */
 const BASES = [
-  {id:'gourmand', n:'Gourmand', ml:10, frase:'Dulce, amielado y floral',        img:'gourmand', mol:{},
+  {id:'gourmand', n:'Gourmand', ml:10, frase:'Dulce · amielada · envolvente',        img:'gourmand', mol:{},
     tope:{bergamota:4, grosella:2, pera:3, bruma:1, peonia:4, rosas:3, higo:3, aromatico:1},
     redondeo:{cor:'rosas', sal:'bergamota'},
     fm:{gourmand:.45, floral:.3, ambar:.15, oriental:.1},
     ref:['scandal','la vie est belle','good girl','black opium','libre','idole'],
     real:'Scandal JPG fem 20 % + Vainilla Crema 20 % (89,6/10,4)',
-    S:['Naranja sanguina','Mandarina'], C:['Miel','Gardenia','Azahar','Durazno'], F:['Cera de abeja','Caramelo','Pachulí','Vainilla crema']},
-  {id:'musky',    n:'Musky',    ml:10, frase:'Limpio, luminoso y afrutado',     img:'musky', mol:{},
+    S:['Naranja sanguina','Mandarina'], C:['Miel','Gardenia','Azahar','Jazmín','Durazno'], F:['Vainilla crema','Caramelo','Cera de abeja','Pachulí','Regaliz']},
+  {id:'musky',    n:'Musky',    ml:10, frase:'Limpia · luminosa · piel recién bañada',     img:'musky', mol:{},
     tope:{bergamota:4, grosella:2, pera:3, bruma:2, peonia:4, rosas:3, higo:4, aromatico:3},
     redondeo:{cor:'peonia', sal:'bergamota'},
     fm:{citrica:.35, almizclada:.25, frutal:.2, amaderada:.2},
     ref:['light blue','chance','ck one','acqua di gioia','si'],
     real:'LB Summer Vibes fem 20 %',
     S:['Bergamota de Calabria'], C:['Durazno'], F:['Cedro','Almizcles']},
-  {id:'tabaco',   n:'Tabaco',   ml:10, frase:'Balsámico, especiado y oscuro',   img:'tabaco', mol:{},
+  {id:'tabaco',   n:'Tabaco',   ml:10, frase:'Cálida · especiada · magnética',   img:'tabaco', mol:{},
     tope:{bergamota:4, grosella:2, pera:2, bruma:1, peonia:3, rosas:3, higo:4, aromatico:3},
     redondeo:{cor:'higo', sal:'bergamota'},
     fm:{especiada:.35, amaderada:.3, cuero:.2, ambar:.15},
     ref:['tobacco vanille','spicebomb','aventus','invictus','1 million','one million','sauvage','tobacco absolute'],
     real:'Tobacco Absolute (Molton Brown) 20 %',
     S:['Bergamota','Elemí','Pomelo'], C:['Cedro','Palisandro','Nuez moscada'], F:['Tabaco','Bálsamo del Perú','Cuero']},
-  {id:'sandalo',  n:'Woody',    ml:10, frase:'Cremoso, seco y elegante',        img:'sandalo', mol:{},
+  {id:'sandalo',  n:'Woody',    ml:10, frase:'Cremosa · seca · elegante',        img:'sandalo', mol:{},
     tope:{bergamota:4, grosella:2, pera:3, bruma:2, peonia:4, rosas:3, higo:4, aromatico:3},
     redondeo:{cor:'higo', sal:'bergamota'},
     fm:{amaderada:.6, especiada:.15, almizclada:.15, floral:.1},
@@ -238,16 +238,16 @@ const BASES = [
     S:['Especias suaves'], C:['Orquídea'], F:['Sándalo cremoso','Madera aterciopelada']}
 ];
 const SALIDA = [
-  {id:'bergamota', n:'Bergamota',    d:'Chispa efervescente y luminosa', fm:{citrica:1},              real:'Bergamota AA 20 %'},
-  {id:'grosella',  n:'Grosella',     d:'Ácida y jugosa, tipo caipirinha', fm:{frutal:1},              real:'Blackcurrant 20 %'},
-  {id:'pera',      n:'Pera',         d:'Jugosa, suave y veraniega',      fm:{frutal:.7, verde:.3},     real:'Pera 20 %'},
-  {id:'bruma',     n:'Bruma de mar', d:'Brisa salada y mineral',         fm:{aromatica:.5, citrica:.3, verde:.2}, real:'Acorde Marino M 20 %'}
+  {id:'bergamota', n:'Bergamota',    d:'Chispa · efervescente · luminoso', apodo:'La Diplomática', fuerza:5, fm:{citrica:1},              real:'Bergamota AA 20 %'},
+  {id:'grosella',  n:'Grosella',     d:'Caipirinha · ácido · jugoso', apodo:'La Ácida', fuerza:8, fm:{frutal:1},              real:'Blackcurrant 20 %'},
+  {id:'pera',      n:'Pera',         d:'Jugoso · suave · veraniego', apodo:'La Almohada', fuerza:7, fm:{frutal:.7, verde:.3},     real:'Pera 20 %'},
+  {id:'bruma',     n:'Bruma de mar', d:'Brisa salada · acuático · mineral', apodo:'El Espacio', fuerza:8, fm:{aromatica:.5, citrica:.3, verde:.2}, real:'Acorde Marino M 20 %'}
 ];
 const CORAZON = [
-  {id:'peonia',    n:'Peonía',       d:'Lino blanco, limpio y delicado', fm:{floral:1},                real:'Peonías 20 %'},
-  {id:'rosas',     n:'Rosas',        d:'Jardín y pétalos de rosa',       fm:{floral:.85, especiada:.15}, real:'Rosario pétalos de rosa 20 %'},
-  {id:'higo',      n:'Flor de Higo', d:'Higuera, sombra fresca, verde',  fm:{verde:.7, frutal:.3},     real:'Flor de Higo 20 %'},
-  {id:'aromatico', n:'Aromático',    d:'Fougère fresco, hierbas',        fm:{aromatica:.8, verde:.2},  real:'Y EDP (YSL) 20 %'}
+  {id:'peonia',    n:'Peonía',       d:'Lino blanco · limpio · delicado', apodo:'La Muda', fuerza:3, fm:{floral:1},                real:'Peonías 20 %'},
+  {id:'rosas',     n:'Rosas',        d:'Jardín · lluvia · pétalo', apodo:'La Reina', fuerza:7, fm:{floral:.85, especiada:.15}, real:'Rosario pétalos de rosa 20 %'},
+  {id:'higo',      n:'Flor de Higo', d:'Higuera · sombra fresca · hoja de té', apodo:'El Puente de Abajo', fuerza:5, fm:{verde:.7, frutal:.3},     real:'Flor de Higo 20 %'},
+  {id:'aromatico', n:'Aromático',    d:'Aromático', apodo:'', fuerza:0, fm:{aromatica:.8, verde:.2},  real:'Y EDP (YSL) 20 %'}
 ];
 /* Moléculas "mágicas": frascos de 100 ml, van al final con jeringa. No se votan. n = como está rotulado el frasco. */
 const MAGIA = [

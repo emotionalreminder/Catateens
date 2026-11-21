@@ -399,6 +399,14 @@ const modTxt = r => Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])
 const ORDEN_MESA = ['gourmand','musky','tabaco','sandalo','bergamota','grosella','pera','bruma','peonia','rosas','higo','aromatico'];   /* Bar Butler 1 y 2 */
 const estacion = id => ORDEN_MESA.indexOf(id) + 1;
 const porMesa = (a,b) => ORDEN_MESA.indexOf(a) - ORDEN_MESA.indexOf(b);
+/* PLANILLA: para cada aroma, en el orden de la mesa, una columna con el voto y otra con los ml que lleva su perfume */
+function columnasAromas(p){
+  const lbl = v => v==null ? 'sin votar' : VOTOS.find(x=>x[0]===v)[2], out = [], r = p.r;
+  ORDEN_MESA.forEach(id=>{ const a = X[id], nom = (etapa(id)==='base' ? 'Base ' : '') + a.n;
+    const ml = !r ? '' : etapa(id)==='base' ? (r.base===id ? r.baseMl : 0) : (r.notas[id] || 0);
+    out.push([nom+' · voto', lbl(p.v[id])], [nom+' · ml', ml]); });
+  return out;
+}
 
 /*@@COMUN2*/
 /* ======================= IMAGEN FINAL ======================= */
@@ -703,8 +711,8 @@ function filaTablet(p, archivo){
   const lbl = v => v==null ? '' : VOTOS.find(x=>x[0]===v)[2];
   const cols = [['ID',p.cod],['Fecha',new Date().toLocaleString('es-AR')],['Última actualización',new Date().toLocaleString('es-AR')],['Estado','Terminó'],
     ['Origen','Tablet '+tabletN()],['Nombre',p.nom.trim()],['WhatsApp',waCompleto(p.wa)?'+'+EVENTO.WA_PREFIJO+' '+waLocal(p.wa):''],['Código',p.cod]];
-  BASES.concat(CORAZON, SALIDA).forEach(a=>cols.push([(etapa(a.id)==='base'?'Base ':'')+a.n, lbl(p.v[a.id])]));
-  cols.push(['Base sugerida',X[p.r.base].n],['Base',X[p.r.base].n],
+  cols.push(...columnasAromas(p));
+  cols.push(['Base sugerida',X[p.sug||p.r.base].n],['Base',X[p.r.base].n],
     ['Corazón',Object.keys(p.r.notas).filter(id=>grupo(id)==='cor').map(id=>X[id].n).join(' · ')],
     ['Salida',Object.keys(p.r.notas).filter(id=>grupo(id)==='sal').map(id=>X[id].n).join(' · ')],
     ['Receta (ml)',recetaTxt(p.r)],['Receta usada',p.r.receta||'libre'],['Base (producto real)',X[p.r.base].real],

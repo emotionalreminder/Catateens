@@ -280,8 +280,8 @@ function filaTablet(p, archivo){
   const lbl = v => v==null ? '' : VOTOS.find(x=>x[0]===v)[2];
   const cols = [['ID',p.cod],['Fecha',new Date().toLocaleString('es-AR')],['Última actualización',new Date().toLocaleString('es-AR')],['Estado','Terminó'],
     ['Origen','Tablet '+tabletN()],['Nombre',p.nom.trim()],['WhatsApp',waCompleto(p.wa)?'+'+EVENTO.WA_PREFIJO+' '+waLocal(p.wa):''],['Código',p.cod]];
-  BASES.concat(CORAZON, SALIDA).forEach(a=>cols.push([(etapa(a.id)==='base'?'Base ':'')+a.n, lbl(p.v[a.id])]));
-  cols.push(['Base sugerida',X[p.r.base].n],['Base',X[p.r.base].n],
+  cols.push(...columnasAromas(p));
+  cols.push(['Base sugerida',X[p.sug||p.r.base].n],['Base',X[p.r.base].n],
     ['Corazón',Object.keys(p.r.notas).filter(id=>grupo(id)==='cor').map(id=>X[id].n).join(' · ')],
     ['Salida',Object.keys(p.r.notas).filter(id=>grupo(id)==='sal').map(id=>X[id].n).join(' · ')],
     ['Receta (ml)',recetaTxt(p.r)],

@@ -8,7 +8,7 @@
 <title>Perfume Bar · Emotional Reminder</title>
 <script>
 /* Si el celular tiene guardada una versión vieja de la app, se recarga sola con la última. */
-const APP_VERSION = '20261121132612';
+const APP_VERSION = '20261121232121';
 (async()=>{ try{
   const r = await fetch(location.pathname + '?nc=' + Date.now(), {cache:'no-store', headers:{Range:'bytes=0-1500'}});
   /* lee solo el principio del archivo y corta la descarga */
@@ -409,6 +409,14 @@ const modTxt = r => Object.entries(r.magia).sort((a,b)=>b[1]-a[1]).map(([id,ml])
 const ORDEN_MESA = ['musky','sandalo','tabaco','gourmand','peonia','rosas','jazmin','higo','bergamota','grosella','pera','bruma'];
 const estacion = id => ORDEN_MESA.indexOf(id) + 1;
 const porMesa = (a,b) => ORDEN_MESA.indexOf(a) - ORDEN_MESA.indexOf(b);
+/* PLANILLA: para cada aroma, en el orden de la mesa, una columna con el voto y otra con los ml que lleva su perfume */
+function columnasAromas(p){
+  const lbl = v => v==null ? 'sin votar' : VOTOS.find(x=>x[0]===v)[2], out = [], r = p.r;
+  ORDEN_MESA.forEach(id=>{ const a = X[id], nom = (etapa(id)==='base' ? 'Base ' : '') + a.n;
+    const ml = !r ? '' : etapa(id)==='base' ? (r.base===id ? r.baseMl : 0) : (r.notas[id] || 0);
+    out.push([nom+' · voto', lbl(p.v[id])], [nom+' · ml', ml]); });
+  return out;
+}
 /*@@FIN1*/
 /* ======================= ESTADO ======================= */
 const PASOS = ['registro','bases','corazon','salida','receta','final'];
@@ -427,7 +435,7 @@ function fila(p){
   const cols = [['ID',p.id],['Fecha',new Date(p.t0).toLocaleString('es-AR')],['Última actualización',new Date().toLocaleString('es-AR')],['Estado',p.est],
     ['Nombre',p.nom.trim()],['WhatsApp',waCompleto(p.wa) ? '+'+EVENTO.WA_PREFIJO+' '+waLocal(p.wa) : ''],['Código',codigo(p)],['Abrió WhatsApp',p.waEnviado?'Sí':'No'],
     ['Perfumes que usa',p.perf.filter(x=>x.trim()).join(' | ')],['Perfil según sus perfumes',tops(pf.P).join(' · ')]];
-  BASES.concat(CORAZON, SALIDA).forEach(a=>cols.push([(etapa(a.id)==='base'?'Base ':'')+a.n, lbl(p.v[a.id])]));
+  cols.push(...columnasAromas(p));
   cols.push(['Base sugerida',p.sug?X[p.sug].n:''],['Base',p.r?X[p.r.base].n:''],
     ['Corazón',p.r?Object.keys(p.r.notas).filter(id=>etapa(id)==='cor').map(id=>X[id].n).join(' · '):''],
     ['Salida',p.r?Object.keys(p.r.notas).filter(id=>etapa(id)==='sal').map(id=>X[id].n).join(' · '):''],

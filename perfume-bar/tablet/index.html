@@ -566,6 +566,7 @@ function barraTop(){
   $('#top').innerHTML = `<span class="wm">Emotional Reminder · Perfume Bar</span>
     <div class="pasos">${[['nombres','1 · Nombres'],['cata','2 · Cata'],['formulas','3 · Fórmulas'],['imagenes','4 · Imágenes']].map(([k,t])=>`<span class="${G.paso===k?'on':''}">${t}</span>`).join('')}</div>
     <span class="pend" id="pend">${pendTxt}</span>
+    <button class="tab" onclick="mostrarQR()" aria-label="Mostrar QR para el celular">▦ QR celular</button>
     <button class="tab" onclick="abrirPanel()" aria-label="Panel">Tablet ${tabletN()} ⚙</button>`;
 }
 let pendTxt = '';

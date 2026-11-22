@@ -55,6 +55,12 @@ nav a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 .fuerza{display:inline-flex;gap:3px;} .fuerza i{width:7px;height:7px;border-radius:50%;border:1px solid var(--gold);display:block;} .fuerza i.on{background:var(--gold);}
 .nota .pe{font-family:var(--serif);font-style:italic;font-size:clamp(19px,2.1vw,25px);color:var(--dim);margin-top:2px;}
 
+.qrgrande{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;}
+.qrgrande .cuadro{background:#fff;padding:28px;border-radius:24px;border:3px solid var(--gold);width:min(62vh,80vw);aspect-ratio:1/1;}
+.qrgrande svg{width:100%;height:100%;display:block;}
+.qrgrande h2{font-family:var(--serif);font-weight:600;font-size:44px;}
+.qrgrande p{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--dim);}
+.qrgrande button{font:inherit;cursor:pointer;background:var(--gold);color:var(--bg);border:0;border-radius:999px;padding:14px 34px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
 footer{text-align:center;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);}
 footer i{display:block;font-family:var(--serif);font-size:15px;letter-spacing:0;text-transform:none;color:var(--dim);margin-top:2px;}
 /* tablet vertical (11" parada): una columna */
@@ -74,7 +80,7 @@ function aplicarTema(){ document.documentElement.dataset.tema = tema(); }
 aplicarTema();
 const cab = (eb, tit, cual) => `<header><img src="${tema()==='claro' ? IMGS.logo_osc : IMGS.logo}" alt="Bar de Perfumes · Solo se vive una vez"><div class="t"><div class="eb">${eb}</div><h1>${tit}</h1></div>
   <div class="acc"><nav aria-label="Carteles"><a href="#bases" ${cual==='bases'?'aria-current="page"':''}>Bases</a><a href="#notas" ${cual==='notas'?'aria-current="page"':''}>Notas</a></nav>
-  <button onclick="cambiarTema()">${tema()==='claro'?'● Negro':'☀ Claro'}</button><a href="entregas.html">Entrega</a><a class="multi" href="./">Modo multiusuario →</a></div></header>`;
+  <button onclick="mostrarQR()">▦ QR celular</button><button onclick="cambiarTema()">${tema()==='claro'?'● Negro':'☀ Claro'}</button><a href="entregas.html">Entrega</a><a class="multi" href="./">Modo multiusuario →</a></div></header>`;
 const pie = `<footer>Método Emotional Reminder<i>Diseñado por Lic. Agustín Melazo Díaz · MP 240.297</i></footer>`;
 function vBases(){
   return cab('Tablet 1', 'Las bases', 'bases') + `<section class="bases">${DATOS.bases.map(b=>`<article class="base"><img src="${IMGS[b.img]}" alt="">
@@ -89,6 +95,10 @@ function vNotas(){
     <div class="grupo"><h2>Notas de salida</h2>${DATOS.salida.map(nota).join('')}</div>
     <div class="grupo"><h2>Notas de corazón</h2>${DATOS.corazon.map(nota).join('')}</div></section>` + pie;
 }
+const QR_SVG = `__QR__`;
+function mostrarQR(){ const d = document.createElement('div'); d.className='qrgrande'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','QR para el celular');
+  d.innerHTML = `<img src="${tema()==='claro' ? IMGS.logo_osc : IMGS.logo}" alt="" style="height:90px"><h2>Hacelo desde tu celular</h2><div class="cuadro">${QR_SVG}</div><p>Escaneá con la cámara y armá tu perfume.</p><button onclick="this.closest('.qrgrande').remove()">Cerrar</button>`;
+  document.body.appendChild(d); }
 function pintar(){ document.getElementById('app').innerHTML = location.hash==='#notas' ? vNotas() : vBases(); }
 window.addEventListener('hashchange', pintar); pintar();
 /* la pantalla no se apaga mientras se muestra el cartel (si el equipo lo permite) */

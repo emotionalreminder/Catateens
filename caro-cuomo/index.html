@@ -8,7 +8,7 @@
 <title>Perfume Bar · Emotional Reminder</title>
 <script>
 /* Si el celular tiene guardada una versión vieja de la app, se recarga sola con la última. */
-const APP_VERSION = '20261122132521';
+const APP_VERSION = '20261122133143';
 (async()=>{ try{
   const r = await fetch(location.pathname + '?nc=' + Date.now(), {cache:'no-store', headers:{Range:'bytes=0-1500'}});
   /* lee solo el principio del archivo y corta la descarga */

@@ -61,7 +61,7 @@ console.log(JSON.stringify({bases:orden.map(id=>BASES.find(x=>x.id===id)).map(x=
 ''',os.path.join(AQUI,'app-celular.html')],capture_output=True,text=True,check=True).stdout
 ci={k:IM[k] for k in ['musky','sandalo','gourmand','tabaco','bergamota','grosella','pera','bruma','peonia','rosas','higo','aromatico']}
 ci['logo']=IM['logo_caro_claro']; ci['logo_osc']=IM['logo_caro']
-open(os.path.join(out,'carteles.html'),'w').write(open(os.path.join(AQUI,'carteles.html')).read().replace('__IMGS__',json.dumps(ci)).replace('__DATOS__',datos.strip()))
+open(os.path.join(out,'carteles.html'),'w').write(open(os.path.join(AQUI,'carteles.html')).read().replace('__IMGS__',json.dumps(ci)).replace('__DATOS__',datos.strip()).replace('__QR__',qr))
 # checklist de entrega de perfumes (solo tablets) e invitados precargados
 INV=open(os.path.join(AQUI,'invitados.json')).read().strip() or '[]'
 open(os.path.join(out,'entregas.html'),'w').write(open(os.path.join(AQUI,'entregas.html')).read().replace('__LOGO__',json.dumps(IM['logo_caro_claro'])).replace('__INVITADOS__',INV))

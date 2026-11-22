@@ -50,6 +50,15 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,4vw,40px);line-
 .botones button{min-width:108px;min-height:52px;padding:8px 12px;border-radius:12px;border:2px solid var(--c);color:var(--ink);font-weight:700;font-size:14px;}
 .botones button:active{transform:scale(.97);}
 .botones .deshacer{border-color:var(--line);color:var(--dim);min-width:auto;}
+.regalo{background:var(--card);border:1px dashed var(--gold);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
+.regalo .tit{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.regalo .tit b{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);flex:1;}
+.regalo .tit button{font-size:12px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:6px 12px;}
+.regalo .bt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.regalo .bt button{border:2px solid var(--c);border-radius:12px;padding:8px 10px;min-height:52px;font-weight:700;text-align:left;}
+.regalo .bt button b{font-family:var(--serif);font-size:24px;margin-right:6px;}
+.regalo .bt button:disabled{opacity:.35;cursor:default;}
+.regalo p{font-size:12px;color:var(--dim);}
 .vacio{color:var(--dim);text-align:center;padding:30px 10px;}
 .nuevo{margin-top:10px;width:100%;padding:14px;border-radius:14px;border:1.5px dashed var(--line);color:var(--gold);font-weight:600;}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;z-index:20;max-width:calc(100% - 32px);text-align:center;}
@@ -72,7 +81,7 @@ const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'
 const nz = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 const LS = {get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const tabletN = () => LS.get('er_tab_caro_cuomo_n', 1);
-let E = LS.get(KE, {entregas:{}, extra:[]});        /* entregas[clave] = {tipo, hora}; extra = invitados agregados a mano */
+let E = Object.assign({entregas:{}, extra:[], cerrado:false}, LS.get(KE, {}));        /* entregas[clave] = {tipo, hora}; extra = invitados agregados a mano */
 let q = '', filtro = 'todos';
 const guardar = () => LS.set(KE, E);
 const clave = n => nz(n);
@@ -80,12 +89,18 @@ const todos = () => INVITADOS.map(([n,t,m])=>({n, t:t||'', m:m||''})).concat(E.e
   .filter((x,i,a)=>a.findIndex(y=>clave(y.n)===clave(x.n))===i).sort((a,b)=>a.n.localeCompare(b.n,'es'));
 function aviso(t){ const d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),1800); }
 const usados = tipo => Object.values(E.entregas).filter(x=>x.tipo===tipo).length;
+/* reservados: invitados con ese tipo sugerido que todavía no lo retiraron (se liberan al cerrar la entrega) */
+const reservados = tipo => E.cerrado ? 0 : INVITADOS.filter(([n,t])=>t===tipo && !E.entregas[clave(n)]).length;
+const paraRegalo = tipo => Math.max(0, STOCK[tipo] - usados(tipo) - reservados(tipo));
 
 function cabecera(){
   const lista = todos(), dados = lista.filter(x=>E.entregas[clave(x.n)]).length;
   $('#cab').innerHTML = `<div class="fila1"><img src="${LOGO}" alt="Bar de Perfumes"><div class="t"><div class="eb">Tablet ${tabletN()} · checklist</div><h1>Entrega de perfumes</h1></div>
       <div class="links"><a href="./">Formular</a><a href="carteles.html#bases">Carteles</a></div></div>
     <div class="stock">${TIPOS.map(([k,t,c])=>{ const u = usados(k); return `<div class="st" style="--c:${c}"><span>${t}</span><b>${u} / ${STOCK[k]}</b><small>${STOCK[k]-u >= 0 ? 'Quedan '+(STOCK[k]-u) : 'Sin stock'}</small></div>`; }).join('')}</div>
+    <div class="regalo"><div class="tit"><b>🎁 Stock para regalo</b><button onclick="cerrar()">${E.cerrado ? '↺ Volver a reservar a los que faltan' : 'Terminó la entrega: liberar a los que no vinieron'}</button></div>
+      <div class="bt">${TIPOS.map(([k,t,c])=>`<button style="--c:${c}" ${paraRegalo(k)?'':'disabled'} onclick="regalar('${k}')"><b>${paraRegalo(k)}</b>${t}</button>`).join('')}</div>
+      <p>${E.cerrado ? 'Entrega cerrada: los perfumes de quienes no vinieron ya cuentan para regalo.' : 'Sobrantes aunque vengan todos. Tocá un tipo para regalárselo a alguien.'}</p></div>
     <div class="buscar"><input id="q" type="search" placeholder="Buscar nombre o mesa…" value="${esc(q)}" autocomplete="off" aria-label="Buscar nombre" oninput="q=this.value;lista()"></div>
     <div class="filtros" role="group" aria-label="Mostrar">${[['todos','Todos ('+lista.length+')'],['pend','Pendientes ('+(lista.length-dados)+')'],['ok','Entregados ('+dados+')']].map(([k,t])=>`<button aria-pressed="${filtro===k}" onclick="filtro='${k}';pintar()">${t}</button>`).join('')}</div>`;
 }
@@ -95,7 +110,7 @@ function lista(){
   if(filtro==='pend') l = l.filter(x=>!E.entregas[clave(x.n)]);
   if(filtro==='ok') l = l.filter(x=>E.entregas[clave(x.n)]);
   const item = x => { const e = E.entregas[clave(x.n)];
-    const sub = e ? `<small class="dado">✓ ${esc(TIPOS.find(t=>t[0]===e.tipo)[1])} · ${esc(e.hora)}${e.tablet?' · tablet '+e.tablet:''}</small>` : `<small>${x.m ? 'Mesa '+esc(x.m)+' · ' : ''}${x.t ? 'Sugerido: '+esc(TIPOS.find(t=>t[0]===x.t)[1]) : x.extra ? 'Agregado a mano' : 'Pendiente'}</small>`;
+    const sub = e ? `<small class="dado">${e.regalo ? '🎁 Regalo' : '✓'} ${esc(TIPOS.find(t=>t[0]===e.tipo)[1])} · ${esc(e.hora)}${e.tablet?' · tablet '+e.tablet:''}</small>` : `<small>${x.m ? 'Mesa '+esc(x.m)+' · ' : ''}${x.t ? 'Sugerido: '+esc(TIPOS.find(t=>t[0]===x.t)[1]) : x.extra ? 'Agregado a mano' : 'Pendiente'}</small>`;
     const bot = e ? `<button class="deshacer" onclick="deshacer('${esc(clave(x.n))}')">Deshacer</button>`
       : TIPOS.filter(([k])=>!x.t || k===x.t || true).map(([k,t,c])=>`<button style="--c:${c}${x.t && x.t!==k ? ';opacity:.45' : ''}" onclick="entregar('${esc(clave(x.n))}','${k}')">${t}</button>`).join('');
     return `<div class="inv ${e?'ok':''}"><div class="n"><b>${esc(x.n)}</b>${sub}</div><div class="botones">${bot}</div></div>`; };
@@ -113,6 +128,18 @@ function entregar(k, tipo){
 function deshacer(k){ const x = todos().find(y=>clave(y.n)===k), e = E.entregas[k]; if(!e) return;
   if(!confirm('¿Deshacer la entrega de '+x.n+'?')) return;
   delete E.entregas[k]; guardar(); enviar(x.n, e.tipo, 'Anulado', new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})); pintar(); }
+function regalar(tipo){
+  if(!paraRegalo(tipo)) return;
+  const t = TIPOS.find(x=>x[0]===tipo)[1];
+  const n = (prompt('🎁 Regalo · '+t+'\n¿A quién se lo das? (nombre y apellido)', q.trim()) || '').trim(); if(!n) return;
+  const k = clave(n); if(E.entregas[k]){ alert(n+' ya tiene perfume anotado.'); return; }
+  if(!todos().some(x=>clave(x.n)===k)) E.extra.push(n);
+  const hora = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  E.entregas[k] = {tipo, hora, tablet:tabletN(), regalo:true}; guardar(); enviar(n, tipo, 'Regalo', hora);
+  aviso('🎁 '+n+' · '+t); q=''; pintar(); }
+function cerrar(){
+  if(!E.cerrado && !confirm('¿Ya terminaste de entregar? Los perfumes de los invitados que no vinieron pasan al stock para regalo.')) return;
+  E.cerrado = !E.cerrado; guardar(); pintar(); }
 function agregar(){ const n = q.trim(); if(!n) return; E.extra.push(n); guardar(); filtro='todos'; pintar(); }
 
 /* registro en la planilla (pestaña "Entregas Caro Cuomo"), con cola si no hay internet */

@@ -634,7 +634,32 @@ function blobYa(){ /* sin esperas, para no perder el permiso del toque en iPhone
   const u = $('#cv').toDataURL('image/png'), bin = atob(u.split(',')[1]), a = new Uint8Array(bin.length);
   for(let i=0;i<bin.length;i++) a[i] = bin.charCodeAt(i); return new Blob([a], {type:'image/png'}); }
 const codigo = p => p.cod || (p.cod = ('CC-' + Math.random().toString(36).slice(2,6)).toUpperCase());
-function textoWA(){ return `¡Hola Emotional Reminder! Soy ${P.nom.trim()} y creé mi perfume "${P.pn.trim()}" en el Perfume Bar de ${EVENTO.nombre} (código ${codigo(P)}). Mi receta: ${recetaTxt(P.r)}.`; }
+/* mensaje de WhatsApp ordenado: una línea "Dato: valor" por renglón, para leerlo a simple vista
+   y para que una tarea automática lo cargue como cliente (la llave es el Código) */
+function textoWA(){
+  const r = P.r, B = X[r.base];
+  const notas = g => Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1]).map(([id,ml])=>`${X[id].n} ${fmt(ml)} ml`).join(' · ') || '—';
+  const enc = BASES.concat(NOTAS_TODAS()).filter(a=>P.v[a.id]===3).map(a=>(BASES.includes(a)?'Base ':'')+a.n).join(', ') || '—';
+  const perf = (P.perf||[]).filter(x=>x&&x.trim()).map(x=>x.split(' · ')[0]).join(', ') || '—';
+  return [
+    '✨ *Mi perfume · Emotional Reminder*',
+    '',
+    `Evento: ${EVENTO.nombre}`,
+    `Código: ${codigo(P)}`,
+    `Nombre: ${P.nom.trim()}`,
+    `Perfume: ${P.pn.trim()}`,
+    '',
+    `Base: ${B.n} · ${fmt(r.baseMl)} ml`,
+    `Corazón: ${notas('cor')}`,
+    `Salida: ${notas('sal')}`,
+    `Total: ${fmt(EVENTO.ML)} ml`,
+    '',
+    `Le encantó: ${enc}`,
+    `Perfumes que usa: ${perf}`,
+    '',
+    '#PerfumeBar'
+  ].join('\n');
+}
 async function mandarWA(){
   const url = `https://wa.me/${EVENTO.WA_ER}?text=${encodeURIComponent(textoWA())}`;
   const blob = blobYa(), nom = 'perfume_' + nz(P.pn||P.nom).replace(/ /g,'_') + '.png';

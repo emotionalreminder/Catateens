@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0E0C0B">
+<title>Entrega de perfumes · Caro Cuomo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Checklist de entrega para la tablet: buscar el nombre, tocar qué perfume se lleva, queda tildado. */
+:root{ --bg:#0E0C0B; --ink:#F4EBDD; --gold:#C9A45C; --dim:#B9A98F; --line:rgba(201,164,92,.35); --card:#161311;
+  --pat:#7FB3D5; --fem:#D98AA6; --mas:#C9A45C; --ok:#6FBF8F; --warn:#E58A62;
+  --serif:"Cormorant Garamond", Georgia, serif; --sans:Inter, system-ui, -apple-system, sans-serif; color-scheme:dark; }
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;}
+body{padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-bottom:40px;}
+button,input{font:inherit;color:inherit;}
+button{cursor:pointer;border:0;background:none;}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 0 10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:12px;}
+.fila1{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.fila1 img{height:56px;}
+.fila1 .t{flex:1;min-width:0;}
+.eb{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:600;}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,4vw,40px);line-height:1;}
+.links{display:flex;gap:6px;flex-wrap:wrap;}
+.links a{color:var(--dim);text-decoration:none;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:9px 14px;border:1px solid var(--line);border-radius:999px;}
+/* contadores de stock */
+.stock{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.st{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:14px;padding:10px 14px;}
+.st b{display:block;font-family:var(--serif);font-size:30px;line-height:1;}
+.st span{font-size:12px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;}
+.st small{display:block;color:var(--dim);font-size:13px;margin-top:2px;}
+.buscar{display:flex;gap:8px;}
+.buscar input{flex:1;min-width:0;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);font-size:20px;}
+.filtros{display:flex;gap:6px;flex-wrap:wrap;}
+.filtros button{padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:13px;color:var(--dim);}
+.filtros button[aria-pressed="true"]{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700;}
+/* lista */
+.lista{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.inv{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;}
+.inv.ok{border-color:var(--ok);background:#13201A;}
+.inv .n{flex:1;min-width:0;}
+.inv .n b{display:block;font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.05;}
+.inv .n small{color:var(--dim);font-size:13px;}
+.inv .n small.dado{color:var(--ok);font-weight:600;}
+.botones{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.botones button{min-width:108px;min-height:52px;padding:8px 12px;border-radius:12px;border:2px solid var(--c);color:var(--ink);font-weight:700;font-size:14px;}
+.botones button:active{transform:scale(.97);}
+.botones .deshacer{border-color:var(--line);color:var(--dim);min-width:auto;}
+.vacio{color:var(--dim);text-align:center;padding:30px 10px;}
+.nuevo{margin-top:10px;width:100%;padding:14px;border-radius:14px;border:1.5px dashed var(--line);color:var(--gold);font-weight:600;}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;z-index:20;max-width:calc(100% - 32px);text-align:center;}
+@media (max-width:700px){ .inv{flex-wrap:wrap;} .botones{width:100%;justify-content:stretch;} .botones button{flex:1;min-width:0;} }
+</style>
+</head>
+<body>
+<header id="cab"></header>
+<main id="app"></main>
+<script>
+const LOGO = __LOGO__;
+/* INVITADOS precargados: [nombre, tipo sugerido] · tipo: 'patinaje' | 'femenino' | 'masculino' | '' */
+const INVITADOS = __INVITADOS__;
+const STOCK = {patinaje:40, femenino:112, masculino:68};
+const TIPOS = [['patinaje','Patinaje','var(--pat)'],['femenino','Femenino','var(--fem)'],['masculino','Masculino','var(--mas)']];
+const CFG = {SCRIPT_URL:'https://script.google.com/macros/s/AKfycbwkMzVVILGvF1Ctx53JR3hvndsLlbkjoLsSwF9MDSjhcGSp2gZfTo6hd_Cx3UoI_aV3AA/exec', CLAVE:'ER-ninas-2026', HOJA:'Entregas Caro Cuomo'};
+const KE = 'er_caro_entregas';
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nz = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+const LS = {get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const tabletN = () => LS.get('er_tab_caro_cuomo_n', 1);
+let E = LS.get(KE, {entregas:{}, extra:[]});        /* entregas[clave] = {tipo, hora}; extra = invitados agregados a mano */
+let q = '', filtro = 'todos';
+const guardar = () => LS.set(KE, E);
+const clave = n => nz(n);
+const todos = () => INVITADOS.map(([n,t])=>({n, t:t||''})).concat(E.extra.map(n=>({n, t:'', extra:true})))
+  .filter((x,i,a)=>a.findIndex(y=>clave(y.n)===clave(x.n))===i).sort((a,b)=>a.n.localeCompare(b.n,'es'));
+function aviso(t){ const d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),1800); }
+const usados = tipo => Object.values(E.entregas).filter(x=>x.tipo===tipo).length;
+
+function cabecera(){
+  const lista = todos(), dados = lista.filter(x=>E.entregas[clave(x.n)]).length;
+  $('#cab').innerHTML = `<div class="fila1"><img src="${LOGO}" alt="Bar de Perfumes"><div class="t"><div class="eb">Tablet ${tabletN()} · checklist</div><h1>Entrega de perfumes</h1></div>
+      <div class="links"><a href="./">Formular</a><a href="carteles.html#bases">Carteles</a></div></div>
+    <div class="stock">${TIPOS.map(([k,t,c])=>{ const u = usados(k); return `<div class="st" style="--c:${c}"><span>${t}</span><b>${u} / ${STOCK[k]}</b><small>${STOCK[k]-u >= 0 ? 'Quedan '+(STOCK[k]-u) : 'Sin stock'}</small></div>`; }).join('')}</div>
+    <div class="buscar"><input id="q" type="search" placeholder="Buscar nombre…" value="${esc(q)}" autocomplete="off" aria-label="Buscar nombre" oninput="q=this.value;lista()"></div>
+    <div class="filtros" role="group" aria-label="Mostrar">${[['todos','Todos ('+lista.length+')'],['pend','Pendientes ('+(lista.length-dados)+')'],['ok','Entregados ('+dados+')']].map(([k,t])=>`<button aria-pressed="${filtro===k}" onclick="filtro='${k}';pintar()">${t}</button>`).join('')}</div>`;
+}
+function lista(){
+  const w = nz(q).split(' ').filter(Boolean);
+  let l = todos().filter(x=>w.every(p=>nz(x.n).includes(p)));
+  if(filtro==='pend') l = l.filter(x=>!E.entregas[clave(x.n)]);
+  if(filtro==='ok') l = l.filter(x=>E.entregas[clave(x.n)]);
+  const item = x => { const e = E.entregas[clave(x.n)];
+    const sub = e ? `<small class="dado">✓ ${esc(TIPOS.find(t=>t[0]===e.tipo)[1])} · ${esc(e.hora)}${e.tablet?' · tablet '+e.tablet:''}</small>` : `<small>${x.t ? 'Sugerido: '+esc(TIPOS.find(t=>t[0]===x.t)[1]) : x.extra ? 'Agregado a mano' : 'Pendiente'}</small>`;
+    const bot = e ? `<button class="deshacer" onclick="deshacer('${esc(clave(x.n))}')">Deshacer</button>`
+      : TIPOS.filter(([k])=>!x.t || k===x.t || true).map(([k,t,c])=>`<button style="--c:${c}${x.t && x.t!==k ? ';opacity:.45' : ''}" onclick="entregar('${esc(clave(x.n))}','${k}')">${t}</button>`).join('');
+    return `<div class="inv ${e?'ok':''}"><div class="n"><b>${esc(x.n)}</b>${sub}</div><div class="botones">${bot}</div></div>`; };
+  $('#app').innerHTML = `<div class="lista">${l.map(item).join('') || `<p class="vacio">${INVITADOS.length ? 'No hay nadie con ese nombre.' : 'Todavía no hay invitados cargados.'}</p>`}</div>
+    ${q.trim() && !todos().some(x=>clave(x.n)===clave(q)) ? `<button class="nuevo" onclick="agregar()">+ Agregar "${esc(q.trim())}" a la lista</button>` : ''}`;
+}
+function pintar(){ cabecera(); lista(); const i = $('#q'); }
+function entregar(k, tipo){
+  const x = todos().find(y=>clave(y.n)===k); if(!x || E.entregas[k]) return;
+  if(usados(tipo) >= STOCK[tipo] && !confirm('Ya se entregaron todos los de '+tipo+'. ¿Anotar igual?')) return;
+  const hora = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  E.entregas[k] = {tipo, hora, tablet:tabletN()}; guardar(); enviar(x.n, tipo, 'Entregado', hora);
+  aviso(`✓ ${x.n} · ${TIPOS.find(t=>t[0]===tipo)[1]}`); q=''; pintar(); const i = $('#q'); if(i) i.focus();
+}
+function deshacer(k){ const x = todos().find(y=>clave(y.n)===k), e = E.entregas[k]; if(!e) return;
+  if(!confirm('¿Deshacer la entrega de '+x.n+'?')) return;
+  delete E.entregas[k]; guardar(); enviar(x.n, e.tipo, 'Anulado', new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})); pintar(); }
+function agregar(){ const n = q.trim(); if(!n) return; E.extra.push(n); guardar(); filtro='todos'; pintar(); }
+
+/* registro en la planilla (pestaña "Entregas Caro Cuomo"), con cola si no hay internet */
+function enviar(nombre, tipo, estado, hora){
+  const r = {clave:CFG.CLAVE, hoja:CFG.HOJA, id:'ent-'+clave(nombre), t:Date.now(),
+    columnas:[['ID','ent-'+clave(nombre)],['Nombre',nombre],['Perfume entregado',TIPOS.find(t=>t[0]===tipo)[1]],['Estado',estado],['Hora',hora],['Tablet','Tablet '+tabletN()],['Fecha',new Date().toLocaleString('es-AR')]]};
+  const cola = LS.get('er_caro_entregas_cola',[]).filter(x=>x.id!==r.id); cola.push(r); LS.set('er_caro_entregas_cola',cola); vaciar(); }
+let enviando = false;
+async function vaciar(){ if(enviando || !navigator.onLine) return; enviando = true;
+  try{ for(const r of LS.get('er_caro_entregas_cola',[])){ try{ const resp = await fetch(CFG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(r)}); const j = await resp.json();
+      if(j.ok) LS.set('er_caro_entregas_cola', LS.get('er_caro_entregas_cola',[]).filter(x=>!(x.id===r.id && x.t===r.t))); }catch(e){} } }
+  finally{ enviando = false; } }
+setInterval(vaciar, 30000); window.addEventListener('online', vaciar);
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+pintar(); vaciar();
+</script>
+</body>
+</html>

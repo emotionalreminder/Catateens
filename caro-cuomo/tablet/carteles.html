@@ -74,7 +74,7 @@ function aplicarTema(){ document.documentElement.dataset.tema = tema(); }
 aplicarTema();
 const cab = (eb, tit, cual) => `<header><img src="${tema()==='claro' ? IMGS.logo_osc : IMGS.logo}" alt="Bar de Perfumes · Solo se vive una vez"><div class="t"><div class="eb">${eb}</div><h1>${tit}</h1></div>
   <div class="acc"><nav aria-label="Carteles"><a href="#bases" ${cual==='bases'?'aria-current="page"':''}>Bases</a><a href="#notas" ${cual==='notas'?'aria-current="page"':''}>Notas</a></nav>
-  <button onclick="cambiarTema()">${tema()==='claro'?'● Negro':'☀ Claro'}</button><a class="multi" href="./">Modo multiusuario →</a></div></header>`;
+  <button onclick="cambiarTema()">${tema()==='claro'?'● Negro':'☀ Claro'}</button><a href="entregas.html">Entrega</a><a class="multi" href="./">Modo multiusuario →</a></div></header>`;
 const pie = `<footer>Método Emotional Reminder<i>Diseñado por Lic. Agustín Melazo Díaz · MP 240.297</i></footer>`;
 function vBases(){
   return cab('Tablet 1', 'Las bases', 'bases') + `<section class="bases">${DATOS.bases.map(b=>`<article class="base"><img src="${IMGS[b.img]}" alt="">

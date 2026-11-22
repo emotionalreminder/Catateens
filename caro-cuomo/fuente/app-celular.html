@@ -182,6 +182,8 @@ const IMGS = __IMGS__;
 <script>
 /* Base de perfumes conocidos: [nombre, marca, perfil 0-9 en 12 familias (ver FK)] */
 const FRA = __FRA__;
+/* invitados de Caro Cuomo: [nombre, tipo] · sugerencias al escribir el nombre */
+const INVITADOS = __INVITADOS__;
 </script>
 <script>
 /*@@COMUN1*/
@@ -515,7 +517,7 @@ const pie = () => `<div class="foot">${esc(EVENTO.FIRMA[0])}<br><span style="let
 function vRegistro(){
   return `<div class="hero">${EVENTO.LOGO_EVENTO?`<img src="${foto(EVENTO.LOGO_EVENTO)}" alt="" style="height:120px;display:block;margin:0 auto 14px">`:''}<div class="eb">Perfume Bar</div><h1>Creá tu perfume</h1><p class="sub">Olé, votá y te armamos una receta a tu medida.</p></div>
   <div class="form">
-    <div class="fld"><label for="nom">¿Cómo te llamás?</label><input id="nom" type="text" value="${esc(P.nom)}" autocomplete="off" placeholder="Tu nombre" oninput="P.nom=this.value;guardar();chk()"></div>
+    <datalist id="lista-inv">${INVITADOS.map(([n])=>`<option value="${esc(n)}">`).join('')}</datalist><div class="fld"><label for="nom">¿Cómo te llamás?</label><input id="nom" type="text" list="lista-inv" value="${esc(P.nom)}" autocomplete="off" placeholder="Tu nombre" oninput="P.nom=this.value;guardar();chk()"></div>
     ${EVENTO.PEDIR_WA ? `<div class="fld"><label for="wa">WhatsApp <small>(opcional)</small></label><div class="tel"><span>+${esc(EVENTO.WA_PREFIJO)}</span><input id="wa" type="tel" inputmode="numeric" value="${esc(waLocal(P.wa))}" autocomplete="off" placeholder="11 5555 5555" oninput="P.wa=this.value;guardar()"></div></div>` : ''}
     <div class="fld"><label>Tus perfumes favoritos <small>(opcional, hasta 5)</small></label><div class="perfs">
       ${P.perf.map((v,i)=>`<div class="ac"><input id="pf${i}" type="text" value="${esc(v)}" autocomplete="off" placeholder="Perfume ${i+1}" aria-label="Perfume favorito ${i+1}"

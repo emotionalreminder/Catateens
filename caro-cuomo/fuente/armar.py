@@ -24,16 +24,16 @@ IM={k:enc(ruta(v)) for k,v in M.items()}
 for k in ['logo_caro','logo_caro_claro']: IM[k]='data:image/webp;base64,'+base64.b64encode(open(ruta(k),'rb').read()).decode()
 ver=time.strftime('%Y%m%d%H%M%S')
 cel=open(os.path.join(AQUI,'app-celular.html')).read()
-open(os.path.join(AQUI,'..','index.html'),'w').write(cel.replace('__VERSION__',ver).replace('__IMGS__',json.dumps(IM)).replace('__FRA__',open(os.path.join(AQUI,'fra_full.json')).read()))
+open(os.path.join(AQUI,'..','index.html'),'w').write(cel.replace('__VERSION__',ver).replace('__IMGS__',json.dumps(IM)).replace('__FRA__',open(os.path.join(AQUI,'fra_full.json')).read()).replace('__INVITADOS__',open(os.path.join(AQUI,'invitados.json')).read().strip() or '[]'))
 c1=cel[cel.index('/*@@COMUN1*/'):cel.index('/*@@FIN1*/')]; c2=cel[cel.index('/*@@COMUN2*/'):cel.index('/*@@FIN2*/')]
 qr=re.sub(r'<\?xml[^>]*>','',open(os.path.join(AQUI,'qr.svg')).read()).strip()
-tab=open(os.path.join(AQUI,'app-tablet.html')).read().replace('__COMUN1__',c1).replace('__COMUN2__',c2).replace('__IMGS__',json.dumps(IM)).replace('__QR__',qr)
+tab=open(os.path.join(AQUI,'app-tablet.html')).read().replace('__COMUN1__',c1).replace('__COMUN2__',c2).replace('__IMGS__',json.dumps(IM)).replace('__QR__',qr).replace('__INVITADOS__',open(os.path.join(AQUI,'invitados.json')).read().strip() or '[]')
 out=os.path.join(AQUI,'..','tablet'); os.makedirs(out,exist_ok=True)
 open(os.path.join(out,'index.html'),'w').write(tab)
 open(os.path.join(out,'manifest.json'),'w').write(json.dumps({"name":"Bar de Perfumes · Caro Cuomo","short_name":"Bar de Perfumes","start_url":"./","scope":"./","display":"standalone","orientation":"landscape","background_color":"#F7F0E6","theme_color":"#2E2420","icons":[{"src":"icono.png","sizes":"512x512","type":"image/png"}]},ensure_ascii=False,indent=1))
 open(os.path.join(out,'sw.js'),'w').write(f"""/* Guarda la app en la tablet para que abra sin internet. Versión {ver} */
 const PREFIJO = 'caro-tablet-', CACHE = PREFIJO + '{ver}';
-const ARCHIVOS = ['./', './index.html', './carteles.html', './manifest.json', './icono.png'];
+const ARCHIVOS = ['./', './index.html', './carteles.html', './entregas.html', './manifest.json', './icono.png'];
 self.addEventListener('install', e => {{ e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting())); }});
 self.addEventListener('activate', e => {{ e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith(PREFIJO) && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); }});
 self.addEventListener('fetch', e => {{
@@ -62,6 +62,9 @@ console.log(JSON.stringify({bases:orden.map(id=>BASES.find(x=>x.id===id)).map(x=
 ci={k:IM[k] for k in ['musky','sandalo','gourmand','tabaco','bergamota','grosella','pera','bruma','peonia','rosas','higo','aromatico']}
 ci['logo']=IM['logo_caro_claro']; ci['logo_osc']=IM['logo_caro']
 open(os.path.join(out,'carteles.html'),'w').write(open(os.path.join(AQUI,'carteles.html')).read().replace('__IMGS__',json.dumps(ci)).replace('__DATOS__',datos.strip()))
+# checklist de entrega de perfumes (solo tablets) e invitados precargados
+INV=open(os.path.join(AQUI,'invitados.json')).read().strip() or '[]'
+open(os.path.join(out,'entregas.html'),'w').write(open(os.path.join(AQUI,'entregas.html')).read().replace('__LOGO__',json.dumps(IM['logo_caro_claro'])).replace('__INVITADOS__',INV))
 ic=Image.new('RGBA',(512,512),(247,240,230,255)); lg=Image.open(ruta('logo_caro')).convert('RGBA'); lg.thumbnail((400,400))
 ic.alpha_composite(lg,((512-lg.width)//2,(512-lg.height)//2)); ic.convert('RGB').save(os.path.join(out,'icono.png'))
 print('ok', ver)

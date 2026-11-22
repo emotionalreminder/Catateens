@@ -61,7 +61,7 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,4vw,40px);line-
 <main id="app"></main>
 <script>
 const LOGO = __LOGO__;
-/* INVITADOS precargados: [nombre, tipo sugerido] · tipo: 'patinaje' | 'femenino' | 'masculino' | '' */
+/* INVITADOS precargados: [nombre, tipo sugerido, mesa] · tipo: 'patinaje' | 'femenino' | 'masculino' | '' */
 const INVITADOS = __INVITADOS__;
 const STOCK = {patinaje:40, femenino:112, masculino:68};
 const TIPOS = [['patinaje','Patinaje','var(--pat)'],['femenino','Femenino','var(--fem)'],['masculino','Masculino','var(--mas)']];
@@ -76,7 +76,7 @@ let E = LS.get(KE, {entregas:{}, extra:[]});        /* entregas[clave] = {tipo, 
 let q = '', filtro = 'todos';
 const guardar = () => LS.set(KE, E);
 const clave = n => nz(n);
-const todos = () => INVITADOS.map(([n,t])=>({n, t:t||''})).concat(E.extra.map(n=>({n, t:'', extra:true})))
+const todos = () => INVITADOS.map(([n,t,m])=>({n, t:t||'', m:m||''})).concat(E.extra.map(n=>({n, t:'', extra:true})))
   .filter((x,i,a)=>a.findIndex(y=>clave(y.n)===clave(x.n))===i).sort((a,b)=>a.n.localeCompare(b.n,'es'));
 function aviso(t){ const d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),1800); }
 const usados = tipo => Object.values(E.entregas).filter(x=>x.tipo===tipo).length;
@@ -86,16 +86,16 @@ function cabecera(){
   $('#cab').innerHTML = `<div class="fila1"><img src="${LOGO}" alt="Bar de Perfumes"><div class="t"><div class="eb">Tablet ${tabletN()} · checklist</div><h1>Entrega de perfumes</h1></div>
       <div class="links"><a href="./">Formular</a><a href="carteles.html#bases">Carteles</a></div></div>
     <div class="stock">${TIPOS.map(([k,t,c])=>{ const u = usados(k); return `<div class="st" style="--c:${c}"><span>${t}</span><b>${u} / ${STOCK[k]}</b><small>${STOCK[k]-u >= 0 ? 'Quedan '+(STOCK[k]-u) : 'Sin stock'}</small></div>`; }).join('')}</div>
-    <div class="buscar"><input id="q" type="search" placeholder="Buscar nombre…" value="${esc(q)}" autocomplete="off" aria-label="Buscar nombre" oninput="q=this.value;lista()"></div>
+    <div class="buscar"><input id="q" type="search" placeholder="Buscar nombre o mesa…" value="${esc(q)}" autocomplete="off" aria-label="Buscar nombre" oninput="q=this.value;lista()"></div>
     <div class="filtros" role="group" aria-label="Mostrar">${[['todos','Todos ('+lista.length+')'],['pend','Pendientes ('+(lista.length-dados)+')'],['ok','Entregados ('+dados+')']].map(([k,t])=>`<button aria-pressed="${filtro===k}" onclick="filtro='${k}';pintar()">${t}</button>`).join('')}</div>`;
 }
 function lista(){
   const w = nz(q).split(' ').filter(Boolean);
-  let l = todos().filter(x=>w.every(p=>nz(x.n).includes(p)));
+  let l = todos().filter(x=>w.every(p=>nz(x.n+' mesa '+x.m).includes(p)));
   if(filtro==='pend') l = l.filter(x=>!E.entregas[clave(x.n)]);
   if(filtro==='ok') l = l.filter(x=>E.entregas[clave(x.n)]);
   const item = x => { const e = E.entregas[clave(x.n)];
-    const sub = e ? `<small class="dado">✓ ${esc(TIPOS.find(t=>t[0]===e.tipo)[1])} · ${esc(e.hora)}${e.tablet?' · tablet '+e.tablet:''}</small>` : `<small>${x.t ? 'Sugerido: '+esc(TIPOS.find(t=>t[0]===x.t)[1]) : x.extra ? 'Agregado a mano' : 'Pendiente'}</small>`;
+    const sub = e ? `<small class="dado">✓ ${esc(TIPOS.find(t=>t[0]===e.tipo)[1])} · ${esc(e.hora)}${e.tablet?' · tablet '+e.tablet:''}</small>` : `<small>${x.m ? 'Mesa '+esc(x.m)+' · ' : ''}${x.t ? 'Sugerido: '+esc(TIPOS.find(t=>t[0]===x.t)[1]) : x.extra ? 'Agregado a mano' : 'Pendiente'}</small>`;
     const bot = e ? `<button class="deshacer" onclick="deshacer('${esc(clave(x.n))}')">Deshacer</button>`
       : TIPOS.filter(([k])=>!x.t || k===x.t || true).map(([k,t,c])=>`<button style="--c:${c}${x.t && x.t!==k ? ';opacity:.45' : ''}" onclick="entregar('${esc(clave(x.n))}','${k}')">${t}</button>`).join('');
     return `<div class="inv ${e?'ok':''}"><div class="n"><b>${esc(x.n)}</b>${sub}</div><div class="botones">${bot}</div></div>`; };

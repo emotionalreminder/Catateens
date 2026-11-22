@@ -1,5 +1,5 @@
-/* Guarda la app en la tablet para que abra sin internet. Versión 20261122133143 */
-const PREFIJO = 'caro-tablet-', CACHE = PREFIJO + '20261122133143';
+/* Guarda la app en la tablet para que abra sin internet. Versión 20261122134544 */
+const PREFIJO = 'caro-tablet-', CACHE = PREFIJO + '20261122134544';
 const ARCHIVOS = ['./', './index.html', './carteles.html', './entregas.html', './manifest.json', './icono.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith(PREFIJO) && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

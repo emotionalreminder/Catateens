@@ -62,6 +62,17 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,4vw,40px);line-
 .vacio{color:var(--dim);text-align:center;padding:30px 10px;}
 .nuevo{margin-top:10px;width:100%;padding:14px;border-radius:14px;border:1.5px dashed var(--line);color:var(--gold);font-weight:600;}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;z-index:20;max-width:calc(100% - 32px);text-align:center;}
+.links .exp{color:var(--bg);background:var(--gold);font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:9px 14px;border-radius:999px;}
+.expo{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:16px;}
+.expo .caja{background:var(--card);border:1px solid var(--gold);border-radius:18px;padding:22px;max-width:460px;width:100%;display:flex;flex-direction:column;gap:10px;}
+.expo h2{font-family:var(--serif);font-size:30px;font-weight:600;}
+.expo p{color:var(--dim);font-size:14px;}
+.expo button{padding:14px;border-radius:12px;border:1.5px solid var(--gold);font-weight:700;font-size:16px;text-align:left;}
+.expo button.prim{background:var(--gold);color:var(--bg);}
+#imprimir{display:none;}
+@media print{ body>*:not(#imprimir){display:none !important;} #imprimir{display:block !important;color:#000;background:#fff;font-family:Inter,Arial,sans-serif;font-size:11px;}
+  html,body{background:#fff !important;padding:0 !important;} #imprimir h1{font-size:20px;color:#000;margin-bottom:4px;} #imprimir h2{font-size:14px;margin:14px 0 4px;}
+  #imprimir table{width:100%;border-collapse:collapse;} #imprimir th,#imprimir td{border:1px solid #999;padding:3px 6px;text-align:left;} #imprimir th{background:#eee;} }
 @media (max-width:700px){ .inv{flex-wrap:wrap;} .botones{width:100%;justify-content:stretch;} .botones button{flex:1;min-width:0;} }
 </style>
 </head>
@@ -96,7 +107,7 @@ const paraRegalo = tipo => Math.max(0, STOCK[tipo] - usados(tipo) - reservados(t
 function cabecera(){
   const lista = todos(), dados = lista.filter(x=>E.entregas[clave(x.n)]).length;
   $('#cab').innerHTML = `<div class="fila1"><img src="${LOGO}" alt="Bar de Perfumes"><div class="t"><div class="eb">Tablet ${tabletN()} · checklist</div><h1>Entrega de perfumes</h1></div>
-      <div class="links"><a href="./">Formular</a><a href="carteles.html#bases">Carteles</a></div></div>
+      <div class="links"><button class="exp" onclick="exportar()">⬇ Exportar</button><a href="./">Formular</a><a href="carteles.html#bases">Carteles</a></div></div>
     <div class="stock">${TIPOS.map(([k,t,c])=>{ const u = usados(k); return `<div class="st" style="--c:${c}"><span>${t}</span><b>${u} / ${STOCK[k]}</b><small>${STOCK[k]-u >= 0 ? 'Quedan '+(STOCK[k]-u) : 'Sin stock'}</small></div>`; }).join('')}</div>
     <div class="regalo"><div class="tit"><b>🎁 Stock para regalo</b><button onclick="cerrar()">${E.cerrado ? '↺ Volver a reservar a los que faltan' : 'Terminó la entrega: liberar a los que no vinieron'}</button></div>
       <div class="bt">${TIPOS.map(([k,t,c])=>`<button style="--c:${c}" ${paraRegalo(k)?'':'disabled'} onclick="regalar('${k}')"><b>${paraRegalo(k)}</b>${t}</button>`).join('')}</div>
@@ -154,6 +165,42 @@ async function vaciar(){ if(enviando || !navigator.onLine) return; enviando = tr
   finally{ enviando = false; } }
 setInterval(vaciar, 30000); window.addEventListener('online', vaciar);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+/* ---------- exportar (no borra nada: solo lee lo guardado en esta tablet) ---------- */
+function filasExport(){
+  return todos().map(x=>{ const e = E.entregas[clave(x.n)] || null;
+    return {nombre:x.n, mesa:x.m||'', sugerido:x.t ? TIPOS.find(t=>t[0]===x.t)[1] : '',
+      estado: e ? (e.regalo ? 'Regalo' : 'Entregado') : 'No retiró', perfume: e ? TIPOS.find(t=>t[0]===e.tipo)[1] : '',
+      hora: e ? e.hora : '', tablet: e && e.tablet ? 'Tablet '+e.tablet : '', origen: x.extra ? 'Agregado a mano' : 'Lista de invitados'}; });
+}
+const COLS = [['nombre','Nombre'],['mesa','Mesa'],['sugerido','Perfume sugerido'],['estado','Estado'],['perfume','Perfume entregado'],['hora','Hora'],['tablet','Tablet'],['origen','Origen']];
+function exportar(){
+  const d = document.createElement('div'); d.className='expo'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','Exportar');
+  const f = filasExport(), dados = f.filter(x=>x.estado!=='No retiró').length;
+  d.innerHTML = `<div class="caja"><h2>Exportar entregas</h2><p>${dados} entregados de ${f.length}. Lo guardado en la tablet no se borra.</p>
+    <button class="prim" onclick="bajarExcel()">📊 Excel (.csv)</button>
+    <button onclick="imprimirPDF()">📄 PDF (imprimir → Guardar como PDF)</button>
+    <button onclick="compartirExcel()">↗ Compartir (WhatsApp, mail, Drive)</button>
+    <button onclick="this.closest('.expo').remove()" style="border-color:var(--line);color:var(--dim)">Cerrar</button></div>`;
+  document.body.appendChild(d);
+}
+function csv(){ const c = v => { v = String(v==null?'':v); return /[;"\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
+  return '\ufeff' + [COLS.map(x=>x[1]).join(';')].concat(filasExport().map(r=>COLS.map(([k])=>c(r[k])).join(';'))).join('\r\n'); }
+const nombreArch = () => 'Entregas Caro Cuomo - Tablet '+tabletN()+' - '+new Date().toLocaleDateString('es-AR').replace(/\//g,'-')+'.csv';
+function bajarExcel(){ const b = new Blob([csv()],{type:'text/csv;charset=utf-8'}), a = document.createElement('a');
+  a.href = URL.createObjectURL(b); a.download = nombreArch(); document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 4000); aviso('Archivo descargado'); }
+async function compartirExcel(){
+  const file = new File([csv()], nombreArch(), {type:'text/csv'});
+  try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'Entregas Caro Cuomo'}); return; } }catch(err){ if(err && err.name==='AbortError') return; }
+  bajarExcel(); }
+function imprimirPDF(){
+  const f = filasExport(), sec = (tit, l) => l.length ? `<h2>${tit} (${l.length})</h2><table><tr>${COLS.map(c=>`<th>${c[1]}</th>`).join('')}</tr>${l.map(r=>`<tr>${COLS.map(([k])=>`<td>${esc(r[k])}</td>`).join('')}</tr>`).join('')}</table>` : '';
+  let p = document.getElementById('imprimir'); if(!p){ p = document.createElement('div'); p.id='imprimir'; document.body.appendChild(p); }
+  p.innerHTML = `<h1>Entregas de perfumes · Caro Cuomo</h1><div>Tablet ${tabletN()} · ${new Date().toLocaleString('es-AR')}</div>
+    <div>${TIPOS.map(([k,t])=>`${t}: ${usados(k)} / ${STOCK[k]}`).join(' · ')}</div>
+    ${sec('Entregados', f.filter(x=>x.estado==='Entregado'))}${sec('Regalos', f.filter(x=>x.estado==='Regalo'))}${sec('No retiraron', f.filter(x=>x.estado==='No retiró'))}`;
+  const x = document.querySelector('.expo'); if(x) x.remove();
+  setTimeout(()=>window.print(), 100);
+}
 pintar(); vaciar();
 </script>
 </body>

@@ -86,6 +86,7 @@ dl.tec dt{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(-
 .bopt.s{border-color:var(--gold);border-width:2.5px;}
 .bopt .tag{position:absolute;top:8px;left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:4px 8px;border-radius:999px;background:var(--ink);color:var(--bg);}
 .bopt.s .tag{background:var(--gold);}
+.bopt .rec2{display:block;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:var(--green);margin-top:4px;}
 .bopt .rec{position:absolute;top:8px;right:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:var(--green);}
 .seg{display:flex;gap:6px;margin-top:8px;}
 .seg button{flex:1;padding:9px 4px;border:1.5px solid var(--line);border-radius:10px;font-size:12px;font-weight:600;background:var(--card);}
@@ -592,8 +593,8 @@ function vBase(){
   return `<div class="eb">Paso 1 · El fondo</div><h1>Elegí tu base</h1>
     <p class="sub">Te recomendamos <b>${esc(X[rec.b].n)}</b> ${esc(rec.por)}. Podés cambiarla o combinarla con una o dos bases más.</p>
     <div class="bases" style="margin-top:14px">${BASES.map(b=>{ const cls = b===P.principal ? 'p' : P.extras.includes(b) ? 's' : '';
-      return `<div class="bopt ${cls}">${cls==='p'?'<span class="tag">Principal</span>':cls==='s'?'<span class="tag">Suma</span>':''}${b===rec.b?'<span class="rec">Recomendada</span>':''}
-        <img src="${foto(X[b].img)}" alt=""><b>${esc(X[b].n)}</b><small>${esc(X[b].perfil)}</small>
+      return `<div class="bopt ${cls}">${cls==='p'?'<span class="tag">Principal</span>':cls==='s'?'<span class="tag">Suma</span>':''}
+        <img src="${foto(X[b].img)}" alt="">${b===rec.b?'<span class="rec2">★ Recomendada</span>':''}<b>${esc(X[b].n)}</b><small>${esc(X[b].perfil)}</small>
         <div class="seg"><button aria-pressed="${b===P.principal}" onclick="setBase('${b}','p')">Principal</button><button aria-pressed="${P.extras.includes(b)}" ${b===P.principal?'disabled':''} onclick="setBase('${b}','s')">Sumar</button></div></div>`; }).join('')}</div>
     <p class="sub" style="margin-top:12px;font-size:14px">La principal lleva al menos el 60 % del fondo. Podés sumar hasta 2 bases más.</p>`;
 }

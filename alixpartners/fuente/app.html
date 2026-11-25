@@ -280,7 +280,42 @@ function perfilFavoritos(){
 }
 function afinidad(id){ const S = perfilFavoritos(); return S ? Object.entries(X[id].w).reduce((s,[k,w])=>s + w*S[k], 0) : 0; }
 /* refuerzo: hasta +35 % por coincidir con sus perfumes y hasta +25 % si le despertó emociones */
-const refuerzo = id => 1 + 0.35*afinidad(id) + 0.125*Math.min(2, (P.emo[id]||[]).length);
+/* ---------- capa emocional: recrear una emoción y un recuerdo en el perfume ----------
+   Cada emoción se asocia a familias olfativas. Se suman todas las emociones que eligió en la cata
+   (pesan más las de los aromas que más le gustaron) y eso arma su "perfil emocional".
+   Los recuerdos que escribió se leen buscando palabras que remiten a aromas concretos. */
+const EMO_FAM = {
+  'Alegría':{citrico:1, frutal:.8}, 'Calma':{aromatico:.8, almizclado:.8, verde:.5}, 'Energía':{citrico:.9, especiado:.7},
+  'Nostalgia':{gourmand:.7, floral:.6, amaderado:.4}, 'Sensualidad':{gourmand:.7, especiado:.6, floral:.5}, 'Elegancia':{amaderado:.8, floral:.6, almizclado:.5},
+  'Infancia':{gourmand:.9, frutal:.6}, 'Hogar':{gourmand:.7, amaderado:.6, almizclado:.5}, 'Viaje':{marino:.9, especiado:.5, citrico:.5},
+  'Naturaleza':{verde:1, aromatico:.6, amaderado:.5}, 'Limpieza':{almizclado:.9, marino:.6, floral:.4}, 'Misterio':{especiado:.8, amaderado:.7, gourmand:.4}};
+const RECUERDO = [
+  [/mar|playa|costa|olas?|verano|vacaciones|barco|brisa|arena|sal\b/, ['bruma','bergamota','citrico','salvia']],
+  [/abuel|infancia|niñ|chic[oa]|torta|postre|dulce|helado|cocina|caramelo|chocolate|navidad/, ['vainilla','tonka','citrico','pera']],
+  [/jard[ií]n|flor|rosa|primavera|novi|casamiento|boda|ramo/, ['rosa','peonia','jazmin']],
+  [/bosque|madera|campo|monte|caba[ñn]a|chimenea|fuego|le[ñn]a|montaña|sur\b/, ['amaderada','higo','salvia','tabaco']],
+  [/libro|biblioteca|caf[eé]|pipa|cigarr|tabaco|whisky|cuero|pap[aá]|padre/, ['tabaco','especias','amaderada']],
+  [/limpi|ropa|s[aá]bana|ba[ñn]o|duch|beb[eé]|jab[oó]n|spa|algod[oó]n/, ['musky','peonia','bruma']],
+  [/fruta|frutilla|uva|pera|manzana|fresa|grosella|caipi|trago|fiesta|noche|baile/, ['grosellas','pera','jazmin','especias']],
+  [/t[eé]\b|higo|higuera|hoja|pasto|verde|lluvia|tierra/, ['higo','salvia','peonia']],
+  [/viaje|india|oriente|especia|mercado|marruecos|canela/, ['especias','jazmin','tabaco']]];
+function perfilEmocional(){
+  const S = {}; FAM.forEach(([k])=>S[k]=0); const cuenta = {};
+  C.forEach(c=>{ const peso = 0.5 + (P.v[c.id]||0)/3; (P.emo[c.id]||[]).forEach(e=>{ cuenta[e] = (cuenta[e]||0) + peso; Object.entries(EMO_FAM[e]||{}).forEach(([k,w])=>S[k] += w*peso); }); });
+  const mx = Math.max(...Object.values(S)); if(mx) FAM.forEach(([k])=>S[k] /= mx);
+  const top = Object.entries(cuenta).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]);
+  return {S: mx ? S : null, top};
+}
+function recuerdos(){
+  const txt = nz(Object.values(P.rec||{}).join(' ')), out = {}, pal = [];
+  if(!txt) return {ids:out, pal};
+  RECUERDO.forEach(([re0, ids])=>{ const re = new RegExp(re0.source.normalize('NFD').replace(/[\u0300-\u036f]/g,'')), m = txt.match(re); if(m){ const i0 = txt.lastIndexOf(' ', m.index) + 1, i1 = txt.indexOf(' ', m.index + m[0].length); pal.push(txt.slice(i0, i1 < 0 ? undefined : i1)); ids.forEach((id,i)=>out[id] = Math.max(out[id]||0, 1 - i*0.15)); } });
+  return {ids:out, pal};
+}
+function afinidadEmo(id){ const E = perfilEmocional().S; return E ? Object.entries(X[id].w).reduce((s,[k,w])=>s + w*E[k], 0) : 0; }
+/* refuerzo de cada nota: sus perfumes (hasta +30 %), lo que le despertó esa nota (+25 %),
+   su perfil emocional general (+35 %) y sus recuerdos (+25 %) */
+const refuerzo = id => 1 + 0.30*afinidad(id) + 0.125*Math.min(2, (P.emo[id]||[]).length) + 0.35*afinidadEmo(id) + 0.25*(recuerdos().ids[id]||0);
 function perfilCata(){
   const S = {}; FAM.forEach(([k])=>S[k]=0);
   C.forEach(c=>{ const v = P.v[c.id]; if(v==null) return; Object.entries(c.w).forEach(([k,w])=>S[k] += v*w); });
@@ -478,6 +513,7 @@ function fila(){
     ['Fórmula completa', txt(f)], ['Gramos fondo', P.f ? fg(sumaEt(f,'fon')) : ''], ['Gramos corazón', P.f ? fg(sumaEt(f,'cor')) : ''], ['Gramos salida', P.f ? fg(sumaEt(f,'sal')) : ''],
     ['Nombre del perfume', P.pn.trim()], ['Modo final', P.f ? P.modo : ''], ['Fórmula propuesta por la app', txt(P.guiada)],
     ['Toque del perfumista', Object.entries(P.toque).filter(([,g])=>g>0).map(([k,g])=>`${TOQUE.find(t=>t[0]===k)[1]}: ${fg(g)} g`).join('; ')],
+    ['Emociones principales', perfilEmocional().top.join(', ')], ['Palabras de sus recuerdos', recuerdos().pal.join(', ')],
     ['Personalidad', pe ? pe.frase + ' · ' + pe.o.slice(0,3).filter(k=>pe.S[k]>0).map(k=>FAMN[k]).join(', ') : ''], ['Dispositivo', P.dev]);
   return {clave:CONFIG.CLAVE, hoja:CONFIG.HOJA, id:P.id, t:Date.now(), columnas:cols};
 }
@@ -578,9 +614,9 @@ function vPerfil(){
     <div style="display:flex;gap:10px">${fav3.map(c=>`<div class="card" style="flex:1;text-align:center;padding:10px"><img src="${foto(c.img)}" alt="" style="width:100%;aspect-ratio:1;object-fit:contain"><div style="font-size:13px;font-weight:600">${esc(c.n)}</div></div>`).join('') || '<p class="sub">Todavía no marcaste ninguna con "Me encanta".</p>'}</div>`;
 }
 function vPausa(){
-  fijo(`<button class="btn" onclick="pedirPin(()=>{ prepararBase(); ir('base'); })">Pasar a formular</button>`);
+  fijo(`<button class="btn" onclick="prepararBase(); ir('base')">Pasar a formular</button>`);
   return `<div style="text-align:center;padding-top:6vh"><div class="eb">Pausa</div><h1>El perfumista te va a contar cómo se crea un perfume</h1>
-    <p class="sub" style="margin-top:12px">Historia, composición, familias olfativas y concentraciones. Cuando terminemos, te damos la clave para pasar a formular.</p></div>`;
+    <p class="sub" style="margin-top:12px">Historia, composición, familias olfativas y concentraciones. Cuando terminemos, tocá el botón y armamos tu fórmula.</p></div>`;
 }
 function pedirPin(ok){
   const d = document.createElement('div'); d.className = 'modal'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','Clave');
@@ -626,10 +662,21 @@ function vGuiado(){
   if(!P.guiada) recalcular();
   const f = P.guiada, pot = POTENCIAN.filter(([a,b])=>f[a] && f[b]);
   fijo(`<button class="btn ghost" onclick="jugar()">Quiero jugar</button><button class="btn" onclick="usarGuiada()">Me gusta así</button>`);
-  return `<div class="eb">Paso 2 · Modo guiado</div><h1>Tu fórmula propuesta</h1><p class="sub">Armada con tus votos, para 100 ml (80 g).</p>
+  return `<div class="eb">Paso 2 · Modo guiado</div><h1>Tu fórmula propuesta</h1><p class="sub">Armada con tus votos, tus emociones y tus recuerdos, para 100 ml (80 g).</p>
+    ${tarjetaEmocional(f)}
     <div style="margin-top:12px">${bloqueViz(f)}</div>
     ${pot.length ? `<div class="chips" style="margin-top:12px">${pot.map(p=>`<span class="chip">✦ ${esc(X[p[0]].n)} + ${esc(X[p[1]].n)}: ${esc(p[2].toLowerCase())}</span>`).join('')}</div>` : ''}
     ${listaFormula(f,{rol:true})}<div class="total"><span>Total</span><span>${fg(sumaT(f))} g</span></div>`;
+}
+function tarjetaEmocional(f){
+  const pe = perfilEmocional(), rc = recuerdos();
+  if(!pe.top.length && !rc.pal.length) return '';
+  /* las notas de la fórmula que mejor llevan esas emociones */
+  const notas = Object.keys(f).filter(k=>!X[k].base || true).map(k=>[k, afinidadEmo(k) + (rc.ids[k]||0)]).sort((a,b)=>b[1]-a[1]).slice(0,3).filter(x=>x[1]>0).map(x=>X[x[0]].n);
+  return `<div class="card" style="margin-top:12px;border-color:var(--gold)"><div class="eb">Tu recuerdo emocional</div>
+    ${pe.top.length ? `<div class="frase" style="text-align:left;font-size:20px;margin-top:6px">${pe.top.map(esc).join(' · ')}</div>` : ''}
+    ${rc.pal.length ? `<p class="sub" style="font-size:14px">En tus recuerdos aparecen: ${rc.pal.slice(0,4).map(p=>'"'+esc(p)+'"').join(', ')}.</p>` : ''}
+    ${notas.length ? `<p style="font-size:14px;margin-top:6px">Lo llevan a tu perfume: <b>${notas.map(esc).join(', ')}</b>.</p>` : ''}</div>`;
 }
 function usarGuiada(){ P.modo = 'guiado'; P.f = Object.assign({}, P.guiada); registrar('Fórmula'); ir('pesar'); }
 function jugar(){ P.modo = 'lab'; if(!P.f || P.labDe !== JSON.stringify(P.guiada)){ P.f = Object.assign({}, P.guiada); P.labDe = JSON.stringify(P.guiada); } ir('lab'); }

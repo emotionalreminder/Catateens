@@ -7,7 +7,7 @@
    2. Buscá si ya existe una función que se llame doGet.
       - Si existe, borrala (solo esa función) y pegá este bloque en su lugar.
       - Si no existe, pegá este bloque al final del archivo.
-   3. Cambiá CLAVE_PANEL por la clave que quieras usar para entrar al panel.
+   3. La clave del panel es 2730 (la misma de siempre).
    4. Si el script NO está pegado a la planilla (lo abriste desde script.google.com y no desde la planilla),
       completá PANEL_ID_PLANILLA con el ID de la planilla (lo que está entre /d/ y /edit en su link).
    5. Guardá. Implementar → Administrar implementaciones → lápiz → Versión: "Nueva versión" → Implementar.
@@ -15,7 +15,7 @@
 
    Seguridad: la clave se verifica acá, en el script, y no está escrita en la app.
    Los números de WhatsApp nunca se devuelven al panel. */
-const CLAVE_PANEL = 'CAMBIAR-ESTA-CLAVE';
+const CLAVE_PANEL = '2730';
 const PANEL_ID_PLANILLA = '';   // vacío = la planilla a la que está pegado este script
 
 function doGet(e){

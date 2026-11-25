@@ -123,6 +123,21 @@ dl.tec dt{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(-
 .libre input{width:22px;height:22px;}
 .stick{position:sticky;top:64px;z-index:5;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line);}
 .stick .viz{grid-template-columns:110px 1fr;}
+.anal{padding-top:2vh;}
+.orbita{position:relative;width:240px;height:240px;margin:18px auto 10px;}
+.orbita img{position:absolute;left:50%;top:50%;width:84px;height:84px;object-fit:contain;margin:-42px 0 0 -42px;animation:orbita 6s linear infinite;animation-delay:calc(var(--i) * -6s / var(--n));}
+@keyframes orbita{from{transform:rotate(0deg) translateX(96px) rotate(0deg);}to{transform:rotate(360deg) translateX(96px) rotate(-360deg);}}
+.orbita .gota{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:radial-gradient(circle at 35% 35%, #E9D6AE, var(--gold));animation:late 1.4s ease-in-out infinite;}
+@keyframes late{0%,100%{transform:rotate(-45deg) scale(1);}50%{transform:rotate(-45deg) scale(1.15);}}
+.pasos-an{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+.pasos-an li{opacity:0;transform:translateY(8px);animation:entra .5s ease forwards;animation-delay:var(--d);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;}
+.pasos-an li b{display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--green);}
+.pasos-an li span{font-size:15px;}
+@keyframes entra{to{opacity:1;transform:none;}}
+.barra-an{height:6px;border-radius:3px;background:var(--soft);margin-top:16px;overflow:hidden;}
+.barra-an i{display:block;height:100%;width:0;background:var(--gold);animation:llena var(--t) linear forwards;}
+@keyframes llena{to{width:100%;}}
+@media (prefers-reduced-motion: reduce){ .orbita img,.orbita .gota{animation:none;} .pasos-an li{animation-duration:.01s;} }
 .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:999px;font-size:14px;z-index:50;max-width:calc(100% - 32px);text-align:center;}
 .modal{position:fixed;inset:0;z-index:40;background:rgba(21,20,18,.55);display:flex;align-items:flex-end;justify-content:center;}
 .modal .caja{background:var(--bg);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));}
@@ -208,21 +223,27 @@ const C = [
  {id:'tabaco', n:'Tabaco y Pimienta', et:'fon', base:true, fam:'Especiado · tabaco', ap:'Humo de Hoja', fu:8, img:'caro_tabaco', w:{especiado:.5, amaderado:.5},
   perfil:'Biblioteca · ahumado · especiado', pir:'Salida: bergamota, elemí y pomelo · Corazón: cedro, palisandro y nuez moscada · Fondo: tabaco, bálsamo del Perú y cuero',
   aporta:'Los absolutos de tabaco están entre los materiales más tenaces. Con poco ya cambia la identidad de todo el fondo.'},
+ {id:'chipre', n:'Base Chipre', et:'fon', base:true, fam:'Chipre floral', ap:'La Atrevida', fu:8, img:'caro_gourmand', w:{floral:.35, gourmand:.3, frutal:.15, amaderado:.2},
+  perfil:'Miel · flor blanca · pachulí', pir:'Salida: naranja sanguina y mandarina · Corazón: miel, gardenia, azahar, jazmín y durazno · Fondo: caramelo, cera de abeja, pachulí y regaliz',
+  aporta:'La familia chipre une una salida cítrica con flores y un fondo de pachulí. Esta versión es floral y amielada, sin vainilla: la más gustada, luminosa y con mucha presencia.'},
  {id:'vainilla', n:'Vainilla Crema', et:'fon', fam:'Gourmand', ap:'El Pegamento', fu:7, img:'p_vainilla', w:{gourmand:1},
   perfil:'Helado de crema · dulce · envolvente',
-  aporta:'Es un fijador de manual: impacto medio que crece con el tiempo y ayuda a que todo el resto dure más.'}
+  aporta:'Es un fijador de manual: impacto medio que crece con el tiempo y ayuda a que todo el resto dure más.'},
+ {id:'praline', n:'Vainilla y Praliné', et:'fon', fam:'Gourmand tostado', ap:'La Confitería', fu:7, img:'e_vainilla_praline', w:{gourmand:1},
+  perfil:'Praliné tostado · caramelo · avellana', tipo:'Acorde gourmand', evap:'Baja: es de fondo', comp:'Vainillina, etilvainillina, maltol, notas tostadas',
+  aporta:'Una vainilla tostada, con avellana caramelizada. Más golosa y cálida que la Vainilla Crema: con poco ya se vuelve protagonista y le da abrigo a todo el fondo.'}
 ];
 const X = Object.fromEntries(C.map(c=>[c.id,c]));
 const BASES = C.filter(c=>c.base).map(c=>c.id);
 const ETN = {sal:'Salida', cor:'Corazón', fon:'Fondo'};
 /* toque del perfumista: no se votan, no salen en la imagen */
 const TOQUE = [['hedione','Hedione (Base Floral)'],['isoe','Iso E Super (Base Amaderada)'],['galaxolide','Galaxolide (Base Musky)']];
-/* topes en g sobre 80: [general, con Musky, con Haba Tonka y Oud, con Tabaco y Pimienta, con Amaderada] */
-const TOPES = {bergamota:[10,10,10,10,10], citrico:[10,10,10,10,10], grosellas:[4,4,4,3,4], pera:[6,6,6,3,6], bruma:[3,3,2,2,3], especias:[4,2,3,3,4],
-  jazmin:[10,10,5,8,10], peonia:[14,14,12,10,14], rosa:[9,9,9,9,9], higo:[12,12,10,12,12], salvia:[8,8,4,8,8], vainilla:[6,6,6,6,6]};
-const COLB = {musky:1, tonka:2, tabaco:3, amaderada:4};
+/* topes en g sobre 80: [general, con Musky, con Haba Tonka y Oud, con Tabaco y Pimienta, con Amaderada, con Chipre] */
+const TOPES = {bergamota:[10,10,10,10,10,10], citrico:[10,10,10,10,10,10], grosellas:[4,4,4,3,4,4], pera:[6,6,6,3,6,6], bruma:[3,3,2,2,3,2], especias:[4,2,3,3,4,3],
+  jazmin:[10,10,5,8,10,6], peonia:[14,14,12,10,14,12], rosa:[9,9,9,9,9,9], higo:[12,12,10,12,12,10], salvia:[8,8,4,8,8,4], vainilla:[6,6,6,6,6,5], praline:[6,6,5,5,6,4]};
+const COLB = {musky:1, tonka:2, tabaco:3, amaderada:4, chipre:5};
 const TOPE_BASE = 22;   /* g de una misma base por perfume: 25 perfumes × 22 g ≈ 550 g, dentro de los ~600 g de cada frasco */
-const REDONDEO = {amaderada:{cor:'higo', sal:'bergamota'}, musky:{cor:'peonia', sal:'bergamota'}, tonka:{cor:'rosa', sal:'grosellas'}, tabaco:{cor:'higo', sal:'citrico'}};
+const REDONDEO = {chipre:{cor:'rosa', sal:'bergamota'}, amaderada:{cor:'higo', sal:'bergamota'}, musky:{cor:'peonia', sal:'bergamota'}, tonka:{cor:'rosa', sal:'grosellas'}, tabaco:{cor:'higo', sal:'citrico'}};
 const UNIVERSAL = {sal:'bergamota', cor:'peonia'};
 const POTENCIAN = [['bergamota','citrico','Los dos cítricos se potencian'],['grosellas','bergamota','La bergamota levanta a la grosella'],['peonia','musky','El almizcle resalta el lado rosado de la peonía'],
   ['higo','amaderada','Las lactonas del higo y el sándalo se potencian'],['rosa','tabaco','Clásico rosa-tabaco'],['jazmin','grosellas','Efecto maracuyá']];
@@ -263,7 +284,8 @@ function baseDeFavoritos(){
   const top = FK.slice().sort((a,b)=>S[b]-S[a])[0];
   if(S[top] <= 0) return null;
   if(top==='gourmand') return 'tonka';
-  if(top==='floral') return (S.gourmand + S.oriental) > (S.citrica + S.almizclada) ? 'tonka' : 'musky';
+  if(P.perf.some(t=>/scandal|miss dior|chance|coco mademoiselle|burberry her|si passione/.test(nz(t)))) return 'chipre';
+  if(top==='floral') return (S.gourmand + S.oriental) > (S.citrica + S.almizclada) ? (S.frutal > S.gourmand*0.6 ? 'chipre' : 'tonka') : 'musky';
   if(top==='oriental') return S.floral > S.amaderada ? 'tonka' : 'tabaco';
   if(['citrica','frutal','verde','almizclada'].includes(top)) return 'musky';
   if(['amaderada','aromatica'].includes(top)) return 'amaderada';
@@ -349,7 +371,9 @@ function reparto(S){
 }
 function armarFondo(F, f){
   const v = id => P.v[id] ?? 0, p = P.principal;
-  let vain = v('vainilla')===3 ? 5 : v('vainilla')===2 ? 3 : 0;
+  let vain = Math.min(tope('vainilla', f), v('vainilla')===3 ? 5 : v('vainilla')===2 ? 3 : 0);
+  const pral = v('praline')===3 ? 4 : v('praline')===2 ? 2.5 : 0;
+  if(pral){ f.praline = pral; F -= pral; }
   const extras = P.extras.filter(b=>b!==p).slice(0,2);
   const libre = Math.max(0, 0.4*F - vain);           /* la principal lleva al menos el 60 % del fondo */
   let resto = F - vain, sec = {};
@@ -428,7 +452,8 @@ function sumarAlFondo(f, x){
   if((f[p]||0) + x <= tp){ f[p] = (f[p]||0) + x; return; }
   const entra = Math.max(0, tp - (f[p]||0)); f[p] = (f[p]||0) + entra; x -= entra;
   /* lo que falta va a Vainilla Crema (si la votó) o a otra base */
-  if(v('vainilla') > 0){ const add = Math.min(x, 6 - (f.vainilla||0)); if(add > 0){ f.vainilla = (f.vainilla||0) + add; x -= add; } }
+  if(v('vainilla') > 0){ const add = Math.min(x, tope('vainilla', f) - (f.vainilla||0)); if(add > 0){ f.vainilla = (f.vainilla||0) + add; x -= add; } }
+  if(v('praline') > 0 && x > 0){ const add = Math.min(x, tope('praline', f) - (f.praline||0)); if(add > 0){ f.praline = (f.praline||0) + add; x -= add; } }
   if(x <= 0.004) return;
   if(otras.length){ otras.forEach(k=>f[k] += x/otras.length); return; }
   const otra = BASES.filter(b=>b!==p && v(b) > 0).sort((a,b)=>v(b)-v(a))[0];
@@ -537,11 +562,11 @@ setInterval(vaciar, 20000); window.addEventListener('online', vaciar);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) vaciar(); });
 
 /* ======================= navegación ======================= */
-const PASOS = ['inicio','datos','intro','cata','perfil','pausa','base','guiado','lab','pesar','nombre','final','gracias'];
+const PASOS = ['analisis','inicio','datos','intro','cata','perfil','pausa','base','guiado','lab','pesar','nombre','final','gracias'];
 function ir(p){ P.paso = p; guardar(); pintar(); window.scrollTo(0,0); vaciar(); }
 function atras(){
   if(P.paso==='cata' && P.i > 0){ P.i--; guardar(); pintar(); window.scrollTo(0,0); return; }
-  const m = {intro:'datos', cata:'intro', perfil:'cata', pausa:'perfil', base:'pausa', guiado:'base', lab:'guiado', pesar: P.modo==='lab' ? 'lab' : 'guiado', nombre:'pesar', final:'nombre', gracias:'final'};
+  const m = {analisis:'base', intro:'datos', cata:'intro', perfil:'cata', pausa:'perfil', base:'pausa', guiado:'base', lab:'guiado', pesar: P.modo==='lab' ? 'lab' : 'guiado', nombre:'pesar', final:'nombre', gracias:'final'};
   if(m[P.paso]){ if(P.paso==='perfil') P.i = C.length-1; ir(m[P.paso]); }
 }
 function barraTop(){
@@ -576,7 +601,7 @@ function vIntro(){
   fijo(`<button class="btn" onclick="empezarCata()">Empezar la cata</button>`);
   return `<div class="eb">La cata</div><h1>Cómo se vota</h1>
     <div class="card" style="margin-top:14px;display:flex;flex-direction:column;gap:12px;font-size:16px">
-      <div>1 · Vas a oler <b>16 aromas</b>, de a uno: primero las <b>salidas</b>, después el <b>corazón</b> y al final el <b>fondo</b>.</div>
+      <div>1 · Vas a oler <b>${C.length} aromas</b>, de a uno: primero las <b>salidas</b>, después el <b>corazón</b> y al final el <b>fondo</b>.</div>
       <div>2 · Oleé la tira, leé la ficha y votá: <b>Me encanta, Me gusta, Un poquito o No me gusta</b>.</div>
       <div>3 · Si querés, elegí qué emociones te despierta y contanos qué te recuerda.</div></div>
     <p class="sub" style="margin-top:14px">Entre aroma y aroma, respirá en tu muñeca o en la manga para limpiar la nariz.</p>`;
@@ -637,7 +662,7 @@ function prepararBase(){
 function recalcular(){ const pr = proponer(); P.guiada = pr.f; P.rol = pr.rol; guardar(); }
 function vBase(){
   const rec = baseRecomendada();
-  fijo(`<button class="btn" onclick="ir('guiado')">Ver mi fórmula</button>`);
+  fijo(`<button class="btn" onclick="ir('analisis')">Ver mi fórmula</button>`);
   return `<div class="eb">Paso 1 · El fondo</div><h1>Elegí tu base</h1>
     <p class="sub">Te recomendamos <b>${esc(X[rec.b].n)}</b> ${esc(rec.por)}. Podés cambiarla o combinarla con una o dos bases más.</p>
     <div class="bases" style="margin-top:14px">${BASES.map(b=>{ const cls = b===P.principal ? 'p' : P.extras.includes(b) ? 's' : '';
@@ -657,6 +682,25 @@ function listaFormula(f, opts){
     if(!l.length) return '';
     return `<div class="etapa"><h3><span>${ETN[et]}</span><span>${fg(sumaEt(f,et))} g</span></h3>${l.map(([k,g])=>`<div class="fl ${opts.pesar && P.pesado[k]?'pesado':''}"><img src="${foto(X[k].img)}" alt=""><div class="n"><b>${esc(X[k].n)}</b><small>${opts.rol && P.rol && P.rol[k] ? esc(P.rol[k]) : ''}</small></div>
       <span class="g">${P.ml && opts.pesar ? fg(g/CONFIG.DENSIDAD)+' ml' : fg(g)+' g'}</span>${opts.pesar ? `<button class="tick" aria-pressed="${!!P.pesado[k]}" aria-label="Marcar ${esc(X[k].n)} como pesado" onclick="tick('${k}')">✓</button>` : ''}</div>`).join('')}</div>`; }).join('');
+}
+/* ---------- analizando: la gente ve cómo se calcula su perfume ---------- */
+function vAnalisis(){
+  fijo('');
+  const pe = perfilEmocional(), rc = recuerdos(), favs = P.perf.filter(t=>t && t.trim()).map(t=>t.split(' · ')[0]).slice(0,3);
+  const enc = C.filter(c=>P.v[c.id]===3).length, gu = C.filter(c=>P.v[c.id]===2).length;
+  const pasos = [
+    ['Leyendo tus votos', `${enc} te encantaron y ${gu} te gustaron`],
+    ['Sintiendo tus emociones', pe.top.length ? pe.top.join(' · ') : 'Tu forma de reaccionar a cada aroma'],
+    ['Buscando tus recuerdos', rc.pal.length ? rc.pal.slice(0,3).map(p=>'"'+p+'"').join(', ') : 'Lo que cada aroma te despertó'],
+    ['Cruzando con tus perfumes', favs.length ? favs.join(', ') : 'Tu familia olfativa'],
+    ['Mezclando tus bases', [P.principal, ...P.extras].filter(Boolean).map(b=>X[b].n).join(' + ')],
+    ['Equilibrando salida, corazón y fondo', 'Cada nota en su gramo justo, sobre 80 g']];
+  const fav = C.filter(c=>P.v[c.id]===3).slice(0,6);
+  setTimeout(()=>{ if(P.paso==='analisis'){ recalcular(); ir('guiado'); } }, 1100*pasos.length + 900);
+  return `<div class="anal"><div class="eb" style="text-align:center">Creando tu perfume</div><h1 style="text-align:center">Estamos armando tu fórmula</h1>
+    <div class="orbita">${fav.map((c,i)=>`<img src="${foto(c.img)}" alt="" style="--i:${i};--n:${fav.length}">`).join('')}<div class="gota"></div></div>
+    <ol class="pasos-an">${pasos.map(([t,d],i)=>`<li style="--d:${i*1.1}s"><b>${esc(t)}</b><span>${esc(d)}</span></li>`).join('')}</ol>
+    <div class="barra-an"><i style="--t:${1.1*pasos.length+0.6}s"></i></div></div>`;
 }
 function vGuiado(){
   if(!P.guiada) recalcular();
@@ -864,11 +908,11 @@ function reiniciar(){ if(!confirm('¿Empezar de cero? Lo de esta persona ya qued
 function pintar(){
   if(!PASOS.includes(P.paso) || P.paso==='inicio') P.paso = 'datos';
   if(['intro','cata','perfil','pausa','base','guiado','lab','pesar','nombre','final','gracias'].includes(P.paso) && !(P.nom.trim())) P.paso = 'datos';
-  if(['guiado','lab'].includes(P.paso) && !P.principal) prepararBase();
+  if(['analisis','guiado','lab'].includes(P.paso) && !P.principal) prepararBase();
   if(['pesar','nombre','final','gracias'].includes(P.paso) && !P.f) P.paso = P.principal ? 'guiado' : 'base';
   if(['final','gracias'].includes(P.paso) && !P.pn.trim()) P.paso = 'nombre';
   barraTop();
-  const V = {datos:vDatos, intro:vIntro, cata:vCata, perfil:vPerfil, pausa:vPausa, base:vBase, guiado:vGuiado, lab:vLab, pesar:vPesar, nombre:vNombre, final:vFinal, gracias:vGracias};
+  const V = {analisis:vAnalisis, datos:vDatos, intro:vIntro, cata:vCata, perfil:vPerfil, pausa:vPausa, base:vBase, guiado:vGuiado, lab:vLab, pesar:vPesar, nombre:vNombre, final:vFinal, gracias:vGracias};
   $('#app').innerHTML = V[P.paso]();
 }
 pintar(); vaciar();

@@ -241,7 +241,7 @@ const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now().to
 const dispositivo = () => { const u = navigator.userAgent||''; return /iPhone|iPad|iPod/i.test(u) || (/Macintosh/.test(u) && navigator.maxTouchPoints>1) ? 'iOS' : /Android/i.test(u) ? 'Android' : 'otro'; };
 const embebido = () => /Instagram|FBAN|FBAV|Line\/|; wv\)|WhatsApp/i.test(navigator.userAgent||'');
 
-function nuevo(){ return {id:uid(), creado:new Date().toLocaleString('es-AR'), nom:'', wa:'', perf:['','',''], v:{}, emo:{}, rec:{}, paso:'inicio', i:0,
+function nuevo(){ return {id:uid(), creado:new Date().toLocaleString('es-AR'), nom:'', wa:'', perf:['','',''], v:{}, emo:{}, rec:{}, paso:'datos', i:0,
   principal:null, extras:[], guiada:null, f:null, modo:'guiado', libre:false, toque:{}, pesado:{}, pn:'', pnLista:'', ml:false, dev:dispositivo(), env:{}}; }
 let P = Object.assign(nuevo(), LS.get(CONFIG.LS, {}));
 const guardar = () => LS.set(CONFIG.LS, P);
@@ -488,12 +488,12 @@ const PASOS = ['inicio','datos','intro','cata','perfil','pausa','base','guiado',
 function ir(p){ P.paso = p; guardar(); pintar(); window.scrollTo(0,0); vaciar(); }
 function atras(){
   if(P.paso==='cata' && P.i > 0){ P.i--; guardar(); pintar(); window.scrollTo(0,0); return; }
-  const m = {datos:'inicio', intro:'datos', cata:'intro', perfil:'cata', pausa:'perfil', base:'pausa', guiado:'base', lab:'guiado', pesar: P.modo==='lab' ? 'lab' : 'guiado', nombre:'pesar', final:'nombre', gracias:'final'};
+  const m = {intro:'datos', cata:'intro', perfil:'cata', pausa:'perfil', base:'pausa', guiado:'base', lab:'guiado', pesar: P.modo==='lab' ? 'lab' : 'guiado', nombre:'pesar', final:'nombre', gracias:'final'};
   if(m[P.paso]){ if(P.paso==='perfil') P.i = C.length-1; ir(m[P.paso]); }
 }
 function barraTop(){
   const prog = P.paso==='cata' ? `${ETN[C[P.i].et]} · ${P.i+1} de ${C.length}` : '';
-  $('#top').innerHTML = (P.paso!=='inicio' ? `<button class="back" onclick="atras()" aria-label="Volver">←</button>` : '') +
+  $('#top').innerHTML = (P.paso!=='datos' ? `<button class="back" onclick="atras()" aria-label="Volver">←</button>` : '') +
     `<div class="marca"><b>${esc(CONFIG.EMPRESA)}</b><small>${esc(CONFIG.FECHA)}</small></div><div class="prog">${prog}</div>`;
 }
 function fijo(html){ const f = $('#fijo'); if(!html){ f.hidden = true; return; } f.hidden = false; $('#fijo-in').innerHTML = html; }
@@ -801,7 +801,7 @@ function vGracias(){
 function reiniciar(){ if(!confirm('¿Empezar de cero? Lo de esta persona ya quedó guardado en la planilla.')) return; vaciar(); P = nuevo(); guardar(); pintar(); window.scrollTo(0,0); }
 
 function pintar(){
-  if(!PASOS.includes(P.paso)) P.paso = 'inicio';
+  if(!PASOS.includes(P.paso) || P.paso==='inicio') P.paso = 'datos';
   if(['intro','cata','perfil','pausa','base','guiado','lab','pesar','nombre','final','gracias'].includes(P.paso) && !(P.nom.trim())) P.paso = 'datos';
   if(['guiado','lab'].includes(P.paso) && !P.principal) prepararBase();
   if(['pesar','nombre','final','gracias'].includes(P.paso) && !P.f) P.paso = P.principal ? 'guiado' : 'base';

@@ -19,7 +19,7 @@ button{cursor:pointer;border:0;background:none;}
 .top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;gap:10px;padding:12px 0 10px;border-bottom:1px solid var(--line);margin:0 calc(-1 * max(16px, env(safe-area-inset-left,0px)));padding-inline:max(16px, env(safe-area-inset-left,0px));}
 .top .back{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);font-size:20px;flex:none;}
 .marca{flex:1;min-width:0;}
-.marca b{display:block;font-weight:300;letter-spacing:6px;font-size:15px;text-transform:uppercase;}
+.marca b{display:block;font-weight:400;letter-spacing:4px;font-size:15px;text-transform:uppercase;}
 .marca small{display:block;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .prog{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);text-align:right;white-space:nowrap;}
 main{max-width:560px;margin:0 auto;padding-top:18px;}
@@ -142,8 +142,8 @@ const CONFIG = {
   FECHA: '25.11.2026',
   MARCA: 'Breena',
   WEB: 'www.breena.com.ar',
-  PERFUMISTA: 'Agustín Melazo Díaz · Perfumista',
-  CONTACTO: '@er.argentina',
+  PERFUMISTA: 'Lic. Agustín Melazo Díaz · Perfumista',
+  MATRICULA: 'MP 240.297',
   PIN: '2730',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwkMzVVILGvF1Ctx53JR3hvndsLlbkjoLsSwF9MDSjhcGSp2gZfTo6hd_Cx3UoI_aV3AA/exec',
   CLAVE: 'ER-ninas-2026',
@@ -411,11 +411,11 @@ function armarFondo(F, f){
 function armarEtapa(et, total, f, prop){
   /* devuelve los gramos que no entran respetando los topes (pasan a otra etapa) */
   const v = id => P.v[id] ?? 0;
-  let notas = C.filter(c=>c.et===et && v(c.id)>0).map(c=>c.id).sort((a,b)=>v(b)-v(a)).slice(0,5);
+  let notas = C.filter(c=>c.et===et && v(c.id)>0).map(c=>c.id).sort((a,b)=>v(b)-v(a));
   if(!notas.length) notas = [REDONDEO[P.principal][et]];
-  let n3 = 0; const w = {}, rol = {};
+  const w = {}, rol = {};
   notas.forEach(id=>{ const x = v(id) || 3;
-    if(x===3 && n3<2){ w[id]=3; rol[id]='Principal'; n3++; } else if(x>=2){ w[id]=2; rol[id]='Secundaria'; } else { w[id]=1; rol[id]='Soporte'; } });
+    if(x===3){ w[id]=3; rol[id]='Principal'; } else if(x>=2){ w[id]=2; rol[id]='Secundaria'; } else { w[id]=1; rol[id]='Soporte'; } });
   let soporteLibre = false; const fuera = [];
   const cap = id => Math.min(tope(id, f), rol[id]==='Soporte' && !soporteLibre ? 3 : Infinity, id==='salvia' ? Math.max(0, 8 - (f.bruma||0)) : Infinity);
   const g = {}; const sw = notas.reduce((s,id)=>s+w[id],0); notas.forEach(id=>g[id] = total*w[id]/sw);
@@ -590,7 +590,7 @@ function atras(){
 function barraTop(){
   const prog = P.paso==='cata' ? `${ETN[C[P.i].et]} · ${P.i+1} de ${C.length}` : '';
   $('#top').innerHTML = (P.paso!=='inicio' ? `<button class="back" onclick="atras()" aria-label="Volver">←</button>` : '') +
-    `<div class="marca"><b>${esc(CONFIG.MARCA)}</b><small>${esc(CONFIG.EMPRESA)} · ${esc(CONFIG.FECHA)}</small></div><div class="prog">${prog}</div>`;
+    `<div class="marca"><b>${esc(CONFIG.EMPRESA)}</b><small>${esc(CONFIG.FECHA)}</small></div><div class="prog">${prog}</div>`;
 }
 function fijo(html){ const f = $('#fijo'); if(!html){ f.hidden = true; return; } f.hidden = false; $('#fijo-in').innerHTML = html; }
 
@@ -609,7 +609,7 @@ function vDatos(){
   return `<div class="eb">Tus datos</div><h1>¿Quién sos?</h1>
     <datalist id="lista-inv">${INVITADOS.map(([n])=>`<option value="${esc(n)}">`).join('')}</datalist>
     <div class="fld"><label for="nom">Nombre y apellido</label><input id="nom" list="lista-inv" autocomplete="off" value="${esc(P.nom)}" placeholder="Empezá a escribir tu nombre" oninput="setNom(this.value)"></div>
-    <div id="tuyo">${tuyoHtml()}</div>
+    <div id="tuyo">${tuyoHtml()}</div><p class="sub" style="font-size:13px;margin-top:6px">Si no aparecés en la lista, escribí tu nombre igual.</p>
     <div class="fld"><label for="wa">WhatsApp</label><input id="wa" type="tel" inputmode="tel" autocomplete="tel" value="${esc(P.wa)}" placeholder="11 5555 5555" oninput="P.wa=this.value;guardar();chkDatos()"></div>
     <div class="fld"><label>Tus perfumes favoritos <small>(hasta 3, opcional)</small></label>
       ${P.perf.map((v,i)=>`<div class="ac"><input id="pf${i}" value="${esc(v)}" autocomplete="off" placeholder="Perfume ${i+1}" aria-label="Perfume favorito ${i+1}" oninput="tipear(${i},this.value)" onblur="setTimeout(()=>cerrarAc(${i}),200)"><div class="acl" id="acl${i}"></div></div>`).join('')}</div>`;
@@ -679,7 +679,7 @@ function pedirPin(ok){
 }
 function prepararBase(){
   if(!P.principal){ P.principal = baseRecomendada().b;
-    P.extras = BASES.filter(b=>b!==P.principal && P.v[b]===3).slice(0,1); }
+    P.extras = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 2).sort((a,b)=>P.v[b]-P.v[a]).slice(0,2); }
   recalcular();
 }
 function recalcular(){ const pr = proponer(); P.guiada = pr.f; P.rol = pr.rol; guardar(); }
@@ -795,39 +795,43 @@ function vNombre(){
 function terminar(){ registrar('Terminó'); ir('final'); }
 
 /* ---------- imagen final ---------- */
+const IMGOBJ = {};
+function img(k){ if(IMGOBJ[k]) return IMGOBJ[k]; IMGOBJ[k] = new Promise(r=>{ const i = new Image(); i.onload = ()=>r(i); i.onerror = ()=>r(null); i.src = foto(k); }); return IMGOBJ[k]; }
 async function dibujar(cv){
-  try{ await Promise.all(['300 40px Montserrat','600 40px Montserrat','200 40px Montserrat','italic 400 40px "Lobster Two"'].map(f=>document.fonts.load(f))); }catch(e){}
+  try{ await Promise.all(['300 40px Montserrat','400 40px Montserrat','600 40px Montserrat','200 40px Montserrat','italic 400 40px "Lobster Two"'].map(f=>document.fonts.load(f))); }catch(e){}
   const c = cv.getContext('2d'), W = 1080, H = 1528, f = P.f, pe = personalidad(f);
-  c.fillStyle = '#F6F1E7'; c.fillRect(0,0,W,H);
-  c.strokeStyle = '#B08A4E'; c.lineWidth = 2; c.strokeRect(40,40,W-80,H-80);
-  c.strokeStyle = 'rgba(176,138,78,.45)'; c.lineWidth = 1; c.strokeRect(54,54,W-108,H-108);
+  const orden = Object.entries(f).sort((a,b)=>b[1]-a[1]).map(([k])=>k).slice(0,9);
+  const fotos = await Promise.all(orden.map(k=>img(X[k].img)));
+  c.fillStyle = '#F7F1E6'; c.fillRect(0,0,W,H);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 2; c.strokeRect(36,36,W-72,H-72);
+  c.strokeStyle = 'rgba(176,138,78,.4)'; c.lineWidth = 1; c.strokeRect(50,50,W-100,H-100);
   const sp = (t, x, y, px, wt, col, track, al) => { c.font = `${wt} ${px}px Montserrat`; c.fillStyle = col; c.textAlign = al||'center';
     try{ c.letterSpacing = track+'px'; }catch(e){} c.fillText(t, x, y); try{ c.letterSpacing = '0px'; }catch(e){} };
-  sp(CONFIG.MARCA.toUpperCase(), W/2, 150, 34, 200, '#151412', 18);
-  sp(`${CONFIG.EMPRESA} · ${CONFIG.FECHA}`.toUpperCase(), W/2, 200, 20, 400, '#B08A4E', 6);
-  /* nombre del perfume, como en la etiqueta */
-  let px = 120; c.font = `italic 400 ${px}px "Lobster Two"`; while(c.measureText(P.pn.trim()).width > W-200 && px > 60){ px -= 4; c.font = `italic 400 ${px}px "Lobster Two"`; }
-  c.fillStyle = '#151412'; c.textAlign = 'center'; c.fillText(P.pn.trim(), W/2, 380);
-  c.strokeStyle = '#B08A4E'; c.lineWidth = 3; c.beginPath(); c.moveTo(W/2-150,420); c.lineTo(W/2+150,420); c.stroke();
-  sp(('Creado por ' + P.nom.trim()).toUpperCase(), W/2, 480, 24, 300, '#151412', 5);
-  sp((pe.frase || '').toUpperCase(), W/2, 560, 30, 600, '#2F4A3A', 8);
-  /* pirámide en 3 columnas */
-  const cols = [['sal','Salida'],['cor','Corazón'],['fon','Fondo']], cw = (W-160)/3, top = 660;
+  /* etiqueta: marca, nombre del perfume, línea dorada, creado por */
+  sp(CONFIG.MARCA.toUpperCase(), W/2, 118, 26, 300, '#151412', 14);
+  let px = 116; c.font = `italic 400 ${px}px "Lobster Two"`; while(c.measureText(P.pn.trim()).width > W-200 && px > 56){ px -= 4; c.font = `italic 400 ${px}px "Lobster Two"`; }
+  c.fillStyle = '#151412'; c.textAlign = 'center'; c.fillText(P.pn.trim(), W/2, 250);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 3; c.beginPath(); c.moveTo(W/2-140,288); c.lineTo(W/2+140,288); c.stroke();
+  sp('creado por ' + P.nom.trim(), W/2, 340, 24, 400, '#151412', 1);
+  /* los aromas: la más usada al centro, las demás alrededor */
+  const SL = [[540,650,350],[365,590,280],[715,590,280],[390,790,260],[690,790,260],[225,700,220],[855,700,220],[540,470,230],[540,850,220]];
+  for(let i = orden.length-1; i >= 0; i--){ const im = fotos[i]; if(!im) continue; const [x,y,t] = SL[i], k = Math.min(t/im.width, t/im.height), w = im.width*k, h = im.height*k; c.drawImage(im, x-w/2, y-h/2, w, h); }
+  sp((pe.frase || '').toUpperCase(), W/2, 1000, 26, 600, '#2F4A3A', 7);
+  /* pirámide en 3 columnas, con gramos */
+  const cols = [['sal','Salida'],['cor','Corazón'],['fon','Fondo']], cw = (W-160)/3, top = 1062;
   cols.forEach(([et,t],i)=>{
-    const x = 80 + cw*i + cw/2;
-    sp(t.toUpperCase(), x, top, 22, 600, '#B08A4E', 6);
-    c.strokeStyle = 'rgba(176,138,78,.5)'; c.lineWidth = 1; c.beginPath(); c.moveTo(x-cw/2+24, top+22); c.lineTo(x+cw/2-24, top+22); c.stroke();
-    let y = top + 76;
-    Object.entries(f).filter(([k])=>X[k].et===et).sort((a,b)=>b[1]-a[1]).forEach(([k,g])=>{
-      const nom = X[k].n.toUpperCase(); let s = 22; c.font = `400 ${s}px Montserrat`;
-      while(c.measureText(nom).width > cw-30 && s > 15){ s--; c.font = `400 ${s}px Montserrat`; }
-      sp(nom, x, y, s, 400, '#151412', 1.5); sp(fg(g)+' g', x, y+30, 19, 300, '#6E665C', 1); y += 78; });
-    if(i>0){ c.strokeStyle = 'rgba(176,138,78,.35)'; c.beginPath(); c.moveTo(80+cw*i, top-20); c.lineTo(80+cw*i, top+470); c.stroke(); }
+    const x = 80 + cw*i + cw/2, l = Object.entries(f).filter(([k])=>X[k].et===et).sort((a,b)=>b[1]-a[1]);
+    sp(t.toUpperCase(), x, top, 18, 600, '#B08A4E', 5);
+    const paso = Math.min(46, 270 / Math.max(1, l.length));
+    let y = top + 40;
+    l.forEach(([k,g])=>{ const nom = X[k].n; let s = 18; c.font = `400 ${s}px Montserrat`; while(c.measureText(nom).width > cw-24 && s > 13){ s--; c.font = `400 ${s}px Montserrat`; }
+      sp(nom, x, y, s, 400, '#151412', .5); sp(fg(g)+' g', x, y+20, 16, 400, '#6E665C', .5); y += paso; });
+    if(i>0){ c.strokeStyle = 'rgba(176,138,78,.35)'; c.lineWidth = 1; c.beginPath(); c.moveTo(80+cw*i, top-22); c.lineTo(80+cw*i, top+290); c.stroke(); }
   });
-  sp('100 ML · 80 G', W/2, 1250, 22, 300, '#151412', 8);
-  c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W/2-60,1300); c.lineTo(W/2+60,1300); c.stroke();
-  sp(CONFIG.PERFUMISTA.toUpperCase(), W/2, 1360, 18, 400, '#151412', 4);
-  sp(CONFIG.WEB.toUpperCase(), W/2, 1400, 17, 300, '#6E665C', 5);
+  /* pie: evento y firma */
+  sp(`Evento ${CONFIG.EMPRESA} · ${CONFIG.FECHA} · ${CONFIG.WEB}`.toUpperCase(), W/2, 1400, 15, 400, '#6E665C', 3);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W/2-70,1426); c.lineTo(W/2+70,1426); c.stroke();
+  sp(`${CONFIG.PERFUMISTA} · ${CONFIG.MATRICULA}`.toUpperCase(), W/2, 1458, 15, 500, '#151412', 3);
 }
 function vFinal(){
   const dev = P.devElegido || (P.dev==='iOS' ? 'iOS' : P.dev==='Android' ? 'Android' : 'iOS');
@@ -859,7 +863,7 @@ function vGracias(){
   return `<div style="text-align:center;padding-top:8vh"><div class="eb">Gracias</div><h1 style="font-family:var(--script);font-size:44px;font-weight:400">${esc(P.pn.trim())}</h1>
     <p class="sub" style="margin-top:12px">Gracias por crear tu perfume con nosotros, ${esc(P.nom.trim().split(' ')[0])}.</p>
     <p style="margin-top:28px;font-size:13px;letter-spacing:3px;text-transform:uppercase">${esc(CONFIG.PERFUMISTA)}</p>
-    <p style="margin-top:6px;font-size:13px;letter-spacing:2px;color:var(--dim)">${esc(CONFIG.WEB)} · ${esc(CONFIG.CONTACTO)}</p>
+    <p style="margin-top:6px;font-size:12px;letter-spacing:2px;color:var(--dim)">${esc(CONFIG.MATRICULA)}</p>
     <button class="btn ghost" style="margin-top:40px" onclick="ir('final')">Volver a mi imagen</button>
     <button class="btn ghost" style="margin-top:10px;border-color:var(--line);color:var(--dim)" onclick="reiniciar()">Empezar de nuevo (otra persona)</button></div>`;
 }
@@ -873,7 +877,7 @@ function pintar(){
   if(['final','gracias'].includes(P.paso) && !P.pn.trim()) P.paso = 'nombre';
   barraTop();
   const V = {inicio:vInicio, datos:vDatos, intro:vIntro, cata:vCata, perfil:vPerfil, pausa:vPausa, base:vBase, guiado:vGuiado, lab:vLab, pesar:vPesar, nombre:vNombre, final:vFinal, gracias:vGracias};
-  $('#app').innerHTML = V[P.paso]() + `<div class="pie">${esc(CONFIG.MARCA)} · ${esc(CONFIG.PERFUMISTA)}</div>`;
+  $('#app').innerHTML = V[P.paso]() + `<div class="pie">${esc(CONFIG.PERFUMISTA)} · ${esc(CONFIG.MATRICULA)}</div>`;
 }
 pintar(); vaciar();
 </script>

@@ -229,12 +229,9 @@ const C = [
  {id:'chipre', n:'Base Chipre Floral', et:'fon', base:true, fam:'Chipre floral', ap:'La Atrevida', fu:8, img:'caro_gourmand', w:{floral:.35, gourmand:.3, frutal:.15, amaderado:.2},
   perfil:'Miel · flor blanca · pachulí', pir:'Salida: naranja sanguina y mandarina · Corazón: miel, gardenia, azahar, jazmín y durazno · Fondo: caramelo, cera de abeja, pachulí y regaliz',
   aporta:'La familia chipre une una salida cítrica con flores y un fondo de pachulí. Esta versión es floral y amielada, sin vainilla: la más gustada, luminosa y con mucha presencia.'},
- {id:'vainilla', n:'Vainilla Crema', et:'fon', fam:'Gourmand', ap:'El Pegamento', fu:7, img:'p_vainilla', w:{gourmand:1},
-  perfil:'Helado de crema · dulce · envolvente',
-  aporta:'Es un fijador de manual: impacto medio que crece con el tiempo y ayuda a que todo el resto dure más.'},
- {id:'praline', n:'Vainilla y Praliné', et:'fon', fam:'Gourmand tostado', ap:'La Confitería', fu:7, img:'e_vainilla_praline', w:{gourmand:1},
-  perfil:'Dulce · cálida · golosa', tipo:'Vainilla del kit de cata', evap:'Baja: es de fondo', comp:'Vainillina, etilvainillina',
-  aporta:'La vainilla clásica de la cata: dulce, cálida y envolvente, con un fondo de praliné. Es potente: con muy poco ya se vuelve protagonista y le da abrigo a todo el fondo.'}
+ {id:'vainilla', n:'Vainilla y Praliné', et:'fon', fam:'Gourmand', ap:'El Pegamento', fu:7, img:'e_vainilla_praline', w:{gourmand:1},
+  perfil:'Helado de crema · dulce · envolvente', tipo:'Vainilla del kit de cata', evap:'Baja: es de fondo', comp:'Vainillina, etilvainillina',
+  aporta:'Es un fijador de manual: impacto medio que crece con el tiempo y ayuda a que todo el resto dure más. Es potente: con poco ya abriga todo el fondo.'}
 ];
 const X = Object.fromEntries(C.map(c=>[c.id,c]));
 const BASES = C.filter(c=>c.base).map(c=>c.id);
@@ -242,8 +239,8 @@ const ETN = {sal:'Salida', cor:'Corazón', fon:'Fondo'};
 /* toque del perfumista: no se votan, no salen en la imagen */
 const TOQUE = [['hedione','Hedione (Base Floral)'],['isoe','Iso E Super (Base Amaderada)'],['galaxolide','Galaxolide (Base Musky)']];
 /* topes en g sobre 80: [general, con Musky, con Haba Tonka y Oud, con Tabaco y Pimienta, con Amaderada, con Chipre] */
-const TOPES = {bergamota:[10,10,10,10,10,10], citrico:[10,10,10,10,10,10], grosellas:[4,4,4,3,4,4], pera:[4,4,4,2,4,3], bruma:[3,3,2,2,3,2], especias:[4,2,3,3,4,3],
-  jazmin:[10,10,5,8,10,6], peonia:[14,14,12,10,14,12], rosa:[9,9,9,9,9,9], higo:[12,12,10,12,12,10], salvia:[8,8,4,8,8,4], vainilla:[5,5,4,5,5,4], praline:[4,4,3,4,4,3]};
+const TOPES = {bergamota:[10,10,10,10,10,10], citrico:[10,10,10,10,10,10], grosellas:[8,8,8,6,8,8], pera:[4,4,4,3,4,3], bruma:[4,4,3,3,4,3], especias:[4,2,3,3,4,3],
+  jazmin:[10,10,5,8,10,6], peonia:[14,14,12,10,14,12], rosa:[9,9,9,9,9,9], higo:[12,12,10,12,12,10], salvia:[8,8,4,8,8,4], vainilla:[8,8,7,8,8,6]};
 const COLB = {musky:1, tonka:2, tabaco:3, amaderada:4, chipre:5};
 const TOPE_BASE = 22;   /* g de una misma base por perfume: 25 perfumes × 22 g ≈ 550 g, dentro de los ~600 g de cada frasco */
 const REDONDEO = {chipre:{cor:'rosa', sal:'bergamota'}, amaderada:{cor:'higo', sal:'bergamota'}, musky:{cor:'peonia', sal:'bergamota'}, tonka:{cor:'rosa', sal:'grosellas'}, tabaco:{cor:'higo', sal:'citrico'}};
@@ -376,9 +373,7 @@ function reparto(S){
 }
 function armarFondo(F, f){
   const v = id => P.v[id] ?? 0, p = P.principal;
-  let vain = Math.min(tope('vainilla', f), v('vainilla')===3 ? 4 : v('vainilla')===2 ? 2.5 : 0);
-  const pral = Math.min(tope('praline', f), v('praline')===3 ? 3 : v('praline')===2 ? 2 : 0);
-  if(pral){ f.praline = pral; F -= pral; }
+  let vain = Math.min(tope('vainilla', f), v('vainilla')===3 ? 6 : v('vainilla')===2 ? 4 : 0);
   const extras = P.extras.filter(b=>b!==p).slice(0,2);
   const libre = Math.max(0, 0.4*F - vain);           /* la principal lleva al menos el 60 % del fondo */
   let resto = F - vain, sec = {};
@@ -458,7 +453,6 @@ function sumarAlFondo(f, x){
   const entra = Math.max(0, tp - (f[p]||0)); f[p] = (f[p]||0) + entra; x -= entra;
   /* lo que falta va a Vainilla Crema (si la votó) o a otra base */
   if(v('vainilla') > 0){ const add = Math.min(x, tope('vainilla', f) - (f.vainilla||0)); if(add > 0){ f.vainilla = (f.vainilla||0) + add; x -= add; } }
-  if(v('praline') > 0 && x > 0){ const add = Math.min(x, tope('praline', f) - (f.praline||0)); if(add > 0){ f.praline = (f.praline||0) + add; x -= add; } }
   if(x <= 0.004) return;
   if(otras.length){ otras.forEach(k=>f[k] += x/otras.length); return; }
   const otra = BASES.filter(b=>b!==p && v(b) > 0).sort((a,b)=>v(b)-v(a))[0];
@@ -664,6 +658,9 @@ function prepararBase(){
     const choca = b => ['chipre','tonka'].includes(P.principal) && ['chipre','tonka'].includes(b) && (P.v[b]||0) < 3;   /* Chipre + Haba Tonka: mucho jazmín junto */
     P.extras = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 2 && !choca(b)).sort((a,b)=>pts(b)-pts(a)).slice(0,2);
     /* con una sola base es mucho volumen de la misma: se suma la mejor votada como soporte */
+    /* Chipre y Haba Tonka juntas solo si le encantan las dos */
+    const todas = [P.principal, ...P.extras];
+    if(todas.includes('chipre') && todas.includes('tonka') && !(P.v.chipre===3 && P.v.tonka===3)){ const sale = P.principal==='chipre' ? 'tonka' : P.principal==='tonka' ? 'chipre' : (pts('chipre') >= pts('tonka') ? 'tonka' : 'chipre'); P.extras = P.extras.filter(b=>b!==sale); }
     if(!P.extras.length){ const s = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 1 && !choca(b)).sort((a,b)=>pts(b)-pts(a))[0]; if(s) P.extras = [s]; } }
   recalcular();
 }
@@ -980,7 +977,12 @@ function pintarPanel(){
   const avisosP = [];
   conF.forEach(o=>{ const f = o.f, nom = o['Nombre'], m = [];
     Object.entries(f).forEach(([k,g])=>{ if(X[k].base && g > TOPE_BASE + 0.01) m.push(`${X[k].n} ${fg(g)} g`); else if(TOPES[k] && g > TOPES[k][0] + 0.01) m.push(`${X[k].n} ${fg(g)} g (muy alta)`); });
-    if(String(o['Toque del perfumista']||'').trim()) m.push('Toque: ' + o['Toque del perfumista']);
+    if(String(o['Toque del perfumista']||'').trim()) m.push('Ya tiene toque: ' + o['Toque del perfumista']);
+    /* sugerencias de soporte del perfumista (hasta 3 g en total) */
+    const T = sumaT(f) || 80, pc = et => sumaEt(f, et)/T, medio = x => Math.max(0.5, Math.min(3, Math.round(x*2)/2));
+    if(pc('cor') < 0.35) m.push(`Sugerencia: +${fg(medio(0.35*T - sumaEt(f,'cor')))} g de Hedione (el corazón quedó en ${Math.round(pc('cor')*100)} %)`);
+    if(pc('fon') < 0.40) m.push(`Sugerencia: +${fg(medio(0.40*T - sumaEt(f,'fon')))} g de Iso E Super (el fondo quedó en ${Math.round(pc('fon')*100)} %)`);
+    Object.entries(f).forEach(([k,g])=>{ if(X[k].base && g > TOPE_BASE + 0.01) m.push(`Sugerencia: bajar ${X[k].n} a ${TOPE_BASE} g y completar con ${fg(medio(g - TOPE_BASE))} g de ${k==='musky' ? 'Galaxolide' : 'Iso E Super'}`); });
     if(m.length) avisosP.push({nom, m}); });
   stock.filter(x=>x.proy > STOCK_G).forEach(x=>avisosP.unshift({nom:'Stock', m:[`${x.c.n}: proyectado ${Math.round(x.proy)} g de ${STOCK_G} g`]}));
   const fila = o => { const ab = ADM.abierto === o['ID'];

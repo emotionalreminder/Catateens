@@ -5,7 +5,7 @@ from PIL import Image
 AQUI = os.path.dirname(os.path.abspath(__file__)); R = os.path.join(AQUI, '..', '..')
 PB = os.path.join(R, 'perfume-bar', 'fuente', 'imgs'); CC = os.path.join(R, 'caro-cuomo', 'fuente', 'imgs'); PROPIAS = os.path.join(AQUI, 'imgs')
 # clave en la app -> archivo. Si en fuente/imgs hay un archivo con el nombre de la clave (ej. especias.png), se usa ese.
-FUENTES = {'p_bergamota':PB, 'p_citrico':PB, 'p_grosellas':PB, 'p_pera':PB, 'p_bruma':PB, 'p_jazmin':PB, 'p_peonia':PB, 'p_rosas':PB, 'p_higo':PB, 'p_vainilla':PB,
+FUENTES = {'p_bergamota':PB, 'p_citrico':PB, 'p_grosellas':PB, 'p_pera':PB, 'p_bruma':PB, 'p_jazmin':PB, 'p_peonia':PB, 'p_rosas':PB, 'p_higo':PB,
   'caro_woody':CC, 'caro_musky':CC, 'x_gourmand_caro':CC, 'caro_tabaco':CC, 'caro_gourmand':CC, 'e_vainilla_praline':PB,
   'especias':(PB,'p_oriental'), 'salvia':(CC,'p_lavanda')}   # provisorias hasta tener las fotos propias
 def cargar(k, v):

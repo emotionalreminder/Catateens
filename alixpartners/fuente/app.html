@@ -61,6 +61,9 @@ h2{font-weight:500;font-size:13px;letter-spacing:3px;text-transform:uppercase;ma
 .perfil{font-size:18px;font-weight:300;margin-top:10px;}
 dl.tec{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:12px;font-size:14px;}
 dl.tec dt{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;padding-top:2px;}
+.pir-ac{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;}
+.pir-ac div{display:grid;grid-template-columns:78px 1fr;gap:8px;font-size:14px;}
+.pir-ac b{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding-top:2px;}
 .aporta{margin-top:12px;font-size:15px;border-left:3px solid var(--gold);padding-left:12px;}
 .votos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;}
 .votos button{border:1.5px solid var(--line);border-radius:14px;padding:12px 4px;background:var(--card);font-size:12.5px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:74px;justify-content:center;}
@@ -223,15 +226,15 @@ const C = [
  {id:'tabaco', n:'Tabaco y Pimienta', et:'fon', base:true, fam:'Especiado · tabaco', ap:'Humo de Hoja', fu:8, img:'caro_tabaco', w:{especiado:.5, amaderado:.5},
   perfil:'Biblioteca · ahumado · especiado', pir:'Salida: bergamota, elemí y pomelo · Corazón: cedro, palisandro y nuez moscada · Fondo: tabaco, bálsamo del Perú y cuero',
   aporta:'Los absolutos de tabaco están entre los materiales más tenaces. Con poco ya cambia la identidad de todo el fondo.'},
- {id:'chipre', n:'Base Chipre', et:'fon', base:true, fam:'Chipre floral', ap:'La Atrevida', fu:8, img:'caro_gourmand', w:{floral:.35, gourmand:.3, frutal:.15, amaderado:.2},
+ {id:'chipre', n:'Base Chipre Floral', et:'fon', base:true, fam:'Chipre floral', ap:'La Atrevida', fu:8, img:'caro_gourmand', w:{floral:.35, gourmand:.3, frutal:.15, amaderado:.2},
   perfil:'Miel · flor blanca · pachulí', pir:'Salida: naranja sanguina y mandarina · Corazón: miel, gardenia, azahar, jazmín y durazno · Fondo: caramelo, cera de abeja, pachulí y regaliz',
   aporta:'La familia chipre une una salida cítrica con flores y un fondo de pachulí. Esta versión es floral y amielada, sin vainilla: la más gustada, luminosa y con mucha presencia.'},
  {id:'vainilla', n:'Vainilla Crema', et:'fon', fam:'Gourmand', ap:'El Pegamento', fu:7, img:'p_vainilla', w:{gourmand:1},
   perfil:'Helado de crema · dulce · envolvente',
   aporta:'Es un fijador de manual: impacto medio que crece con el tiempo y ayuda a que todo el resto dure más.'},
  {id:'praline', n:'Vainilla y Praliné', et:'fon', fam:'Gourmand tostado', ap:'La Confitería', fu:7, img:'e_vainilla_praline', w:{gourmand:1},
-  perfil:'Praliné tostado · caramelo · avellana', tipo:'Acorde gourmand', evap:'Baja: es de fondo', comp:'Vainillina, etilvainillina, maltol, notas tostadas',
-  aporta:'Una vainilla tostada, con avellana caramelizada. Más golosa y cálida que la Vainilla Crema: con poco ya se vuelve protagonista y le da abrigo a todo el fondo.'}
+  perfil:'Dulce · cálida · golosa', tipo:'Vainilla del kit de cata', evap:'Baja: es de fondo', comp:'Vainillina, etilvainillina',
+  aporta:'La vainilla clásica de la cata: dulce, cálida y envolvente, con un fondo de praliné. Es potente: con muy poco ya se vuelve protagonista y le da abrigo a todo el fondo.'}
 ];
 const X = Object.fromEntries(C.map(c=>[c.id,c]));
 const BASES = C.filter(c=>c.base).map(c=>c.id);
@@ -239,8 +242,8 @@ const ETN = {sal:'Salida', cor:'Corazón', fon:'Fondo'};
 /* toque del perfumista: no se votan, no salen en la imagen */
 const TOQUE = [['hedione','Hedione (Base Floral)'],['isoe','Iso E Super (Base Amaderada)'],['galaxolide','Galaxolide (Base Musky)']];
 /* topes en g sobre 80: [general, con Musky, con Haba Tonka y Oud, con Tabaco y Pimienta, con Amaderada, con Chipre] */
-const TOPES = {bergamota:[10,10,10,10,10,10], citrico:[10,10,10,10,10,10], grosellas:[4,4,4,3,4,4], pera:[6,6,6,3,6,6], bruma:[3,3,2,2,3,2], especias:[4,2,3,3,4,3],
-  jazmin:[10,10,5,8,10,6], peonia:[14,14,12,10,14,12], rosa:[9,9,9,9,9,9], higo:[12,12,10,12,12,10], salvia:[8,8,4,8,8,4], vainilla:[6,6,6,6,6,5], praline:[6,6,5,5,6,4]};
+const TOPES = {bergamota:[10,10,10,10,10,10], citrico:[10,10,10,10,10,10], grosellas:[4,4,4,3,4,4], pera:[4,4,4,2,4,3], bruma:[3,3,2,2,3,2], especias:[4,2,3,3,4,3],
+  jazmin:[10,10,5,8,10,6], peonia:[14,14,12,10,14,12], rosa:[9,9,9,9,9,9], higo:[12,12,10,12,12,10], salvia:[8,8,4,8,8,4], vainilla:[5,5,4,5,5,4], praline:[4,4,3,4,4,3]};
 const COLB = {musky:1, tonka:2, tabaco:3, amaderada:4, chipre:5};
 const TOPE_BASE = 22;   /* g de una misma base por perfume: 25 perfumes × 22 g ≈ 550 g, dentro de los ~600 g de cada frasco */
 const REDONDEO = {chipre:{cor:'rosa', sal:'bergamota'}, amaderada:{cor:'higo', sal:'bergamota'}, musky:{cor:'peonia', sal:'bergamota'}, tonka:{cor:'rosa', sal:'grosellas'}, tabaco:{cor:'higo', sal:'citrico'}};
@@ -265,7 +268,7 @@ const embebido = () => /Instagram|FBAN|FBAV|Line\/|; wv\)|WhatsApp/i.test(naviga
 
 function nuevo(){ return {id:uid(), creado:new Date().toLocaleString('es-AR'), nom:'', wa:'', perf:['','','','',''], v:{}, emo:{}, rec:{}, paso:'datos', i:0,
   principal:null, extras:[], guiada:null, f:null, modo:'guiado', libre:false, toque:{}, pesado:{}, pn:'', pnLista:'', ml:false, dev:dispositivo(), env:{}}; }
-let P = Object.assign(nuevo(), LS.get(CONFIG.LS, {}));
+let P = Object.assign(nuevo(), LS.get(CONFIG.LS, {})); P.ml = false;
 while(P.perf.length < 5) P.perf.push('');
 const guardar = () => LS.set(CONFIG.LS, P);
 
@@ -360,6 +363,8 @@ function baseRecomendada(){
 /* ======================= motor de formulación (punto 5) ======================= */
 function tope(id, f){ const t = TOPES[id]; if(!t) return Infinity; let x = t[COLB[P.principal]||0];
   if(id==='especias' && (f||{}).tabaco > 0) x = Math.min(x, 3);
+  /* Chipre y Haba Tonka ya traen jazmín: si están las dos, el Jazmín va con cuidado salvo que le encante */
+  if(id==='jazmin' && ((f||{}).chipre > 0 || P.principal==='chipre' || P.extras.includes('chipre')) && ((f||{}).tonka > 0 || P.principal==='tonka' || P.extras.includes('tonka'))) x = Math.min(x, P.v.jazmin===3 ? 5 : 3);
   return x; }
 function reparto(S){
   const o = ordenFam(S), top = o[0], tot = Object.values(S).reduce((a,b)=>a+b,0);
@@ -371,8 +376,8 @@ function reparto(S){
 }
 function armarFondo(F, f){
   const v = id => P.v[id] ?? 0, p = P.principal;
-  let vain = Math.min(tope('vainilla', f), v('vainilla')===3 ? 5 : v('vainilla')===2 ? 3 : 0);
-  const pral = v('praline')===3 ? 4 : v('praline')===2 ? 2.5 : 0;
+  let vain = Math.min(tope('vainilla', f), v('vainilla')===3 ? 4 : v('vainilla')===2 ? 2.5 : 0);
+  const pral = Math.min(tope('praline', f), v('praline')===3 ? 3 : v('praline')===2 ? 2 : 0);
   if(pral){ f.praline = pral; F -= pral; }
   const extras = P.extras.filter(b=>b!==p).slice(0,2);
   const libre = Math.max(0, 0.4*F - vain);           /* la principal lleva al menos el 60 % del fondo */
@@ -610,12 +615,14 @@ function empezarCata(){ if(!P.enviadoReg){ P.enviadoReg = true; registrar('Regis
 function vCata(){
   const c = C[P.i], v = P.v[c.id], emo = P.emo[c.id] || [];
   fijo(`<button class="btn ghost" onclick="atras()">Atrás</button><button class="btn" ${v==null?'disabled':''} onclick="sigCata()">${P.i < C.length-1 ? 'Siguiente' : 'Ver mi perfil'}</button>`);
-  const tec = [c.tipo && ['Tipo', c.tipo], c.evap && ['Evaporación', c.evap], c.comp && ['Componentes', c.comp], c.pir && ['Pirámide', c.pir]].filter(Boolean);
+  const tec = [c.tipo && ['Tipo', c.tipo], c.evap && ['Evaporación', c.evap], c.comp && ['Componentes', c.comp]].filter(Boolean);
+  const pir = c.pir ? c.pir.split(' · ').map(x=>x.split(': ')) : [];
   return `<div class="ficha"><img class="foto" src="${foto(c.img)}" alt="">
     <div class="eb">${ETN[c.et]}${c.base?' · Base':''} · ${esc(c.fam)}</div><h1>${esc(c.n)}</h1>
     <div class="apodo">${esc(c.ap)}</div><div class="fuerza"><span>Fuerza</span><span class="b" aria-label="Fuerza ${c.fu} de 9">${Array.from({length:9},(_,k)=>`<i class="${k<c.fu?'on':''}"></i>`).join('')}</span><span>${c.fu}/9</span></div>
     <div class="perfil">${esc(c.perfil)}</div>
     ${tec.length ? `<dl class="tec">${tec.map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('')}</dl>` : ''}
+    ${pir.length ? `<div class="pir-ac"><div class="eb">Pirámide de este acorde</div>${pir.map(([e,n])=>`<div><b>${esc(e)}</b><span>${esc(n)}</span></div>`).join('')}</div>` : ''}
     <p class="aporta"><b>Qué aporta.</b> ${esc(c.aporta)}</p></div>
     <h2>Tu voto</h2>
     <div class="votos" role="group" aria-label="¿Qué te pareció ${esc(c.n)}?">${VOTOS.map(([k,s,t])=>`<button aria-pressed="${v===k}" onclick="votar(${k})"><b>${s}</b>${t}</button>`).join('')}</div>
@@ -654,9 +661,10 @@ function pedirPin(ok){
 function prepararBase(){
   if(!P.principal){ P.principal = baseRecomendada().b;
     const pts = b => (P.v[b]||0) + 0.5*afinidad(b);
-    P.extras = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 2).sort((a,b)=>pts(b)-pts(a)).slice(0,2);
+    const choca = b => ['chipre','tonka'].includes(P.principal) && ['chipre','tonka'].includes(b) && (P.v[b]||0) < 3;   /* Chipre + Haba Tonka: mucho jazmín junto */
+    P.extras = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 2 && !choca(b)).sort((a,b)=>pts(b)-pts(a)).slice(0,2);
     /* con una sola base es mucho volumen de la misma: se suma la mejor votada como soporte */
-    if(!P.extras.length){ const s = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 1).sort((a,b)=>pts(b)-pts(a))[0]; if(s) P.extras = [s]; } }
+    if(!P.extras.length){ const s = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 1 && !choca(b)).sort((a,b)=>pts(b)-pts(a))[0]; if(s) P.extras = [s]; } }
   recalcular();
 }
 function recalcular(){ const pr = proponer(); P.guiada = pr.f; P.rol = pr.rol; guardar(); }
@@ -775,7 +783,6 @@ function vPesar(){
   return `<div class="eb">Paso 3 · Pesá tu perfume</div><h1>Tu fórmula para pesar</h1>
     <p class="sub">En este orden: fondo, corazón y salida. Tocá ✓ cuando termines cada uno.</p>
     ${Object.entries(f).some(([k,g])=>X[k].base && g > TOPE_BASE + 0.001) ? `<div class="aviso">✋ Tu fórmula lleva mucha cantidad de una base. <b>Hablá con el perfumista</b> antes de pesarla.</div>` : ''}
-    <label class="libre"><input type="checkbox" ${P.ml?'checked':''} onchange="P.ml=this.checked;guardar();pintar()"> Ver en ml (micropipeta)</label>
     ${listaFormula(f,{pesar:true})}<div class="total"><span>Total</span><span>${P.ml ? fg(sumaT(f)/CONFIG.DENSIDAD)+' ml' : fg(sumaT(f))+' g'}</span></div>
     ${toque.length ? `<div class="etapa"><h3><span>Toque del perfumista</span></h3>${toque.map(([k,g])=>`<div class="fl"><div class="n"><b>${esc(TOQUE.find(t=>t[0]===k)[1])}</b></div><span class="g">${fg(g)} g</span></div>`).join('')}</div>` : ''}
     <button class="btn ghost" style="margin-top:20px" onclick="pedirPin(abrirToque)">Toque del perfumista</button>`;
@@ -915,7 +922,94 @@ function pintar(){
   const V = {analisis:vAnalisis, datos:vDatos, intro:vIntro, cata:vCata, perfil:vPerfil, pausa:vPausa, base:vBase, guiado:vGuiado, lab:vLab, pesar:vPesar, nombre:vNombre, final:vFinal, gracias:vGracias};
   $('#app').innerHTML = V[P.paso]();
 }
-pintar(); vaciar();
+/* ======================= PANEL DEL PERFUMISTA (link + #admin) =======================
+   Lee la pestaña del evento desde el script de la planilla (doGet con accion=leer).
+   La clave la verifica el script: no está en esta página. Los WhatsApp no se traen. */
+const STOCK_G = 750 * 0.8;          /* 750 ml de cada componente al 20 % p/p → 600 g */
+const PERSONAS = 25;
+let ADM = {datos:null, error:'', hora:'', abierto:null, timer:null};
+const claveAdm = () => { try{ return sessionStorage.getItem('er_alix_admin') || ''; }catch(e){ return ''; } };
+function vPanelLogin(msg){
+  $('#top').innerHTML = `<div class="marca"><b>Panel del perfumista</b><small>${esc(CONFIG.EMPRESA)} · ${esc(CONFIG.FECHA)}</small></div>`; fijo('');
+  $('#app').innerHTML = `<div style="padding-top:6vh"><div class="eb">Acceso</div><h1>Panel del perfumista</h1>
+    <div class="fld"><input id="admk" type="password" autocomplete="off" placeholder="Clave del panel" style="font-size:22px;text-align:center"></div>
+    ${msg ? `<div class="aviso">${esc(msg)}</div>` : ''}<button class="btn" onclick="entrarPanel()">Entrar</button>
+    <button class="btn ghost" onclick="location.hash='';location.reload()">Volver a la app</button></div>`;
+  const i = $('#admk'); i.onkeydown = e => { if(e.key==='Enter') entrarPanel(); }; setTimeout(()=>i.focus(), 50);
+}
+function entrarPanel(){ const k = $('#admk').value.trim(); if(!k) return; try{ sessionStorage.setItem('er_alix_admin', k); }catch(e){} cargarPanel(true); }
+async function cargarPanel(primera){
+  const k = claveAdm(); if(!k){ vPanelLogin(); return; }
+  try{
+    const u = `${CONFIG.SCRIPT_URL}?accion=leer&hoja=${encodeURIComponent(CONFIG.HOJA)}&clave=${encodeURIComponent(k)}&t=${Date.now()}`;
+    const j = await (await fetch(u)).json();
+    if(!j.ok){ if(j.error==='clave'){ try{ sessionStorage.removeItem('er_alix_admin'); }catch(e){} vPanelLogin('Clave incorrecta.'); return; }
+      if(!j.enc){ ADM.error = 'El script de la planilla todavía no tiene la función de lectura (ver instrucciones).'; } else ADM.error = j.error || 'Error'; }
+    else { ADM.datos = j; ADM.error = ''; ADM.hora = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+  }catch(e){ ADM.error = 'Sin conexión con la planilla. Reintento en 30 s.'; }
+  pintarPanel();
+  clearTimeout(ADM.timer); ADM.timer = setTimeout(()=>cargarPanel(), 30000);
+}
+const porNombre = {}; C.forEach(c=>porNombre[nz(c.n)] = c.id);
+function leerFormula(t){ const f = {}; String(t||'').split(';').forEach(p=>{ const m = p.match(/^\s*(.+?):\s*([\d.,]+)\s*g/); if(m){ const id = porNombre[nz(m[1])]; if(id) f[id] = parseFloat(m[2].replace(/\./g,'').replace(',','.')); } }); return f; }
+function filasPanel(){
+  const d = ADM.datos; if(!d || !d.enc) return [];
+  return d.filas.map(r=>{ const o = {}; d.enc.forEach((h,i)=>o[h] = r[i]); o.f = leerFormula(o['Fórmula completa']); return o; }).filter(o=>String(o['Nombre']||'').trim());
+}
+function pintarPanel(){
+  fijo('');
+  $('#top').innerHTML = `<div class="marca"><b>Panel del perfumista</b><small>${ADM.hora ? 'Actualizado ' + ADM.hora + ' · cada 30 s' : 'Cargando…'}</small></div>
+    <button class="back" style="width:auto;padding:0 14px;border-radius:999px;font-size:13px" onclick="cargarPanel()">↻</button>`;
+  const F = filasPanel(), conF = F.filter(o=>Object.keys(o.f).length);
+  const est = k => F.filter(o=>String(o['Estado']||'')===k).length;
+  /* votos */
+  const pts = {'Me encanta':3,'Me gusta':2,'Un poquito':1,'No me gusta':0};
+  const rank = et => C.filter(c=>c.et===et).map(c=>{ const vs = F.map(o=>pts[o['Voto · '+c.n]]).filter(x=>x!=null);
+    return {c, n:vs.length, prom: vs.length ? vs.reduce((a,b)=>a+b,0)/vs.length : 0, enc: vs.filter(x=>x===3).length}; }).sort((a,b)=>b.prom-a.prom || b.enc-a.enc);
+  const barrasV = l => `<div class="barras">${l.map(x=>`<div class="barra" style="grid-template-columns:120px 1fr 74px"><span>${esc(x.c.n)}</span><span class="t"><i style="width:${Math.round(100*x.prom/3)}%"></i></span><span>${x.prom.toFixed(1)} · ♥${x.enc}</span></div>`).join('')}</div>`;
+  /* emociones */
+  const emo = {}; F.forEach(o=>C.forEach(c=>String(o['Emociones · '+c.n]||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(e=>emo[e]=(emo[e]||0)+1)));
+  const emoL = Object.entries(emo).sort((a,b)=>b[1]-a[1]), emoMax = emoL.length ? emoL[0][1] : 1;
+  /* stock */
+  const usado = {}; conF.forEach(o=>Object.entries(o.f).forEach(([k,g])=>usado[k]=(usado[k]||0)+g));
+  const prom = k => conF.length ? (usado[k]||0)/conF.length : 0;
+  const stock = C.map(c=>{ const u = usado[c.id]||0, proy = u + prom(c.id)*Math.max(0, PERSONAS - conF.length); return {c, u, proy, queda: STOCK_G - u}; })
+    .sort((a,b)=>b.proy/STOCK_G - a.proy/STOCK_G);
+  const semaforo = x => x.proy > STOCK_G ? ['#B4562E','Falta'] : x.proy > STOCK_G*0.8 ? ['#C9922E','Atención'] : ['#2F7A52','OK'];
+  /* avisos: fórmulas para revisar */
+  const avisosP = [];
+  conF.forEach(o=>{ const f = o.f, nom = o['Nombre'], m = [];
+    Object.entries(f).forEach(([k,g])=>{ if(X[k].base && g > TOPE_BASE + 0.01) m.push(`${X[k].n} ${fg(g)} g`); else if(TOPES[k] && g > TOPES[k][0] + 0.01) m.push(`${X[k].n} ${fg(g)} g (muy alta)`); });
+    if(String(o['Toque del perfumista']||'').trim()) m.push('Toque: ' + o['Toque del perfumista']);
+    if(m.length) avisosP.push({nom, m}); });
+  stock.filter(x=>x.proy > STOCK_G).forEach(x=>avisosP.unshift({nom:'Stock', m:[`${x.c.n}: proyectado ${Math.round(x.proy)} g de ${STOCK_G} g`]}));
+  const fila = o => { const ab = ADM.abierto === o['ID'];
+    return `<div class="card" style="padding:10px 12px;margin-top:8px"><button style="width:100%;text-align:left;display:flex;gap:10px;align-items:center" onclick="ADM.abierto=${ab?'null':`'${esc(o['ID'])}'`};pintarPanel()">
+      <span style="flex:1"><b>${esc(o['Nombre'])}</b><br><small style="color:var(--dim)">${esc(o['Estado']||'')} · ${esc(o['Base elegida']||'—')}${o['Nombre del perfume'] ? ' · ' + esc(o['Nombre del perfume']) : ''}</small></span><span>${ab?'▲':'▼'}</span></button>
+      ${ab ? `<div style="margin-top:8px;font-size:14px">${Object.keys(o.f).length ? listaFormula(o.f) : '<p class="sub">Todavía sin fórmula.</p>'}
+        ${o['Emociones principales'] ? `<p style="margin-top:8px"><b>Emociones:</b> ${esc(o['Emociones principales'])}</p>` : ''}
+        ${o['Palabras de sus recuerdos'] ? `<p><b>Recuerdos:</b> ${esc(o['Palabras de sus recuerdos'])}</p>` : ''}
+        ${o['Perfumes favoritos'] ? `<p><b>Usa:</b> ${esc(o['Perfumes favoritos'])}</p>` : ''}
+        <p style="color:var(--dim)">Modo: ${esc(o['Modo final']||'—')} · ${esc(String(o['Última actualización']||''))}</p></div>` : ''}</div>`; };
+  $('#app').innerHTML = `
+    ${ADM.error ? `<div class="aviso">${esc(ADM.error)}</div>` : ''}
+    <div class="eb" style="margin-top:4px">Participantes</div>
+    <div class="bases" style="grid-template-columns:repeat(4,1fr);margin-top:8px">${[['Total',F.length],['En cata',est('Registrado')],['Cata lista',est('Terminó la cata')],['Con fórmula',conF.length]].map(([t,n])=>`<div class="card" style="text-align:center;padding:10px"><div style="font-size:26px;font-weight:300">${n}</div><div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">${t}</div></div>`).join('')}</div>
+    <h2>⚠ Para revisar (${avisosP.length})</h2>
+    ${avisosP.length ? avisosP.map(a=>`<div class="aviso" style="margin-top:6px"><b>${esc(a.nom)}:</b> ${a.m.map(esc).join(' · ')}</div>`).join('') : '<p class="sub">Nada por ahora.</p>'}
+    <h2>Stock (${STOCK_G} g de cada uno · proyección a ${PERSONAS} personas)</h2>
+    <div class="card"><div class="barras">${stock.map(x=>{ const [col,t] = semaforo(x); return `<div class="barra" style="grid-template-columns:120px 1fr 104px"><span>${esc(x.c.n)}</span><span class="t"><i style="width:${Math.min(100,Math.round(100*x.proy/STOCK_G))}%;background:${col}"></i></span><span style="color:${col}">${Math.round(x.u)} g · ${t}</span></div>`; }).join('')}</div>
+      <p class="sub" style="font-size:12px;margin-top:8px">La barra muestra lo proyectado si las ${PERSONAS} personas usan en promedio lo mismo. El número es lo ya usado.</p></div>
+    <h2>Notas de salida más votadas</h2><div class="card">${barrasV(rank('sal'))}</div>
+    <h2>Notas de corazón más votadas</h2><div class="card">${barrasV(rank('cor'))}</div>
+    <h2>Fondo: bases y vainillas</h2><div class="card">${barrasV(rank('fon'))}</div>
+    <h2>Emociones más elegidas</h2><div class="card">${emoL.length ? `<div class="barras">${emoL.map(([e,n])=>`<div class="barra"><span>${esc(e)}</span><span class="t"><i style="width:${Math.round(100*n/emoMax)}%;background:var(--gold)"></i></span><span>${n}</span></div>`).join('')}</div>` : '<p class="sub">Todavía no hay.</p>'}</div>
+    <h2>Personas (${F.length})</h2>${F.slice().reverse().map(fila).join('')}
+    <button class="btn ghost" style="margin-top:20px" onclick="try{sessionStorage.removeItem('er_alix_admin')}catch(e){};location.hash='';location.reload()">Salir del panel</button>`;
+}
+function arrancar(){ if(location.hash === '#admin'){ cargarPanel(true); } else { pintar(); vaciar(); } }
+window.addEventListener('hashchange', ()=>location.reload());
+arrancar();
 </script>
 </body>
 </html>

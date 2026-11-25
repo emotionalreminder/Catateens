@@ -142,7 +142,7 @@ const CONFIG = {
   FECHA: '25.11.2026',
   MARCA: 'Breena',
   WEB: 'www.breena.com.ar',
-  PERFUMISTA: 'Lic. Agustín Melazo Díaz · Perfumista',
+  PERFUMISTA: 'Perfumista · Lic. Agustín Melazo Díaz',
   MATRICULA: 'MP 240.297',
   PIN: '2730',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwkMzVVILGvF1Ctx53JR3hvndsLlbkjoLsSwF9MDSjhcGSp2gZfTo6hd_Cx3UoI_aV3AA/exec',
@@ -797,41 +797,68 @@ function terminar(){ registrar('Terminó'); ir('final'); }
 /* ---------- imagen final ---------- */
 const IMGOBJ = {};
 function img(k){ if(IMGOBJ[k]) return IMGOBJ[k]; IMGOBJ[k] = new Promise(r=>{ const i = new Image(); i.onload = ()=>r(i); i.onerror = ()=>r(null); i.src = foto(k); }); return IMGOBJ[k]; }
+/* notas que se ven en la imagen: las simples por su nombre y los acordes/bases desarmados en su pirámide (como en Caro Cuomo) */
+const NOMBRE_NOTA = {rosa:'Rosa', vainilla:'Vainilla', bruma:'Bruma de mar'};
+function piramideNotas(f){
+  const o = {sal:[], cor:[], fon:[]}, vistos = [];
+  const add = (et, t, g) => { t = t.trim(); if(!t) return; const k = nz(t); if(vistos.some(v=>v===k || v.startsWith(k+' ') || k.startsWith(v+' '))) return; vistos.push(k); o[et].push([t.charAt(0).toUpperCase()+t.slice(1), g]); };
+  const parte = txt => txt.split(/,| y | e /).map(x=>x.trim()).filter(Boolean);
+  Object.entries(f).sort((a,b)=>b[1]-a[1]).forEach(([id,g])=>{
+    const c = X[id];
+    if(c.pir){ c.pir.split(' · ').forEach(seg=>{ const m = seg.match(/^(Salida|Corazón|Fondo):\s*(.*)$/); if(!m) return;
+        const et = {Salida:'sal', 'Corazón':'cor', Fondo:'fon'}[m[1]]; parte(m[2]).forEach(t=>add(et, t, g)); }); }
+    else add(c.et, NOMBRE_NOTA[id] || c.n, g + 1000);   /* las notas que eligió van primero */
+  });
+  ['sal','cor','fon'].forEach(et=>{ o[et] = o[et].sort((a,b)=>b[1]-a[1]).slice(0,7).map(x=>x[0]); });
+  return o;
+}
 async function dibujar(cv){
-  try{ await Promise.all(['300 40px Montserrat','400 40px Montserrat','600 40px Montserrat','200 40px Montserrat','italic 400 40px "Lobster Two"'].map(f=>document.fonts.load(f))); }catch(e){}
+  try{ await Promise.all(['300 40px Montserrat','400 40px Montserrat','500 40px Montserrat','600 40px Montserrat','italic 400 40px "Lobster Two"'].map(f=>document.fonts.load(f))); }catch(e){}
   const c = cv.getContext('2d'), W = 1080, H = 1528, f = P.f, pe = personalidad(f);
-  const orden = Object.entries(f).sort((a,b)=>b[1]-a[1]).map(([k])=>k).slice(0,9);
-  const fotos = await Promise.all(orden.map(k=>img(X[k].img)));
   c.fillStyle = '#F7F1E6'; c.fillRect(0,0,W,H);
   c.strokeStyle = '#B08A4E'; c.lineWidth = 2; c.strokeRect(36,36,W-72,H-72);
   c.strokeStyle = 'rgba(176,138,78,.4)'; c.lineWidth = 1; c.strokeRect(50,50,W-100,H-100);
   const sp = (t, x, y, px, wt, col, track, al) => { c.font = `${wt} ${px}px Montserrat`; c.fillStyle = col; c.textAlign = al||'center';
     try{ c.letterSpacing = track+'px'; }catch(e){} c.fillText(t, x, y); try{ c.letterSpacing = '0px'; }catch(e){} };
-  /* etiqueta: marca, nombre del perfume, línea dorada, creado por */
-  sp(CONFIG.MARCA.toUpperCase(), W/2, 118, 26, 300, '#151412', 14);
-  let px = 116; c.font = `italic 400 ${px}px "Lobster Two"`; while(c.measureText(P.pn.trim()).width > W-200 && px > 56){ px -= 4; c.font = `italic 400 ${px}px "Lobster Two"`; }
-  c.fillStyle = '#151412'; c.textAlign = 'center'; c.fillText(P.pn.trim(), W/2, 250);
-  c.strokeStyle = '#B08A4E'; c.lineWidth = 3; c.beginPath(); c.moveTo(W/2-140,288); c.lineTo(W/2+140,288); c.stroke();
-  sp('creado por ' + P.nom.trim(), W/2, 340, 24, 400, '#151412', 1);
-  /* los aromas: la más usada al centro, las demás alrededor */
-  const SL = [[540,650,350],[365,590,280],[715,590,280],[390,790,260],[690,790,260],[225,700,220],[855,700,220],[540,470,230],[540,850,220]];
-  for(let i = orden.length-1; i >= 0; i--){ const im = fotos[i]; if(!im) continue; const [x,y,t] = SL[i], k = Math.min(t/im.width, t/im.height), w = im.width*k, h = im.height*k; c.drawImage(im, x-w/2, y-h/2, w, h); }
-  sp((pe.frase || '').toUpperCase(), W/2, 1000, 26, 600, '#2F4A3A', 7);
-  /* pirámide en 3 columnas, con gramos */
-  const cols = [['sal','Salida'],['cor','Corazón'],['fon','Fondo']], cw = (W-160)/3, top = 1062;
-  cols.forEach(([et,t],i)=>{
-    const x = 80 + cw*i + cw/2, l = Object.entries(f).filter(([k])=>X[k].et===et).sort((a,b)=>b[1]-a[1]);
-    sp(t.toUpperCase(), x, top, 18, 600, '#B08A4E', 5);
-    const paso = Math.min(46, 270 / Math.max(1, l.length));
-    let y = top + 40;
-    l.forEach(([k,g])=>{ const nom = X[k].n; let s = 18; c.font = `400 ${s}px Montserrat`; while(c.measureText(nom).width > cw-24 && s > 13){ s--; c.font = `400 ${s}px Montserrat`; }
-      sp(nom, x, y, s, 400, '#151412', .5); sp(fg(g)+' g', x, y+20, 16, 400, '#6E665C', .5); y += paso; });
-    if(i>0){ c.strokeStyle = 'rgba(176,138,78,.35)'; c.lineWidth = 1; c.beginPath(); c.moveTo(80+cw*i, top-22); c.lineTo(80+cw*i, top+290); c.stroke(); }
+  /* encabezado como la etiqueta: empresa, nombre del perfume, línea, creado por */
+  sp(CONFIG.EMPRESA.toUpperCase(), W/2, 116, 24, 400, '#B08A4E', 12);
+  let px = 112; c.font = `italic 400 ${px}px "Lobster Two"`; while(c.measureText(P.pn.trim()).width > W-200 && px > 56){ px -= 4; c.font = `italic 400 ${px}px "Lobster Two"`; }
+  c.fillStyle = '#151412'; c.textAlign = 'center'; c.fillText(P.pn.trim(), W/2, 236);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 3; c.beginPath(); c.moveTo(W/2-140,272); c.lineTo(W/2+140,272); c.stroke();
+  sp('creado por ' + P.nom.trim(), W/2, 320, 25, 400, '#151412', 1);
+  sp((pe.frase || '').toUpperCase(), W/2, 362, 19, 600, '#2F4A3A', 6);
+  /* los aromas en pirámide: salida arriba, corazón al medio, fondo abajo; más grande cuanto más gramos */
+  const filas = ['sal','cor','fon'].map(et=>Object.entries(f).filter(([k])=>X[k].et===et).sort((a,b)=>b[1]-a[1]).slice(0, et==='fon' ? 4 : 5));
+  const ims = await Promise.all(filas.flat().map(([k])=>img(X[k].img))); let n = 0;
+  const filasIm = filas.map(l=>l.map(([k,g])=>({k, g, im: ims[n++]})));
+  const gmax = Math.max(...Object.values(f)), Y0 = 400, Y1 = 1060, filasCon = filasIm.filter(l=>l.length), FH = (Y1-Y0)/Math.max(1,filasCon.length);
+  const dibujos = [];
+  filasCon.forEach((l, fi)=>{
+    const alto = FH*1.55, base = l.map(x=>{ const t = alto*(0.58 + 0.42*Math.sqrt(x.g/gmax)); const im = x.im; if(!im) return {x, w:0, h:0};
+      const k = Math.min(t/im.height, t*1.15/im.width); return {x, w:im.width*k, h:im.height*k}; });
+    /* la más grande al centro, las demás a los costados */
+    const ord = []; base.forEach((b,i)=>{ if(i%2) ord.unshift(b); else ord.push(b); });
+    let solape = 0.26, total = ord.reduce((s,b)=>s+b.w,0) - solape*ord.slice(1).reduce((s,b)=>s+b.w,0);
+    const maxW = W - 110; let esc = total > maxW ? maxW/total : 1;
+    const cy = Y0 + FH*fi + FH/2; let x = W/2 - total*esc/2;
+    ord.forEach((b,i)=>{ const w = b.w*esc, h = b.h*esc; dibujos.push({im:b.x.im, x, y:cy-h/2, w, h, g:b.x.g, fi}); x += w*(1-solape); });
   });
-  /* pie: evento y firma */
+  /* primero el fondo, después corazón y salida; dentro de cada fila, las chicas atrás */
+  dibujos.forEach(d=>{ if(d.y + d.h > 1080) d.y = 1080 - d.h; if(d.y < 372) d.y = 372; });
+  dibujos.sort((a,b)=>b.fi-a.fi || a.g-b.g).forEach(d=>{ if(d.im) c.drawImage(d.im, d.x, d.y, d.w, d.h); });
+  /* las notas, como en Fragrantica: salida, corazón y fondo */
+  const pr = piramideNotas(f), cw = (W-140)/3, top = 1110, TIT = {sal:'Notas de salida', cor:'Notas de corazón', fon:'Notas de fondo'};
+  ['sal','cor','fon'].forEach((et,i)=>{
+    const x = 70 + cw*i + cw/2;
+    sp(TIT[et].toUpperCase(), x, top, 16, 600, '#B08A4E', 3);
+    c.strokeStyle = '#B08A4E'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(x-24, top+14); c.lineTo(x+24, top+14); c.stroke();
+    pr[et].forEach((t,j)=>{ let s = 21; c.font = `400 ${s}px Montserrat`; while(c.measureText(t).width > cw-20 && s > 15){ s--; c.font = `400 ${s}px Montserrat`; } sp(t, x, top + 48 + j*31, s, 400, '#151412', .3); });
+    if(i>0){ c.strokeStyle = 'rgba(176,138,78,.35)'; c.lineWidth = 1; c.beginPath(); c.moveTo(70+cw*i, top-20); c.lineTo(70+cw*i, top+250); c.stroke(); }
+  });
+  /* pie: evento, web y firma */
   sp(`Evento ${CONFIG.EMPRESA} · ${CONFIG.FECHA} · ${CONFIG.WEB}`.toUpperCase(), W/2, 1400, 15, 400, '#6E665C', 3);
-  c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W/2-70,1426); c.lineTo(W/2+70,1426); c.stroke();
-  sp(`${CONFIG.PERFUMISTA} · ${CONFIG.MATRICULA}`.toUpperCase(), W/2, 1458, 15, 500, '#151412', 3);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W/2-70,1424); c.lineTo(W/2+70,1424); c.stroke();
+  sp(`${CONFIG.PERFUMISTA} · ${CONFIG.MATRICULA}`.toUpperCase(), W/2, 1456, 15, 500, '#151412', 3);
 }
 function vFinal(){
   const dev = P.devElegido || (P.dev==='iOS' ? 'iOS' : P.dev==='Android' ? 'Android' : 'iOS');

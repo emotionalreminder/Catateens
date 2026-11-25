@@ -318,6 +318,7 @@ const TOQUE = [['hedione','Hedione (Base Floral)'],['isoe','Iso E Super (Base Am
 const TOPES = {bergamota:[10,10,10,10,10], citrico:[10,10,10,10,10], grosellas:[4,4,4,3,4], pera:[6,6,6,3,6], bruma:[3,3,2,2,3], especias:[4,2,3,3,4],
   jazmin:[10,10,5,8,10], peonia:[14,14,12,10,14], rosa:[9,9,9,9,9], higo:[12,12,10,12,12], salvia:[8,8,4,8,8], vainilla:[6,6,6,6,6]};
 const COLB = {musky:1, tonka:2, tabaco:3, amaderada:4};
+const TOPE_BASE = 22;   /* g de una misma base por perfume: 25 perfumes × 22 g ≈ 550 g, dentro de los ~600 g de cada frasco */
 const REDONDEO = {amaderada:{cor:'higo', sal:'bergamota'}, musky:{cor:'peonia', sal:'bergamota'}, tonka:{cor:'rosa', sal:'grosellas'}, tabaco:{cor:'higo', sal:'citrico'}};
 const UNIVERSAL = {sal:'bergamota', cor:'peonia'};
 const POTENCIAN = [['bergamota','citrico','Los dos cítricos se potencian'],['grosellas','bergamota','La bergamota levanta a la grosella'],['peonia','musky','El almizcle resalta el lado rosado de la peonía'],
@@ -338,9 +339,10 @@ const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now().to
 const dispositivo = () => { const u = navigator.userAgent||''; return /iPhone|iPad|iPod/i.test(u) || (/Macintosh/.test(u) && navigator.maxTouchPoints>1) ? 'iOS' : /Android/i.test(u) ? 'Android' : 'otro'; };
 const embebido = () => /Instagram|FBAN|FBAV|Line\/|; wv\)|WhatsApp/i.test(navigator.userAgent||'');
 
-function nuevo(){ return {id:uid(), creado:new Date().toLocaleString('es-AR'), nom:'', wa:'', perf:['','',''], v:{}, emo:{}, rec:{}, paso:'datos', i:0,
+function nuevo(){ return {id:uid(), creado:new Date().toLocaleString('es-AR'), nom:'', wa:'', perf:['','','','',''], v:{}, emo:{}, rec:{}, paso:'datos', i:0,
   principal:null, extras:[], guiada:null, f:null, modo:'guiado', libre:false, toque:{}, pesado:{}, pn:'', pnLista:'', ml:false, dev:dispositivo(), env:{}}; }
 let P = Object.assign(nuevo(), LS.get(CONFIG.LS, {}));
+while(P.perf.length < 5) P.perf.push('');
 const guardar = () => LS.set(CONFIG.LS, P);
 
 /* ======================= perfumes favoritos ======================= */
@@ -365,6 +367,17 @@ function baseDeFavoritos(){
   return 'tabaco'; /* especiada, cuero, ambar */
 }
 /* perfil aromático según la cata */
+/* afinidad 0..1 de cada componente con los perfumes que usa (familias de Fragrantica llevadas a las 10 de la app) */
+const FK2 = {citrica:{citrico:1}, frutal:{frutal:1}, verde:{verde:1}, floral:{floral:1}, aromatica:{aromatico:1}, ambar:{especiado:.5, gourmand:.5},
+  gourmand:{gourmand:1}, amaderada:{amaderado:1}, oriental:{especiado:.5, gourmand:.5}, cuero:{especiado:1}, especiada:{especiado:1}, almizclada:{almizclado:1}};
+function perfilFavoritos(){
+  const S = {}; FAM.forEach(([k])=>S[k]=0); let n = 0;
+  P.perf.forEach(t=>{ const f = encontrar(t); if(!f || !/[1-9]/.test(f.v)) return; n++; FK.forEach((k,i)=>Object.entries(FK2[k]).forEach(([fa,w])=>S[fa] += (+f.v[i])*w)); });
+  const mx = Math.max(...Object.values(S)); if(!n || !mx) return null; FAM.forEach(([k])=>S[k] /= mx); return S;
+}
+function afinidad(id){ const S = perfilFavoritos(); return S ? Object.entries(X[id].w).reduce((s,[k,w])=>s + w*S[k], 0) : 0; }
+/* refuerzo: hasta +35 % por coincidir con sus perfumes y hasta +25 % si le despertó emociones */
+const refuerzo = id => 1 + 0.35*afinidad(id) + 0.125*Math.min(2, (P.emo[id]||[]).length);
 function perfilCata(){
   const S = {}; FAM.forEach(([k])=>S[k]=0);
   C.forEach(c=>{ const v = P.v[c.id]; if(v==null) return; Object.entries(c.w).forEach(([k,w])=>S[k] += v*w); });
@@ -416,7 +429,8 @@ function armarEtapa(et, total, f, prop){
   if(!notas.length) notas = [REDONDEO[P.principal][et]];
   const w = {}, rol = {};
   notas.forEach(id=>{ const x = v(id) || 3;
-    if(x===3){ w[id]=3; rol[id]='Principal'; } else if(x>=2){ w[id]=2; rol[id]='Secundaria'; } else { w[id]=1; rol[id]='Soporte'; } });
+    if(x===3){ w[id]=3; rol[id]='Principal'; } else if(x>=2){ w[id]=2; rol[id]='Secundaria'; } else { w[id]=1; rol[id]='Soporte'; }
+    w[id] *= refuerzo(id); });
   let soporteLibre = false; const fuera = [];
   const cap = id => Math.min(tope(id, f), rol[id]==='Soporte' && !soporteLibre ? 3 : Infinity, id==='salvia' ? Math.max(0, 8 - (f.bruma||0)) : Infinity);
   const g = {}; const sw = notas.reduce((s,id)=>s+w[id],0); notas.forEach(id=>g[id] = total*w[id]/sw);
@@ -472,14 +486,16 @@ function sumarAlFondo(f, x){
   if(x <= 0.004) return;
   const p = P.principal, v = id => P.v[id] ?? 0;
   const otras = Object.keys(f).filter(k=>X[k].base && k!==p);
-  if(!(p==='tabaco' && (f[p]||0) + x > 28)){ f[p] = (f[p]||0) + x; return; }
-  const entra = Math.max(0, 28 - (f[p]||0)); f[p] = (f[p]||0) + entra; x -= entra;
-  /* Tabaco y Pimienta: máximo 28 g. Lo que falta va a Vainilla Crema (si la votó) o a una segunda base */
+  const tp = TOPE_BASE;   /* por stock: ninguna base pasa de 22 g por perfume (Tabaco y Pimienta, además, es la más tenaz) */
+  if((f[p]||0) + x <= tp){ f[p] = (f[p]||0) + x; return; }
+  const entra = Math.max(0, tp - (f[p]||0)); f[p] = (f[p]||0) + entra; x -= entra;
+  /* lo que falta va a Vainilla Crema (si la votó) o a otra base */
   if(v('vainilla') > 0){ const add = Math.min(x, 6 - (f.vainilla||0)); if(add > 0){ f.vainilla = (f.vainilla||0) + add; x -= add; } }
   if(x <= 0.004) return;
   if(otras.length){ otras.forEach(k=>f[k] += x/otras.length); return; }
-  const otra = BASES.filter(b=>b!==p).sort((a,b)=>v(b)-v(a))[0];
-  f[otra] = (f[otra]||0) + x;
+  const otra = BASES.filter(b=>b!==p && v(b) > 0).sort((a,b)=>v(b)-v(a))[0];
+  if(otra){ f[otra] = (f[otra]||0) + x; return; }
+  f[p] += x;   /* no le gustó ninguna otra base: queda en la principal (el perfumista decide) */
 }
 function proponer(){
   const S = perfilCata(), R = reparto(S), T = CONFIG.TOTAL_G, f = {}, prop = {rol:{}, perfil:R.perfil, rep:R};
@@ -504,7 +520,8 @@ function personalidad(f){
 }
 function avisos(f){
   const a = {}, T = sumaT(f) || 1;
-  Object.entries(f).forEach(([id,g])=>{ if(g > tope(id,f) + 0.001) a[id] = 'Esta nota es muy potente: puede tapar al resto.'; });
+  Object.entries(f).forEach(([id,g])=>{ if(g > tope(id,f) + 0.001) a[id] = 'Esta nota es muy potente: puede tapar al resto.';
+    if(X[id].base && g > TOPE_BASE + 0.001) a[id] = 'Mucha cantidad de una sola base: hablá con el perfumista antes de pesarla, o sumá otra base.'; });
   if(f.bruma && ((f.bergamota||0)+(f.citrico||0)) < 2*f.bruma) a.bruma = 'Sumá Bergamota o Acorde Cítrico para darle soporte.';
   if(f.bruma && f.salvia && f.bruma + f.salvia > 8) a.salvia = 'Bruma de mar y Salvia y Maderas juntas no deberían pasar de 8 g.';
   const et = [];
@@ -596,14 +613,6 @@ function barraTop(){
 function fijo(html){ const f = $('#fijo'); if(!html){ f.hidden = true; return; } f.hidden = false; $('#fijo-in').innerHTML = html; }
 
 /* ---------- pantallas ---------- */
-function vInicio(){
-  fijo(`<button class="btn" onclick="ir('datos')">Empezar</button>`);
-  return `<div style="text-align:center;padding-top:8vh">
-    <div class="eb">${esc(CONFIG.EMPRESA)} · ${esc(CONFIG.FECHA)}</div>
-    <h1 style="font-size:38px;margin-top:14px">Cata de perfumes</h1>
-    <p class="sub" style="margin-top:10px">Vas a oler 16 aromas, descubrir tu perfil y crear tu propio perfume de 100 ml.</p>
-    <p style="margin-top:34px;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--dim)">${esc(CONFIG.PERFUMISTA)}</p></div>`;
-}
 function vDatos(){
   const ok = P.nom.trim() && P.wa.replace(/\D/g,'').length >= 8;
   fijo(`<button class="btn" id="go" ${ok?'':'disabled'} onclick="ir('intro')">Seguir</button>`);
@@ -612,7 +621,7 @@ function vDatos(){
     <div class="fld"><label for="nom">Nombre y apellido</label><input id="nom" list="lista-inv" autocomplete="off" value="${esc(P.nom)}" placeholder="Empezá a escribir tu nombre" oninput="setNom(this.value)"></div>
     <div id="tuyo">${tuyoHtml()}</div><p class="sub" style="font-size:13px;margin-top:6px">Si no aparecés en la lista, escribí tu nombre igual.</p>
     <div class="fld"><label for="wa">WhatsApp</label><input id="wa" type="tel" inputmode="tel" autocomplete="tel" value="${esc(P.wa)}" placeholder="11 5555 5555" oninput="P.wa=this.value;guardar();chkDatos()"></div>
-    <div class="fld"><label>Tus perfumes favoritos <small>(hasta 3, opcional)</small></label>
+    <div class="fld"><label>Tus perfumes favoritos <small>(de 3 a 5, opcional)</small></label>
       ${P.perf.map((v,i)=>`<div class="ac"><input id="pf${i}" value="${esc(v)}" autocomplete="off" placeholder="Perfume ${i+1}" aria-label="Perfume favorito ${i+1}" oninput="tipear(${i},this.value)" onblur="setTimeout(()=>cerrarAc(${i}),200)"><div class="acl" id="acl${i}"></div></div>`).join('')}</div>`;
 }
 function tuyoHtml(){ return P.pnLista ? `<div class="tuyo">Tu perfume se va a llamar <b>${esc(P.pnLista)}</b></div>` : ''; }
@@ -680,7 +689,10 @@ function pedirPin(ok){
 }
 function prepararBase(){
   if(!P.principal){ P.principal = baseRecomendada().b;
-    P.extras = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 2).sort((a,b)=>P.v[b]-P.v[a]).slice(0,2); }
+    const pts = b => (P.v[b]||0) + 0.5*afinidad(b);
+    P.extras = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 2).sort((a,b)=>pts(b)-pts(a)).slice(0,2);
+    /* con una sola base es mucho volumen de la misma: se suma la mejor votada como soporte */
+    if(!P.extras.length){ const s = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 1).sort((a,b)=>pts(b)-pts(a))[0]; if(s) P.extras = [s]; } }
   recalcular();
 }
 function recalcular(){ const pr = proponer(); P.guiada = pr.f; P.rol = pr.rol; guardar(); }
@@ -768,6 +780,7 @@ function vPesar(){
   fijo(`<button class="btn" onclick="ir('nombre')">Seguir</button>`);
   return `<div class="eb">Paso 3 · Pesá tu perfume</div><h1>Tu fórmula para pesar</h1>
     <p class="sub">En este orden: fondo, corazón y salida. Tocá ✓ cuando termines cada uno.</p>
+    ${Object.entries(f).some(([k,g])=>X[k].base && g > TOPE_BASE + 0.001) ? `<div class="aviso">✋ Tu fórmula lleva mucha cantidad de una base. <b>Hablá con el perfumista</b> antes de pesarla.</div>` : ''}
     <label class="libre"><input type="checkbox" ${P.ml?'checked':''} onchange="P.ml=this.checked;guardar();pintar()"> Ver en ml (micropipeta)</label>
     ${listaFormula(f,{pesar:true})}<div class="total"><span>Total</span><span>${P.ml ? fg(sumaT(f)/CONFIG.DENSIDAD)+' ml' : fg(sumaT(f))+' g'}</span></div>
     ${toque.length ? `<div class="etapa"><h3><span>Toque del perfumista</span></h3>${toque.map(([k,g])=>`<div class="fl"><div class="n"><b>${esc(TOQUE.find(t=>t[0]===k)[1])}</b></div><span class="g">${fg(g)} g</span></div>`).join('')}</div>` : ''}
@@ -890,8 +903,9 @@ function vGracias(){
   fijo('');
   return `<div style="text-align:center;padding-top:8vh"><div class="eb">Gracias</div><h1 style="font-family:var(--script);font-size:44px;font-weight:400">${esc(P.pn.trim())}</h1>
     <p class="sub" style="margin-top:12px">Gracias por crear tu perfume con nosotros, ${esc(P.nom.trim().split(' ')[0])}.</p>
-    <p style="margin-top:28px;font-size:13px;letter-spacing:3px;text-transform:uppercase">${esc(CONFIG.PERFUMISTA)}</p>
-    <p style="margin-top:6px;font-size:12px;letter-spacing:2px;color:var(--dim)">${esc(CONFIG.MATRICULA)}</p>
+    <p class="sub" style="margin-top:8px">Llevate tu frasco con su etiqueta y la imagen de tu perfume en el celular.</p>
+    <p style="margin-top:28px;font-size:13px;letter-spacing:4px;text-transform:uppercase">${esc(CONFIG.EMPRESA)} · ${esc(CONFIG.FECHA)}</p>
+    <p style="margin-top:6px;font-size:13px;letter-spacing:2px;color:var(--gold)">${esc(CONFIG.WEB)}</p>
     <button class="btn ghost" style="margin-top:40px" onclick="ir('final')">Volver a mi imagen</button>
     <button class="btn ghost" style="margin-top:10px;border-color:var(--line);color:var(--dim)" onclick="reiniciar()">Empezar de nuevo (otra persona)</button></div>`;
 }
@@ -904,8 +918,8 @@ function pintar(){
   if(['pesar','nombre','final','gracias'].includes(P.paso) && !P.f) P.paso = P.principal ? 'guiado' : 'base';
   if(['final','gracias'].includes(P.paso) && !P.pn.trim()) P.paso = 'nombre';
   barraTop();
-  const V = {inicio:vInicio, datos:vDatos, intro:vIntro, cata:vCata, perfil:vPerfil, pausa:vPausa, base:vBase, guiado:vGuiado, lab:vLab, pesar:vPesar, nombre:vNombre, final:vFinal, gracias:vGracias};
-  $('#app').innerHTML = V[P.paso]() + `<div class="pie">${esc(CONFIG.PERFUMISTA)} · ${esc(CONFIG.MATRICULA)}</div>`;
+  const V = {datos:vDatos, intro:vIntro, cata:vCata, perfil:vPerfil, pausa:vPausa, base:vBase, guiado:vGuiado, lab:vLab, pesar:vPesar, nombre:vNombre, final:vFinal, gracias:vGracias};
+  $('#app').innerHTML = V[P.paso]();
 }
 pintar(); vaciar();
 </script>

@@ -146,7 +146,7 @@ dl.tec dt{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(-
 .modal .caja{background:var(--bg);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));}
 .full{position:fixed;inset:0;z-index:60;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;color:#fff;text-align:center;}
 .full img{max-width:100%;max-height:78vh;}
-canvas#cv{width:100%;height:auto;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);display:block;}
+canvas#cv,canvas#cv2{width:100%;height:auto;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);display:block;}
 .pie{text-align:center;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-top:30px;}
 </style>
 </head>
@@ -538,6 +538,8 @@ function fila(){
     ['Nombre del perfume', P.pn.trim()], ['Modo final', P.f ? P.modo : ''], ['Fórmula propuesta por la app', txt(P.guiada)],
     ['Toque del perfumista', Object.entries(P.toque).filter(([,g])=>g>0).map(([k,g])=>`${TOQUE.find(t=>t[0]===k)[1]}: ${fg(g)} g`).join('; ')],
     ['Emociones principales', perfilEmocional().top.join(', ')], ['Palabras de sus recuerdos', recuerdos().pal.join(', ')],
+    ...C.map(c=>['Gramos · '+c.n, P.f ? r2(P.f[c.id]||0) : '']),
+    ...TOQUE.map(([k,t])=>['Gramos · '+t, P.toque && P.toque[k] ? r2(P.toque[k]) : '']),
     ['Personalidad', pe ? pe.frase + ' · ' + pe.o.slice(0,3).filter(k=>pe.S[k]>0).map(k=>FAMN[k]).join(', ') : ''], ['Dispositivo', P.dev]);
   return {clave:CONFIG.CLAVE, hoja:CONFIG.HOJA, id:P.id, t:Date.now(), columnas:cols};
 }
@@ -872,29 +874,77 @@ async function dibujar(cv){
   c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W/2-70,1424); c.lineTo(W/2+70,1424); c.stroke();
   sp(`${CONFIG.PERFUMISTA} · ${CONFIG.MATRICULA}`.toUpperCase(), W/2, 1456, 15, 500, '#151412', 3);
 }
+/* ---------- segunda imagen: su perfil olfativo (sin gramos) ---------- */
+async function dibujarPerfil(cv){
+  try{ await Promise.all(['300 40px Montserrat','400 40px Montserrat','600 40px Montserrat','italic 400 40px "Lobster Two"'].map(f=>document.fonts.load(f))); }catch(e){}
+  const c = cv.getContext('2d'), W = 1080, H = 1528, pe = perfilEmocional(), rc = recuerdos(), S = perfilCata(), o = ordenFam(S).filter(k=>S[k]>0).slice(0,5);
+  const fav = C.filter(c=>P.v[c.id]===3).slice(0,4), fav4 = fav.length ? fav : C.filter(c=>P.v[c.id]===2).slice(0,4);
+  const ims = await Promise.all(fav4.map(x=>img(x.img)));
+  c.fillStyle = '#F7F1E6'; c.fillRect(0,0,W,H);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 2; c.strokeRect(36,36,W-72,H-72); c.strokeStyle = 'rgba(176,138,78,.4)'; c.lineWidth = 1; c.strokeRect(50,50,W-100,H-100);
+  const sp = (t, x, y, px, wt, col, track, al) => { c.font = `${wt} ${px}px Montserrat`; c.fillStyle = col; c.textAlign = al||'center';
+    try{ c.letterSpacing = track+'px'; }catch(e){} c.fillText(t, x, y); try{ c.letterSpacing = '0px'; }catch(e){} };
+  const titulo = (t, y) => { sp(t.toUpperCase(), W/2, y, 18, 600, '#B08A4E', 6); c.strokeStyle = '#B08A4E'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(W/2-30, y+16); c.lineTo(W/2+30, y+16); c.stroke(); };
+  sp(CONFIG.EMPRESA.toUpperCase(), W/2, 116, 24, 400, '#B08A4E', 12);
+  sp('Perfil olfativo de', W/2, 180, 26, 300, '#151412', 1);
+  let px = 92; c.font = `italic 400 ${px}px "Lobster Two"`; const nom = P.nom.trim(); while(c.measureText(nom).width > W-200 && px > 50){ px -= 4; c.font = `italic 400 ${px}px "Lobster Two"`; }
+  c.fillStyle = '#151412'; c.textAlign = 'center'; c.fillText(nom, W/2, 280);
+  /* sus aromas favoritos */
+  titulo('Tus aromas favoritos', 360);
+  const n = fav4.length, cw = n ? (W-160)/n : 0;
+  fav4.forEach((x,i)=>{ const im = ims[i], cx = 80 + cw*i + cw/2; if(im){ const t = Math.min(cw-20, 210), k = Math.min(t/im.width, t/im.height); c.drawImage(im, cx-im.width*k/2, 520-im.height*k/2, im.width*k, im.height*k); }
+    let s = 22; c.font = `600 ${s}px Montserrat`; while(c.measureText(x.n).width > cw-16 && s > 15){ s--; c.font = `600 ${s}px Montserrat`; }
+    sp(x.n, cx, 660, s, 600, '#151412', .5); sp(x.perfil.split(' · ')[0], cx, 690, 16, 400, '#6E665C', .5); });
+  /* emociones */
+  titulo('Lo que te hicieron sentir', 770);
+  sp(pe.top.length ? pe.top.join('  ·  ') : '—', W/2, 840, 40, 300, '#2F4A3A', 2);
+  if(rc.pal.length) sp('Tus recuerdos: ' + rc.pal.slice(0,4).join(', '), W/2, 890, 22, 400, '#6E665C', .5);
+  /* familias */
+  titulo('Tus familias olfativas', 970);
+  const mx = o.length ? S[o[0]] : 1;
+  o.forEach((k,i)=>{ const y = 1040 + i*54, w = 520*S[k]/mx;
+    sp(FAMN[k], 330, y+8, 22, 400, '#151412', .5, 'right');
+    c.fillStyle = '#EFE7D8'; c.fillRect(360, y-12, 520, 22); c.fillStyle = i===0 ? '#2F4A3A' : '#8FA58F'; c.fillRect(360, y-12, w, 22); });
+  const pf = P.f ? personalidad(P.f).frase : '';
+  if(pf) sp(`Tu perfume ${P.pn.trim()} es ${pf.toLowerCase()}`, W/2, 1350, 24, 400, '#151412', .5);
+  sp(`Evento ${CONFIG.EMPRESA} · ${CONFIG.FECHA} · ${CONFIG.WEB}`.toUpperCase(), W/2, 1400, 15, 400, '#6E665C', 3);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W/2-70,1424); c.lineTo(W/2+70,1424); c.stroke();
+  sp(`${CONFIG.PERFUMISTA} · ${CONFIG.MATRICULA}`.toUpperCase(), W/2, 1456, 15, 500, '#151412', 3);
+}
+/* las dos imágenes se preparan apenas se abre la pantalla, así al tocar el botón se comparten al instante (iPhone lo exige) */
+let BLOBS = {};
+async function prepararImagenes(){
+  const a = $('#cv'), b = $('#cv2'); if(!a || !b) return;
+  await dibujar(a); await dibujarPerfil(b);
+  const blob = cv => new Promise(r=>cv.toBlob(r,'image/png'));
+  BLOBS = {perfume: await blob(a), perfil: await blob(b)};
+}
 function vFinal(){
   const dev = P.devElegido || (P.dev==='iOS' ? 'iOS' : P.dev==='Android' ? 'Android' : 'iOS');
-  fijo(`<button class="btn gold" onclick="descargar()">Descargar mi perfume</button>`);
-  setTimeout(()=>{ const cv = $('#cv'); if(cv) dibujar(cv); }, 0);
+  fijo(`<button class="btn gold" onclick="descargar()">Descargar mis 2 imágenes</button>`);
+  BLOBS = {}; setTimeout(prepararImagenes, 0);
   return `<div class="eb">Tu perfume</div><h1>${esc(P.pn.trim())}</h1>
-    ${embebido() ? `<div class="aviso">Estás dentro de otra app. Para guardar la imagen, abrí este link en ${P.dev==='Android'?'Chrome':'Safari'} (menú ⋯ → "Abrir en el navegador").</div>` : ''}
+    ${embebido() ? `<div class="aviso">Estás dentro de otra app. Para guardar las imágenes, abrí este link en ${P.dev==='Android'?'Chrome':'Safari'} (menú ⋯ → "Abrir en el navegador").</div>` : ''}
     <canvas id="cv" width="1080" height="1528" style="margin-top:12px" aria-label="Imagen de tu perfume"></canvas>
+    <h2>Y tu perfil olfativo</h2>
+    <canvas id="cv2" width="1080" height="1528" aria-label="Imagen de tu perfil olfativo"></canvas>
     <h2>¿Tu celular es iPhone o Android?</h2>
     <div class="seg"><button aria-pressed="${dev==='iOS'}" onclick="P.devElegido='iOS';guardar();pintar()">iPhone</button><button aria-pressed="${dev==='Android'}" onclick="P.devElegido='Android';guardar();pintar()">Android</button></div>
-    <p class="sub" style="font-size:14px;margin-top:10px">${dev==='iOS' ? 'Se abre el menú de compartir: tocá <b>Guardar imagen</b>.' : 'La imagen se descarga y queda en tu galería (carpeta Descargas).'}</p>
+    <p class="sub" style="font-size:14px;margin-top:10px">${dev==='iOS' ? 'Se abre el menú de compartir: tocá <b>Guardar 2 imágenes</b>.' : 'Las dos imágenes se descargan y quedan en tu galería (carpeta Descargas).'}</p>
     <button class="btn ghost" onclick="ir('gracias')">Terminar</button>`;
 }
-async function blobImagen(){ const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1528; await dibujar(cv); return new Promise(r=>cv.toBlob(r,'image/png')); }
 async function descargar(){
-  const dev = P.devElegido || P.dev, blob = await blobImagen(), nom = 'perfume_' + (nz(P.pn)||'mi_perfume').replace(/ /g,'_') + '.png';
-  const file = new File([blob], nom, {type:'image/png'});
-  const bajar = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000); };
-  if(dev==='Android'){ bajar(); aviso('Imagen descargada'); setTimeout(()=>ir('gracias'), 1200); return; }
-  try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:P.pn}); ir('gracias'); return; } }
+  if(!BLOBS.perfume || !BLOBS.perfil){ aviso('Preparando tus imágenes…'); await prepararImagenes(); }
+  const dev = P.devElegido || P.dev, base = (nz(P.pn)||'mi_perfume').replace(/ /g,'_');
+  const arch = [['perfume_'+base+'.png', BLOBS.perfume], ['perfil_olfativo_'+base+'.png', BLOBS.perfil]];
+  const bajar = ([nom, blob], i) => setTimeout(()=>{ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000); }, i*700);
+  if(dev==='Android'){ arch.forEach(bajar); aviso('Imágenes descargadas'); setTimeout(()=>ir('gracias'), 2000); return; }
+  const files = arch.map(([n,b])=>new File([b], n, {type:'image/png'}));
+  try{ if(navigator.canShare && navigator.canShare({files})){ await navigator.share({files, title:P.pn}); ir('gracias'); return; } }
   catch(e){ if(e && e.name==='AbortError') return; }
-  /* iPhone sin compartir: imagen a pantalla completa para mantener presionado */
-  const u = URL.createObjectURL(blob), d = document.createElement('div'); d.className = 'full';
-  d.innerHTML = `<img src="${u}" alt="Tu perfume"><p>Mantené presionada la imagen y tocá <b>"Guardar en Fotos"</b>.</p><button class="btn gold" style="max-width:320px" onclick="this.closest('.full').remove();ir('gracias')">Listo</button>`;
+  /* iPhone sin compartir: las dos imágenes a pantalla completa para mantener presionado */
+  const d = document.createElement('div'); d.className = 'full'; d.style.overflowY = 'auto'; d.style.justifyContent = 'flex-start';
+  d.innerHTML = `<p style="margin-top:8px">Mantené presionada cada imagen y tocá <b>"Guardar en Fotos"</b>.</p>${arch.map(([n,b])=>`<img src="${URL.createObjectURL(b)}" alt="" style="max-height:none;width:100%;max-width:420px">`).join('')}<button class="btn gold" style="max-width:320px;margin-bottom:20px" onclick="this.closest('.full').remove();ir('gracias')">Listo</button>`;
   document.body.appendChild(d);
 }
 function vGracias(){

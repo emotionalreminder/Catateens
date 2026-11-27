@@ -67,7 +67,8 @@ function kit27(){
     out.push({k:n.id, nom:n.n, fam:F.n, col:oscuro(PAL.notas[n.id]||'#7A6E62'), et:g.et, ap:PAL.apodo_cambia[n.id]||n.p, fu:n.f, desc:t.desc, aporta:t.aporta, pir:null, img:KIMG[n.id]}); }));
   return out;
 }
-(async()=>{
+module.exports = {kitDomingo, kit27, etiqueta, CSS, LOGO, KIMG, esc, piramide, ETN};
+if(require.main === module) (async()=>{
   const b = await chromium.launch(), p = await b.newPage({viewport:{width:W,height:H}});
   await p.route('**/script.google.com/**', r=>r.fulfill({status:200, contentType:'application/json', body:'{"ok":true}'}));
   for(const [nombre, items] of [['domingo', await kitDomingo(p)], ['kit27', kit27()]]){

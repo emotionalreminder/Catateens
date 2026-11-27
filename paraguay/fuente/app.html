@@ -136,6 +136,18 @@ const COSTOS = {
     lavanda:41.58, higo:27, azahar:71.28, tabaco:41.58, sandalo:53.46, cedro:112.86, vetiver:190.08, oriental:65.34, cuero:59.4, ddl:20, vainilla:27, tonka:38, musk:40, ambar:53.46},
   PERFUME: {1:120, 2:195, 3:120, 4:120, 5:398.08, 6:200, 7:398.08, 8:250, 9:246, 10:120, 11:308, 12:150, 13:240, 14:250, 15:120, 16:308, 17:180, 18:120, 19:150, 20:333, 21:250, 22:250, 23:200}
 };
+/* precios del día: los trae el script de la planilla (dólar BNA y máquinas Jeane Mortenson); si no hay señal, quedan los últimos guardados */
+function aplicarPrecios(p){
+  if(!p) return;
+  if(p.dolar_venta > 0){ COSTOS.DOLAR = p.dolar_venta; COSTOS.DOLAR_FECHA = p._fecha_dolar_venta || COSTOS.DOLAR_FECHA; }
+  COSTOS.MAQUINAS.forEach(m=>{ const k = m[0].toLowerCase(); if(p['maquina_'+k] > 0) m[3] = p['maquina_'+k]; if(p['maquina_'+k+'_m3'] > 0) m[2] = p['maquina_'+k+'_m3']; });
+  COSTOS.PYG = p.guaranies_por_dolar || null;
+}
+async function traerPrecios(){
+  if(!CONFIG.SCRIPT_URL.startsWith('http')) return;
+  try{ const j = await (await fetch(CONFIG.SCRIPT_URL + '?accion=precios&t=' + Date.now())).json();
+    if(j && j.ok && j.precios){ LS.set(CONFIG.LS+'_precios', j.precios); aplicarPrecios(j.precios); } }catch(e){}
+}
 const usdKg = a => a.kit==='notas' ? COSTOS.NOTA[a.id] : COSTOS.PERFUME[a.num];
 const aromaLitro = u => COSTOS.FACTOR * (COSTOS.ESENCIA_PCT*u + (1-COSTOS.ESENCIA_PCT)*COSTOS.DILUYENTE_L);
 const usd = x => 'US$ ' + Math.round(x).toLocaleString('es-AR');
@@ -403,7 +415,8 @@ async function dibujarFicha(){
       dato('Aroma', `${e.litros} L (${e.maq && e.maq.k >= 2 ? 'dos máquinas o más' : 'una máquina'}) · 30 % esencia + diluyente · ×${COSTOS.FACTOR}`);
       e.fav.forEach(x=>dato('', `${x.a.kit==='notas' ? x.a.n : 'N° ' + x.a.num + ' ' + x.a.n}: ${usd(x.l)}/L → ${e.litros} L = ${usd(x.l*e.litros)}`));
       if(e.min) dato('Total estimado', `desde ${usd(e.desde)} (${e.min.a.kit==='notas'?e.min.a.n:'N° '+e.min.a.num}) hasta ${usd(e.hasta)} (${e.max.a.kit==='notas'?e.max.a.n:'N° '+e.max.a.num})`);
-      dato('Supuestos', `Dólar BNA ${COSTOS.DOLAR} (${COSTOS.DOLAR_FECHA}) · máquinas sin impuestos nacionales · revisar antes de cotizar`); }
+      if(COSTOS.PYG && e.min) dato('En guaraníes', `desde ₲ ${Math.round(e.desde*COSTOS.PYG).toLocaleString('es-PY')} hasta ₲ ${Math.round(e.hasta*COSTOS.PYG).toLocaleString('es-PY')}`);
+      dato('Supuestos', `Dólar BNA venta ${COSTOS.DOLAR} (${COSTOS.DOLAR_FECHA}) · máquinas sin impuestos nacionales · revisar antes de cotizar`); }
     if(P.obs.trim()){ titulo('Observaciones de ' + CONFIG.VENDEDORA); txt(P.obs.trim(), M, 24, 400, '#2B2420', W - 2*M, 34); }
     y += 40; if(dibuja){ c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(M, y); c.lineTo(M + 120, y); c.stroke(); } y += 18;
     txt('Agustín Melazo Díaz', M, 24, 500, '#2B2420', W - 2*M, 32);
@@ -438,7 +451,8 @@ function pintar(){
   $('#app').innerHTML = (['cliente','listo'].includes(P.paso) ? `<img class="logo-grande" src="${LOGOS.completo}" alt="Emotional Reminder">` : '') + V[P.paso]() + FIRMA;
   if(P.paso==='listo'){ FICHA = null; setTimeout(prepararFicha, 0); }
 }
-pintar(); vaciar();
+aplicarPrecios(LS.get(CONFIG.LS+'_precios', null));
+pintar(); vaciar(); traerPrecios();
 </script>
 </body>
 </html>

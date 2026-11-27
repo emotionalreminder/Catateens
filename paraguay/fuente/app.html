@@ -175,13 +175,13 @@ function filaCliente(){
     ['Perfumes que usa',P.perf.filter(x=>x&&x.trim()).join(' | ')],['Muestrarios',[P.kits.notas&&'27 notas',P.kits.perfumes&&'Tapa rosa'].filter(Boolean).join(' + ')],
     ['Notas favoritas',favoritos('notas').map(a=>a.n).join(', ')],['Perfumes favoritos',favoritos('perfumes').map(a=>`N° ${a.num} ${a.n}`).join(', ')],
     ['Emociones principales',emocionesTop().slice(0,3).join(', ')],['Familias olfativas',fams],['Observaciones de la vendedora',P.obs.trim()],['Dispositivo',P.dev]];
-  TODOS.forEach(a=>{ const nom = a.kit==='notas' ? a.n : `N° ${a.num} ${a.n}`;
-    cols.push([nom+' · voto', voto(a.k)], [nom+' · emociones', (P.emo[a.k]||[]).join(', ')], [nom+' · recuerdo', P.rec[a.k]||'']); });
+  cols.push(['Aromas olidos', lista().filter(a=>P.v[a.k]!=null).length], ['Me encanta', lista().filter(a=>P.v[a.k]===3).length], ['No me gusta', lista().filter(a=>P.v[a.k]===0).length]);
+  /* el detalle de cada aroma va en la pestaña "Detalle por aroma" (una fila por aroma), que es la que sirve para analizar */
   return {id:P.id, columnas:cols};
 }
 function filasDetalle(){
   return lista().filter(a=>P.v[a.k]!=null || (P.emo[a.k]||[]).length || P.rec[a.k]).map(a=>({id:P.id+'·'+a.k, columnas:[
-    ['ID',P.id+'·'+a.k],['Código cliente',P.cod],['Cliente',P.nom.trim()],['Fecha',P.creado],['Muestrario',a.kit==='notas'?'27 notas':'Tapa rosa'],
+    ['ID',P.id+'·'+a.k],['Código cliente',P.cod],['Cliente',P.nom.trim()],['Fecha',P.creado],['Ciudad',P.ciudad.trim()],['Tipo de cliente',(TIPOS.find(t=>t[0]===P.tipo)||[])[2]||''],['Muestrario',a.kit==='notas'?'27 notas':'Tapa rosa'],
     ['N°',a.kit==='notas'?'':a.num],['Aroma',a.n],['Referencia',a.kit==='notas'?'':a.marca],['Etapa / familia',a.kit==='notas'?ETN[a.et]+' · '+a.fam:a.fam],
     ['Voto',P.v[a.k]==null?'':VOTOS.find(x=>x[0]===P.v[a.k])[2]],['Puntos',P.v[a.k]==null?'':P.v[a.k]],['Emociones',(P.emo[a.k]||[]).join(', ')],['Recuerdo',P.rec[a.k]||'']]}));
 }

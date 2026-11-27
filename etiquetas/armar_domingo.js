@@ -25,6 +25,8 @@ const piramide = (et, col) => `<svg viewBox="0 0 120 120" width="110" height="11
   const A = await p.evaluate(()=>({C, IMGS}));
   const X = Object.fromEntries(A.C.map(c=>[c.id, c]));
   const g = KIT.B.find(x=>x.notas.some(n=>n.id==='grass')), gn = g.notas.find(n=>n.id==='grass'), gt = KIT.T.grass;
+  /* fotos del kit de 27 notas: Base Woody = Sándalo, Vainilla y Praliné = Vainilla */
+  A.IMGS.__sandalo = KIMG.sandalo; A.IMGS.__vainilla = KIMG.vainilla; X.amaderada.img = '__sandalo'; X.vainilla.img = '__vainilla';
   X.grass = {id:'grass', n:'Grass', et:'sal', ap:gn.p, fu:gn.f, perfil:gt.desc, aporta:gt.aporta, comp:gt.comp, img:'__grass'}; A.IMGS.__grass = KIMG.grass;
   const et = ([id, nom, fam, col]) => { const c = X[id], e = ETAPA[c.et];
     const pir = c.pir ? c.pir.split(' · ').map(s=>s.split(': ')) : null;
@@ -62,13 +64,12 @@ const piramide = (et, col) => `<svg viewBox="0 0 120 120" width="110" height="11
   await p.goto('http://localhost:8765/etiquetas/domingo/etiquetas.html'); await p.waitForTimeout(1500);
   for(const [id] of LISTA) await p.locator('#et-'+id).screenshot({path:path.join(OUT,'png', String(LISTA.findIndex(x=>x[0]===id)+1).padStart(2,'0')+'_'+id+'.png')});
   /* hojas A4 */
-  const A4w = 2480, A4h = 3508, mx = (A4w-3*W)/2, my = (A4h-3*H)/2, files = fs.readdirSync(path.join(OUT,'png')).sort();
-  for(let h = 0; h*9 < files.length; h++){
-    const it = files.slice(h*9, h*9+9);
-    fs.writeFileSync(path.join(OUT,'hoja.html'), `<!doctype html><html><body style="margin:0;width:${A4w}px;height:${A4h}px;background:#fff;position:relative">${it.map((f,i)=>`<img src="png/${f}" style="position:absolute;width:${W}px;height:${H}px;left:${mx+(i%3)*W}px;top:${my+Math.floor(i/3)*H}px">`).join('')}
-      ${[0,1,2,3].map(i=>`<div style="position:absolute;background:#999;left:${mx+i*W-1}px;top:${my-60}px;width:2px;height:40px"></div><div style="position:absolute;background:#999;left:${mx+i*W-1}px;top:${my+3*H+20}px;width:2px;height:40px"></div><div style="position:absolute;background:#999;top:${my+i*H-1}px;left:${mx-60}px;height:2px;width:40px"></div><div style="position:absolute;background:#999;top:${my+i*H-1}px;left:${mx+3*W+20}px;height:2px;width:40px"></div>`).join('')}</body></html>`);
+  const A4w = 3508, A4h = 4961, mx = (A4w-4*W)/2, my = (A4h-4*H)/2, files = fs.readdirSync(path.join(OUT,'png')).sort();
+  for(let h = 0; h*16 < files.length; h++){
+    const it = files.slice(h*16, h*16+16);
+    fs.writeFileSync(path.join(OUT,'hoja.html'), `<!doctype html><html><body style="margin:0;width:${A4w}px;height:${A4h}px;background:#fff;position:relative">${it.map((f,i)=>`<img src="png/${f}" style="position:absolute;width:${W}px;height:${H}px;left:${mx+(i%4)*W}px;top:${my+Math.floor(i/4)*H}px">`).join('')}</body></html>`);
     const q = await b.newPage({viewport:{width:A4w,height:A4h}}); await q.goto('http://localhost:8765/etiquetas/domingo/hoja.html'); await q.waitForTimeout(500);
-    await q.screenshot({path:path.join(OUT,'imprimir_A4_hoja'+(h+1)+'.png')}); await q.close();
+    await q.screenshot({path:path.join(OUT,'imprimir_A3_hoja'+(h+1)+'.png')}); await q.close();
   }
   fs.unlinkSync(path.join(OUT,'hoja.html')); await b.close(); console.log('ok', LISTA.length);
 })();

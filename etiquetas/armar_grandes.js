@@ -31,9 +31,9 @@ const CSS = `body{margin:0;font-family:Montserrat,sans-serif}
   .banda{height:112px;background:rgba(0,0,0,.18);display:flex;justify-content:space-between;align-items:center;padding:0 60px;font-size:33px;letter-spacing:7px;text-transform:uppercase;font-weight:500;position:relative}
   .marco{flex:1;margin:30px;border:2px solid rgba(251,245,234,.75);display:flex;flex-direction:column;align-items:center;padding:24px 52px 18px;position:relative}
   .marco:after{content:'';position:absolute;inset:9px;border:1px solid rgba(251,245,234,.4);pointer-events:none}
-  .medalla{width:540px;height:540px;border-radius:50%;background:radial-gradient(circle, #FBF5EA 58%, rgba(251,245,234,.0) 72%);display:flex;align-items:center;justify-content:center;margin-top:4px}
-  .medalla img{width:82%;height:82%;object-fit:contain}
-  .medalla.chica{width:360px;height:360px}
+  .medalla{width:560px;height:520px;display:flex;align-items:center;justify-content:center;margin-top:4px}
+  .medalla img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 14px 24px rgba(0,0,0,.35))}
+  .medalla.chica{width:420px;height:360px}
   .nom{font-size:100px;font-weight:300;line-height:1.02;text-align:center;margin-top:6px}
   .apo{font-size:46px;font-style:italic;font-weight:300;opacity:.92;margin-top:8px}
   .desc{font-size:33px;letter-spacing:5px;font-weight:600;margin-top:14px;text-align:center;line-height:1.35}

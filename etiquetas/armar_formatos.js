@@ -11,8 +11,8 @@ const CSS_B = `body{margin:0;font-family:Montserrat,sans-serif}
  .bo:before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 40%, rgba(255,255,255,.18), rgba(0,0,0,.22) 70%);pointer-events:none}
  .bo:after{content:'';position:absolute;inset:34px;border:3px solid rgba(251,245,234,.7);pointer-events:none}
  .frente{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:60px}
- .med{width:720px;height:720px;border-radius:50%;background:radial-gradient(circle, #FBF5EA 58%, rgba(251,245,234,0) 71%);display:flex;align-items:center;justify-content:center}
- .med img{width:82%;height:82%;object-fit:contain}
+ .med{width:780px;height:720px;display:flex;align-items:center;justify-content:center}
+ .med img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 18px 30px rgba(0,0,0,.35))}
  .fnom{font-size:150px;font-weight:300;line-height:1;text-align:center;margin-top:10px}
  .fapo{font-size:68px;font-style:italic;font-weight:300;margin-top:16px;opacity:.95}
  .dorso{position:relative;border-left:2px solid rgba(251,245,234,.45);margin:90px 0;display:flex;flex-direction:column;justify-content:center;padding:0 90px 0 100px}

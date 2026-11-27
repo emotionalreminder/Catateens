@@ -6,10 +6,10 @@
 <meta name="theme-color" content="#2B2420">
 <title>Cata sensorial · Emotional Reminder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
 <style>
 :root{ --bg:#F6F1E7; --card:#FFFDF8; --ink:#2B2420; --dim:#7A6E62; --acc:#A4553A; --gold:#B08A4E; --green:#2F4A3A; --line:#E6DCCB; --soft:#EFE6D6; --rosa:#E7A5B8;
-  --sans:Montserrat, system-ui, -apple-system, sans-serif; --serif:"Cormorant Garamond", Georgia, serif; color-scheme:light; }
+  --sans:Montserrat, system-ui, -apple-system, sans-serif; --serif:Montserrat, system-ui, sans-serif; color-scheme:light; }
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.45;-webkit-text-size-adjust:100%;}
 body{padding:0 max(16px, env(safe-area-inset-left,0px)) 120px max(16px, env(safe-area-inset-right,0px));}
@@ -25,7 +25,7 @@ button{cursor:pointer;border:0;background:none;}
 .top .pend{font-size:11px;color:#F1C9A4;}
 main{max-width:560px;margin:0 auto;padding-top:18px;}
 .eb{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--acc);font-weight:600;}
-h1{font-family:var(--serif);font-weight:600;font-size:34px;line-height:1.05;margin:6px 0 8px;}
+h1{font-family:var(--sans);font-weight:300;font-size:30px;line-height:1.15;letter-spacing:.5px;margin:6px 0 8px;}
 h2{font-weight:600;font-size:12px;letter-spacing:3px;text-transform:uppercase;margin:22px 0 10px;color:var(--green);}
 .sub{color:var(--dim);font-size:15px;}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;}
@@ -58,7 +58,12 @@ h2{font-weight:600;font-size:12px;letter-spacing:3px;text-transform:uppercase;ma
 .frasco{width:150px;height:190px;margin:6px auto 10px;position:relative;}
 .frasco .tapa{position:absolute;left:50%;top:0;width:54px;height:46px;margin-left:-27px;border-radius:10px 10px 4px 4px;background:var(--rosa);}
 .frasco .vidrio{position:absolute;left:50%;top:40px;width:110px;height:150px;margin-left:-55px;border-radius:22px;background:linear-gradient(180deg,#fff,#F3E8DA);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:54px;font-weight:300;color:var(--ink);}
-.apodo{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--acc);}
+.apodo{font-style:italic;font-weight:300;font-size:18px;color:var(--acc);}
+.firma{text-align:center;margin:40px 0 10px;color:var(--dim);font-size:11px;letter-spacing:2px;text-transform:uppercase;line-height:1.7;}
+.firma img{height:70px;display:block;margin:0 auto 10px;opacity:.85;}
+.firma b{display:block;color:var(--ink);font-weight:500;letter-spacing:3px;}
+.top .logo{height:30px;width:auto;flex:none;}
+.logo-grande{display:block;height:92px;margin:4px auto 18px;}
 .fuerza{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--dim);}
 .fuerza .b{display:flex;gap:3px;}
 .fuerza i{width:13px;height:8px;border-radius:2px;background:var(--line);display:block;}
@@ -118,6 +123,7 @@ const CONFIG = {
   LS: 'er_py_cata'
 };
 const IMGS = __IMGS__;
+const LOGOS = __LOGOS__;   /* logos de Emotional Reminder */
 const KIT = __KIT__;          /* las 27 notas: grupos y fichas técnicas */
 const PERFUMES = __PERFUMES__;  /* los 23 perfumes de tapa rosa */
 const FRA = __FRA__;
@@ -219,7 +225,7 @@ function barraTop(){
   const L = lista(), pend = LS.get(CONFIG.LS+'_cola',[]).length;
   const prog = P.paso==='cata' && L[P.i] ? (L[P.i].kit==='notas' ? 'Nota ' + (NOTAS.indexOf(L[P.i])+1) + ' de 27' : 'Perfume ' + L[P.i].num + ' de 23') : '';
   $('#top').innerHTML = (P.paso!=='cliente' ? `<button class="back" onclick="atras()" aria-label="Volver">←</button>` : '') +
-    `<div class="marca"><b>Emotional Reminder</b><small>Cata sensorial · ${esc(CONFIG.PAIS)}${P.nom.trim() ? ' · ' + esc(P.nom.trim()) : ''}</small></div>` +
+    `<img class="logo" src="${LOGOS.er_claro}" alt="ER"><div class="marca"><b>Emotional Reminder</b><small>Cata sensorial · ${esc(CONFIG.PAIS)}${P.nom.trim() ? ' · ' + esc(P.nom.trim()) : ''}</small></div>` +
     `<div style="text-align:right"><div class="prog">${prog}</div>${pend ? `<div class="pend">${pend} sin enviar</div>` : ''}</div>`;
 }
 function fijo(html){ const f = $('#fijo'); if(!html){ f.hidden = true; return; } f.hidden = false; $('#fijo-in').innerHTML = html; }
@@ -297,7 +303,7 @@ function vResumen(){
   fijo(`<button class="btn" onclick="terminar()">Guardar y terminar</button>`);
   return `<div class="eb">Resumen</div><h1>El perfil de ${esc(P.nom.trim().split(' ')[0] || 'tu cliente')}</h1>
     <p class="sub">Olió ${hechos} de ${L.length} aromas.${hechos < L.length ? ` <a href="#" onclick="ir('indice');return false">Ver los que faltan</a>` : ''}</p>
-    ${emo.length ? `<h2>Lo que más le hicieron sentir</h2><div class="card" style="font-family:var(--serif);font-size:26px;text-align:center">${emo.map(esc).join(' · ')}</div>` : ''}
+    ${emo.length ? `<h2>Lo que más le hicieron sentir</h2><div class="card" style="font-weight:300;font-size:22px;text-align:center">${emo.map(esc).join(' · ')}</div>` : ''}
     ${fn.length ? `<h2>Notas que le encantaron</h2><div class="favs">${fn.map(a=>`<div class="card"><img src="${IMGS[a.id]||''}" alt="">${esc(a.n)}</div>`).join('')}</div>` : ''}
     ${fp.length ? `<h2>Perfumes que le encantaron</h2><div class="favs">${fp.map(a=>`<div class="card"><span class="num">${a.num}</span><div style="margin-top:6px">${esc(a.fam)}</div></div>`).join('')}</div>` : ''}
     ${o.length ? `<h2>Familias olfativas</h2><div class="card"><div class="barras">${o.map(k=>`<div class="barra"><span>${FAMN[k]}</span><span class="t"><i style="width:${Math.round(100*S[k]/mx)}%"></i></span><span>${Math.round(100*S[k]/mx)}</span></div>`).join('')}</div></div>` : ''}
@@ -318,8 +324,11 @@ function vListo(){
 /* ======================= ficha del cliente (PNG para el perfumista) =======================
    Incluye el nombre real de los perfumes de tapa rosa: no se muestra en pantalla, se descarga directo. */
 const EMOJI = {3:'♥', 2:'✦', 1:'◦'};
+let LOGO_IMG = null;
+function cargarLogo(){ return LOGO_IMG ? Promise.resolve(LOGO_IMG) : new Promise(r=>{ const i = new Image(); i.onload = ()=>{ LOGO_IMG = i; r(i); }; i.onerror = ()=>r(null); i.src = LOGOS.completo; }); }
 async function dibujarFicha(){
-  try{ await Promise.all(['400 30px Montserrat','600 30px Montserrat','600 40px "Cormorant Garamond"'].map(f=>document.fonts.load(f))); }catch(e){}
+  await cargarLogo();
+  try{ await Promise.all(['300 30px Montserrat','400 30px Montserrat','600 30px Montserrat'].map(f=>document.fonts.load(f))); }catch(e){}
   const W = 1080, M = 64, cv = document.createElement('canvas'), c = cv.getContext('2d');
   const L = lista(), S = perfil(), fams = Object.keys(S).filter(k=>S[k]>0).sort((a,b)=>S[b]-S[a]).slice(0,5), emo = emocionesTop().slice(0,5);
   const tipo = (TIPOS.find(t=>t[0]===P.tipo)||[])[2]||'';
@@ -347,8 +356,9 @@ async function dibujarFicha(){
         l.forEach(a=>aroma(a, kit==='notas' ? `${a.n} · ${ETN[a.et]} · ${a.fam}` : `N° ${a.num} · ${a.n} (${a.marca}) · ${a.fam}`)); y += 6; });
     };
     /* encabezado */
-    y = 56; txt('EMOTIONAL REMINDER · FICHA DE CLIENTE', M, 22, 600, '#A4553A', W - 2*M, 34);
-    txt(P.nom.trim() || 'Cliente', M, 64, 600, '#2B2420', W - 2*M, 72, '"Cormorant Garamond", Georgia, serif');
+    y = 50; if(dibuja && LOGO_IMG){ const h = 120, w = LOGO_IMG.width*h/LOGO_IMG.height; c.drawImage(LOGO_IMG, W - M - w, 40, w, h); }
+    txt('FICHA DE CLIENTE', M, 22, 600, '#A4553A', W - 2*M, 34);
+    txt(P.nom.trim() || 'Cliente', M, 56, 300, '#2B2420', W - 2*M - 260, 66);
     txt(`Código ${P.cod} · ${P.creado} · Vendedora: ${CONFIG.VENDEDORA}`, M, 21, 400, '#7A6E62', W - 2*M, 32);
     titulo('Cliente');
     dato('WhatsApp', P.wa.trim()); dato('Ciudad', P.ciudad.trim()); dato('Busca', [tipo, extra].filter(Boolean).join(' · '));
@@ -358,7 +368,10 @@ async function dibujarFicha(){
     dato('Olió', `${L.filter(a=>P.v[a.k]!=null).length} de ${L.length} aromas · ♥ ${L.filter(a=>P.v[a.k]===3).length} · ✦ ${L.filter(a=>P.v[a.k]===2).length} · ◦ ${L.filter(a=>P.v[a.k]===1).length}`);
     grupo('notas', 'Notas (27)'); grupo('perfumes', 'Perfumes tapa rosa');
     if(P.obs.trim()){ titulo('Observaciones de ' + CONFIG.VENDEDORA); txt(P.obs.trim(), M, 24, 400, '#2B2420', W - 2*M, 34); }
-    y += 40; txt('Uso interno del perfumista · no compartir con el cliente', M, 18, 400, '#A99C8E', W - 2*M, 28);
+    y += 40; if(dibuja){ c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(M, y); c.lineTo(M + 120, y); c.stroke(); } y += 18;
+    txt('Agustín Melazo Díaz', M, 24, 500, '#2B2420', W - 2*M, 32);
+    txt('Licenciado en Biotecnología · Especialista en perfumería personalizada', M, 20, 300, '#2B2420', W - 2*M, 30);
+    y += 14; txt('Uso interno del perfumista · no compartir con el cliente', M, 18, 400, '#A99C8E', W - 2*M, 28);
     return y + 40;
   };
   cv.width = W; cv.height = 2000; const H = pasada(false);
@@ -379,12 +392,13 @@ async function bajarFicha(){
 }
 function otro(){ if(!confirm('¿Empezar con un cliente nuevo? Este ya quedó guardado.')) return; vaciar(); P = nuevo(); guardar(); pintar(); window.scrollTo(0,0); }
 
+const FIRMA = `<div class="firma"><img src="${LOGOS.circular}" alt=""><b>Agustín Melazo Díaz</b>Licenciado en Biotecnología<br>Especialista en perfumería personalizada</div>`;
 function pintar(){
   if(!['cliente','cata','indice','resumen','listo'].includes(P.paso)) P.paso = 'cliente';
   if(P.paso!=='cliente' && !listoCliente()) P.paso = 'cliente';
   barraTop();
   const V = {cliente:vCliente, cata:vCata, indice:vIndice, resumen:vResumen, listo:vListo};
-  $('#app').innerHTML = V[P.paso]();
+  $('#app').innerHTML = (['cliente','listo'].includes(P.paso) ? `<img class="logo-grande" src="${LOGOS.completo}" alt="Emotional Reminder">` : '') + V[P.paso]() + FIRMA;
   if(P.paso==='listo'){ FICHA = null; setTimeout(prepararFicha, 0); }
 }
 pintar(); vaciar();

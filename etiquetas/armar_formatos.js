@@ -4,7 +4,7 @@
 // Uso: node etiquetas/armar_formatos.js  (con el servidor local en :8765)
 const {chromium} = require('playwright'); const fs = require('fs'); const path = require('path');
 const G = require('./armar_grandes.js'); const AQUI = __dirname;
-const BW = 2174, BH = 1417, ESC_B = 1.25;   // se dibuja a 2174 x 1417 y se exporta x1,25 = 2717 x 1771 px = 23 x 15 cm a 300 dpi
+const BW = 2174, BH = 1417, ESC_B = 2539/2174;   // se dibuja a 2174 x 1417 y se exporta a 2539 x 1654 px = 21,5 x 14 cm a 300 dpi
 const esc = G.esc;
 const CSS_B = `body{margin:0;font-family:Montserrat,sans-serif}
  .bo{width:${BW}px;height:${BH}px;background:var(--c);color:#FBF5EA;position:relative;overflow:hidden;box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr}
@@ -61,9 +61,13 @@ const CSS_A5 = G.CSS.replace(/height:1594px/, `height:${AH}px`).replace('.medall
         fs.writeFileSync(path.join(OUT,'hoja.html'), `<!doctype html><html><body style="margin:0;width:${sw}px;height:${sh}px;background:#fff;position:relative">${it.map((f,i)=>`<img src="${dir}/${f}" style="position:absolute;width:${w}px;height:${h}px;left:${mx+(i%2)*w}px;top:${my+Math.floor(i/2)*h}px">`).join('')}</body></html>`);
         const q = await b.newPage({viewport:{width:sw,height:sh}}); await q.goto(`http://localhost:8765/etiquetas/formatos/${nombre}/hoja.html`); await q.waitForTimeout(700);
         await q.screenshot({path:path.join(OUT, `${pref}_hoja${k+1}.png`)}); await q.close(); } };
-    { const w = Math.round(BW*ESC_B), h = Math.round(BH*ESC_B), sw = 3508, sh = 4961, mx = (sw-w)/2, my = (sh-2*h)/3;
-      for(let k = 0; k*2 < fb.length; k++){ const it = fb.slice(k*2, k*2+2);
-        fs.writeFileSync(path.join(OUT,'hoja.html'), `<!doctype html><html><body style="margin:0;width:${sw}px;height:${sh}px;background:#fff;position:relative">${it.map((f,i)=>`<img src="botella/${f}" style="position:absolute;width:${w}px;height:${h}px;left:${mx}px;top:${my+i*(h+my)}px">`).join('')}</body></html>`);
+    /* A3 vertical con 3 etiquetas de 21,5 x 14 cm: 2 giradas lado a lado arriba y 1 acostada abajo */
+    { const w = 2539, h = 1654, sw = 3508, sh = 4961, gx = (sw-2*h)/3, gy = (sh-w-h)/3;
+      for(let k = 0; k*3 < fb.length; k++){ const it = fb.slice(k*3, k*3+3);
+        const pos = [[gx, gy, true], [2*gx+h, gy, true], [(sw-w)/2, 2*gy+w, false]];
+        fs.writeFileSync(path.join(OUT,'hoja.html'), `<!doctype html><html><body style="margin:0;width:${sw}px;height:${sh}px;background:#fff;position:relative">${it.map((f,i)=>{ const [x,y,rot] = pos[i];
+          return rot ? `<img src="botella/${f}" style="position:absolute;width:${w}px;height:${h}px;left:${x}px;top:${y}px;transform-origin:0 0;transform:translateX(${h}px) rotate(90deg)">`
+                     : `<img src="botella/${f}" style="position:absolute;width:${w}px;height:${h}px;left:${x}px;top:${y}px">`; }).join('')}</body></html>`);
         const q = await b.newPage({viewport:{width:sw,height:sh}}); await q.goto(`http://localhost:8765/etiquetas/formatos/${nombre}/hoja.html`); await q.waitForTimeout(700);
         await q.screenshot({path:path.join(OUT, `A3_${nombre}_botellas_hoja${k+1}.png`)}); await q.close(); } }
     await hojas('cartel_A5', fa, 3508, 4961, 1748, 2480, `A3_${nombre}_carteles_A5`);

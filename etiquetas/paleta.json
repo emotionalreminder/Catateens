@@ -1,0 +1,31 @@
+{
+ "familias": {
+  "citrica":   {"n":"Cítrica",   "base":"#B8862B"},
+  "frutal":    {"n":"Frutal",    "base":"#8E2F4A"},
+  "ozonica":   {"n":"Ozónica",   "base":"#3F6E78"},
+  "green":     {"n":"Verde",     "base":"#4E6B3A"},
+  "floral":    {"n":"Floral",    "base":"#A8536B"},
+  "aromatico": {"n":"Aromática", "base":"#6A6496"},
+  "especiado": {"n":"Especiada", "base":"#7A4527"},
+  "amaderado": {"n":"Amaderada", "base":"#7B5A3A"},
+  "oriental":  {"n":"Oriental",  "base":"#6E2E2A"},
+  "cuero":     {"n":"Cuero",     "base":"#4A2E24"},
+  "gourmand":  {"n":"Gourmand",  "base":"#8A5A33"},
+  "musky":     {"n":"Almizclada","base":"#8C8378"},
+  "ambar":     {"n":"Ámbar",     "base":"#A8661E"}
+ },
+ "notas": {
+  "bergamota":"#A99A3A", "citrico":"#C47A23", "lima":"#7E9A35",
+  "grosellas":"#5E2440", "pera":"#9A9A3E", "cereza":"#8E1F35",
+  "bruma":"#3F6E78", "grass":"#4E6B3A",
+  "jazmin":"#B8946E", "peonia":"#C07A8C", "nardo":"#9C6E86", "violeta":"#6B4C86", "rosas":"#A33F5A",
+  "lavanda":"#6A6496",
+  "higo":"#6C7550", "azahar":"#C9934A",
+  "tabaco":"#7A4527",
+  "sandalo":"#9A6B3E", "cedro":"#7B5A3A", "vetiver":"#55553A",
+  "oriental":"#6E2E2A", "cuero":"#4A2E24",
+  "ddl":"#93592C", "vainilla":"#B8915A", "tonka":"#5E3F2A",
+  "musk":"#8C8378", "ambar":"#A8661E"
+ },
+ "apodo_cambia": {"vainilla":"La gourmand"}
+}

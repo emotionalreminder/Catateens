@@ -129,8 +129,9 @@ const LOGOS = __LOGOS__;
 /* ======================= CLIENTES PRECARGADOS (los carga el perfumista) =======================
    Cata sugerida: primero se huele lo sugerido, en este orden; después se puede seguir con la cata libre. */
 const CLIENTES = [
-  {id:'susana', nombre:'Susana', ciudad:'Asunción', tipo:'ambiente', fecha:'27/11/2026',
-   busca:'Recrear el aroma de su casa con máquinas. Hoy usa Black Pearls de Baobab Collection.',
+  {id:'susana', nombre:'Susana', ciudad:'Asunción', pais:'Paraguay', tipo:'ambiente', fecha:'27/11/2026',
+   wa:'+595 985 319340', m2:'115 + 60', ambientes:'2', moneda:'Guaraníes y dólares', factura:'E · Factura de exportación',
+   busca:'Aromatizar dos salones: uno de 115 m² y otro de 60 m². Hoy usa Black Pearls de Baobab Collection.',
    usa:'Black Pearls · Baobab Collection',
    perfil:'Salida fresca de pomelo y jengibre, corazón de rosa negra y un fondo terroso y sofisticado. Buscamos una rosa especiada y profunda con salida cítrica.',
    sug:[['n_citrico','Lo más cercano al pomelo: cítrico jugoso con cuerpo'],['n_lima','La faceta ácida y chispeante del pomelo'],['n_grosellas','La rosa negra suele ir con cassis: da el tono oscuro y frutal'],
@@ -167,16 +168,22 @@ const aromaLitro = u => COSTOS.FACTOR * (COSTOS.ESENCIA_PCT*u + (1-COSTOS.ESENCI
 const usd = x => 'US$ ' + Math.round(x).toLocaleString('es-AR');
 function estimado(){
   if(P.tipo!=='ambiente') return null;
-  const m2 = parseFloat(String(P.m2).replace(',','.')) || 0, vol = m2 * COSTOS.ALTO_TECHO;
-  const ops = vol ? COSTOS.MAQUINAS.map(([n,t,cap,ars])=>{ const k = Math.max(1, Math.ceil(vol/cap)); return {n, t, cap, k, u: ars/COSTOS.DOLAR, tot: k*ars/COSTOS.DOLAR}; }).sort((a,b)=>a.tot-b.tot) : [];
-  const maq = ops[0] || null, litros = maq && maq.k >= 2 ? 20 : 10;
+  /* cada salón se calcula aparte (ej. "115 + 60") y se elige la opción más económica que lo cubre */
+  const salones = String(P.m2).split(/[+\/;]| y /).map(x=>parseFloat(x.replace(',','.'))).filter(x=>x>0);
+  const m2 = salones.reduce((a,b)=>a+b,0), vol = m2 * COSTOS.ALTO_TECHO;
+  const porSalon = salones.map(s=>{ const v = s*COSTOS.ALTO_TECHO;
+    const ops = COSTOS.MAQUINAS.map(([n,t,cap,ars])=>{ const k = Math.max(1, Math.ceil(v/cap)); return {n, t, cap, k, tot: k*ars/COSTOS.DOLAR}; }).sort((a,b)=>a.tot-b.tot);
+    return {m2:s, vol:v, ops, mejor:ops[0]}; });
+  const ops = porSalon.length===1 ? porSalon[0].ops : [];
+  const maq = porSalon.length ? {k: porSalon.reduce((a,x)=>a+x.mejor.k,0), n: porSalon.map(x=>x.mejor.k+' '+x.mejor.n).join(' + '), tot: porSalon.reduce((a,x)=>a+x.mejor.tot,0)} : null;
+  const litros = maq && maq.k >= 2 ? 20 : 10;
   const fav = lista().filter(a=>P.v[a.k]===3 && usdKg(a)).map(a=>({a, l:aromaLitro(usdKg(a))})).sort((x,y)=>x.l-y.l);
   const min = fav.length ? fav[0] : null, max = fav.length ? fav[fav.length-1] : null;
   const fijo = (maq ? maq.tot : 0) + COSTOS.ENVIO_PY;
-  return {m2, vol, ops, maq, litros, fav, min, max, desde: min ? fijo + litros*min.l : null, hasta: max ? fijo + litros*max.l : null};
+  return {m2, vol, ops, porSalon, maq, litros, fav, min, max, desde: min ? fijo + litros*min.l : null, hasta: max ? fijo + litros*max.l : null};
 }
 function textoEstimado(){ const e = estimado(); if(!e) return '';
-  return [e.maq ? `${e.maq.k} ${e.maq.n} (${usd(e.maq.tot)})` : 'sin m²', `${e.litros} L de aroma`, e.min ? `desde ${usd(e.desde)} hasta ${usd(e.hasta)}` : 'sin favoritos'].join(' · '); }   /* logos de Emotional Reminder */
+  return [e.maq ? `${e.maq.n} (${usd(e.maq.tot)})` : 'sin m²', `${e.litros} L de aroma`, e.min ? `desde ${usd(e.desde)} hasta ${usd(e.hasta)}` : 'sin favoritos'].join(' · '); }   /* logos de Emotional Reminder */
 const KIT = __KIT__;          /* las 27 notas: grupos y fichas técnicas */
 const PERFUMES = __PERFUMES__;  /* los 23 perfumes de tapa rosa */
 const FRA = __FRA__;
@@ -204,7 +211,7 @@ const dispositivo = () => { const u = navigator.userAgent||''; return /iPhone|iP
 const codigo = () => 'PY-' + Math.random().toString(36).slice(2,6).toUpperCase();
 
 function nuevo(){ return {id:uid(), cod:codigo(), creado:new Date().toLocaleString('es-PY'), nom:'', wa:'', ciudad:'', tipo:'', m2:'', ambientes:'', evento:'', personas:'', perf:['','',''], busca:'',
-  kits:{notas:true, perfumes:true}, sug:'', libre:false, v:{}, emo:{}, rec:{}, obs:'', paso:'cliente', i:0, est:'', dev:dispositivo()}; }
+  pais:'Paraguay', moneda:'Guaraníes y dólares', factura:'E · Factura de exportación', ruc:'', dirFiscal:'', kits:{notas:true, perfumes:true}, sug:'', libre:false, v:{}, emo:{}, rec:{}, obs:'', paso:'cliente', i:0, est:'', dev:dispositivo()}; }
 let P = Object.assign(nuevo(), LS.get(CONFIG.LS, {}));
 const guardar = () => LS.set(CONFIG.LS, P);
 const sugeridos = () => P.sug && CLI[P.sug] ? CLI[P.sug].sug.map(x=>POR[x[0]]).filter(Boolean) : [];
@@ -236,7 +243,7 @@ function filaCliente(){
     ['Metros cuadrados',P.m2],['Cantidad de ambientes',P.ambientes],['Tipo de evento',P.evento],['Cantidad de personas',P.personas],['Qué busca',P.busca.trim()],
     ['Perfumes que usa',P.perf.filter(x=>x&&x.trim()).join(' | ')],['Cata',P.sug ? 'Sugerida (' + (CLI[P.sug]||{}).nombre + ')' + (P.libre ? ' + libre' : '') : 'Libre'],['Muestrarios',[P.kits.notas&&'27 notas',P.kits.perfumes&&'Tapa rosa'].filter(Boolean).join(' + ')],
     ['Notas favoritas',favoritos('notas').map(a=>a.n).join(', ')],['Perfumes favoritos',favoritos('perfumes').map(a=>`N° ${a.num} ${a.n}`).join(', ')],
-    ['Emociones principales',emocionesTop().slice(0,3).join(', ')],['Familias olfativas',fams],['Observaciones de la vendedora',P.obs.trim()],['Estimado interno (US$)',textoEstimado()],['Dispositivo',P.dev]];
+    ['Emociones principales',emocionesTop().slice(0,3).join(', ')],['Familias olfativas',fams],['Observaciones de la vendedora',P.obs.trim()],['País',P.pais||''],['Moneda',P.moneda||''],['Tipo de factura',P.factura||''],['RUC',P.ruc||''],['Dirección fiscal',P.dirFiscal||''],['Estimado interno (US$)',textoEstimado()],['Dispositivo',P.dev]];
   cols.push(['Aromas olidos', lista().filter(a=>P.v[a.k]!=null).length], ['Me encanta', lista().filter(a=>P.v[a.k]===3).length], ['No me gusta', lista().filter(a=>P.v[a.k]===0).length]);
   /* el detalle de cada aroma va en la pestaña "Detalle por aroma" (una fila por aroma), que es la que sirve para analizar */
   return {id:P.id, columnas:cols};
@@ -310,7 +317,8 @@ function vFicha(){
 }
 function cataSugerida(id){
   const c = CLI[id]; if(P.nom.trim() && P.est && P.est !== 'Terminó' && !confirm('Hay una cata en curso. ¿Empezar la de ' + c.nombre + '? La anterior ya quedó guardada.')) return;
-  P = nuevo(); P.sug = id; P.nom = c.nombre; P.ciudad = c.ciudad; P.tipo = c.tipo; P.busca = c.busca; P.perf = [c.usa, '', '']; guardar(); ir('cliente');
+  P = nuevo(); P.sug = id; P.nom = c.nombre; P.ciudad = c.ciudad; P.tipo = c.tipo; P.busca = c.busca; P.perf = [c.usa, '', ''];
+  ['wa','m2','ambientes','moneda','factura','ruc','dirFiscal','pais'].forEach(k=>{ if(c[k]) P[k] = c[k]; }); guardar(); ir('cliente');
 }
 function cataNueva(){ if(P.nom.trim() && P.est && P.est !== 'Terminó' && !confirm('Hay una cata en curso. ¿Empezar una nueva?')) return; P = nuevo(); guardar(); ir('cliente'); }
 /* pestañas de arriba: Cata y Clientes */
@@ -326,10 +334,15 @@ function vCliente(){
     <div class="fld"><label for="wa">WhatsApp</label><input id="wa" type="tel" inputmode="tel" value="${esc(P.wa)}" placeholder="+595 9xx xxx xxx" oninput="P.wa=this.value;guardar()"></div>
     <div class="fld"><label for="ciudad">Ciudad</label><input id="ciudad" value="${esc(P.ciudad)}" placeholder="Asunción" oninput="P.ciudad=this.value;guardar()"></div>
     <div class="fld"><label>¿Qué busca?</label><div class="tipos">${TIPOS.map(([k,i,t])=>`<button aria-pressed="${P.tipo===k}" onclick="P.tipo='${k}';guardar();pintar()"><b>${i}</b>${t}</button>`).join('')}</div></div>
-    ${P.tipo==='ambiente' ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="fld"><label for="m2">Metros² aprox.</label><input id="m2" inputmode="numeric" value="${esc(P.m2)}" oninput="P.m2=this.value;guardar()"></div>
+    ${P.tipo==='ambiente' ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="fld"><label for="m2">Metros² aprox. <small>(varios: 115 + 60)</small></label><input id="m2" value="${esc(P.m2)}" placeholder="115 + 60" oninput="P.m2=this.value;guardar()"></div>
       <div class="fld"><label for="amb">Ambientes</label><input id="amb" inputmode="numeric" value="${esc(P.ambientes)}" oninput="P.ambientes=this.value;guardar()"></div></div>` : ''}
     ${P.tipo==='evento' ? `<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:10px"><div class="fld"><label for="ev">Tipo de evento</label><input id="ev" value="${esc(P.evento)}" placeholder="Casamiento, empresa…" oninput="P.evento=this.value;guardar()"></div>
       <div class="fld"><label for="pers">Personas</label><input id="pers" inputmode="numeric" value="${esc(P.personas)}" oninput="P.personas=this.value;guardar()"></div></div>` : ''}
+    <details class="mas"${P.ruc || P.dirFiscal ? ' open' : ''}><summary>Datos de facturación</summary><div class="in">
+      <div class="fld"><label for="ruc">RUC <small>(número de identificación tributaria)</small></label><input id="ruc" value="${esc(P.ruc)}" oninput="P.ruc=this.value;guardar()"></div>
+      <div class="fld"><label for="dirf">Dirección fiscal</label><input id="dirf" value="${esc(P.dirFiscal)}" oninput="P.dirFiscal=this.value;guardar()"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="fld"><label for="fact">Tipo de factura</label><input id="fact" value="${esc(P.factura)}" oninput="P.factura=this.value;guardar()"></div>
+      <div class="fld"><label for="mon">Moneda</label><input id="mon" value="${esc(P.moneda)}" oninput="P.moneda=this.value;guardar()"></div></div></div></details>
     <div class="fld"><label for="busca">Contanos qué imagina <small>(opcional)</small></label><textarea id="busca" rows="2" placeholder="Ej: que la casa huela como un hotel, algo fresco y limpio…" oninput="P.busca=this.value;guardar()">${esc(P.busca)}</textarea></div>
     <div class="fld"><label>Perfumes que usa o le gustan <small>(opcional)</small></label>
       ${P.perf.map((v,i)=>`<div class="ac"><input id="pf${i}" value="${esc(v)}" autocomplete="off" placeholder="Perfume ${i+1}" aria-label="Perfume ${i+1}" oninput="tipear(${i},this.value)" onblur="setTimeout(()=>cerrarAc(${i}),200)"><div class="acl" id="acl${i}"></div></div>`).join('')}</div>
@@ -457,15 +470,17 @@ async function dibujarFicha(){
     txt(`Código ${P.cod} · ${P.creado} · Vendedora: ${CONFIG.VENDEDORA}`, M, 21, 400, '#7A6E62', W - 2*M, 32);
     titulo('Cliente');
     dato('WhatsApp', P.wa.trim()); dato('Ciudad', P.ciudad.trim()); dato('Busca', [tipo, extra].filter(Boolean).join(' · '));
-    dato('Lo que imagina', P.busca.trim()); dato('Perfumes que usa', P.perf.filter(x=>x&&x.trim()).join(' · '));
+    dato('Lo que imagina', P.busca.trim());
+    dato('Facturación', [P.factura, P.moneda, P.ruc && 'RUC ' + P.ruc, P.dirFiscal].filter(Boolean).join(' · ')); dato('Perfumes que usa', P.perf.filter(x=>x&&x.trim()).join(' · '));
     titulo('Perfil');
     dato('Emociones', emo.join(' · ')); dato('Familias', fams.map(k=>FAMN[k]).join(' · '));
     dato('Olió', `${L.filter(a=>P.v[a.k]!=null).length} de ${L.length} aromas · ♥ ${L.filter(a=>P.v[a.k]===3).length} · ✦ ${L.filter(a=>P.v[a.k]===2).length} · ◦ ${L.filter(a=>P.v[a.k]===1).length}`);
     grupo('notas', 'Notas (27)'); grupo('perfumes', 'Perfumes tapa rosa');
     const e = estimado();
     if(e){ titulo('Estimado interno · ambiente (US$)');
-      if(e.vol){ dato('Espacio', `${e.m2} m² × ${COSTOS.ALTO_TECHO} m de techo ≈ ${Math.round(e.vol)} m³`);
-        dato('Máquinas', e.ops.map(o=>`${o.k} ${o.n} (${o.t}, ${o.cap} m³) = ${usd(o.tot)}`).join(' · ')); }
+      if(e.vol){ e.porSalon.forEach((x,i)=>{ dato(e.porSalon.length > 1 ? 'Salón ' + (i+1) : 'Espacio', `${x.m2} m² × ${COSTOS.ALTO_TECHO} m ≈ ${Math.round(x.vol)} m³`);
+          dato('', x.ops.map(o=>`${o.k} ${o.n} (${o.t}, ${o.cap} m³) = ${usd(o.tot)}`).join(' · ')); });
+        dato('Máquinas', `Opción más económica: ${e.maq.n} = ${usd(e.maq.tot)}`); }
       else dato('Máquinas', 'Faltan los m² para calcular');
       dato('Envío a Paraguay', usd(COSTOS.ENVIO_PY));
       dato('Aroma', `${e.litros} L (${e.maq && e.maq.k >= 2 ? 'dos máquinas o más' : 'una máquina'}) · 30 % esencia + diluyente · ×${COSTOS.FACTOR}`);

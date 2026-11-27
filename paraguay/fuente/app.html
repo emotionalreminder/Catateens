@@ -311,7 +311,71 @@ function vListo(){
     <p class="sub" style="margin-top:10px">Con lo que elegiste, el perfumista va a diseñar una propuesta a tu medida.</p>
     <p style="margin-top:22px;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--dim)">Código ${esc(P.cod)}</p>
     ${pend ? `<div class="aviso">Quedan ${pend} envíos pendientes: se mandan solos cuando haya señal. No borres la app ni los datos del navegador.</div>` : `<div class="ok">Todo guardado en la planilla.</div>`}
-    <button class="btn ghost" style="margin-top:24px" onclick="ir('resumen')">Volver al resumen</button></div>`;
+    <button class="btn" style="margin-top:24px" onclick="bajarFicha()">⬇ Descargar ficha para el perfumista</button>
+    <p class="sub" style="font-size:13px;margin-top:6px">Es una imagen con todo el detalle. No se muestra en pantalla: mandala por WhatsApp o mail.</p>
+    <button class="btn ghost" style="margin-top:14px" onclick="ir('resumen')">Volver al resumen</button></div>`;
+}
+/* ======================= ficha del cliente (PNG para el perfumista) =======================
+   Incluye el nombre real de los perfumes de tapa rosa: no se muestra en pantalla, se descarga directo. */
+const EMOJI = {3:'♥', 2:'✦', 1:'◦'};
+async function dibujarFicha(){
+  try{ await Promise.all(['400 30px Montserrat','600 30px Montserrat','600 40px "Cormorant Garamond"'].map(f=>document.fonts.load(f))); }catch(e){}
+  const W = 1080, M = 64, cv = document.createElement('canvas'), c = cv.getContext('2d');
+  const L = lista(), S = perfil(), fams = Object.keys(S).filter(k=>S[k]>0).sort((a,b)=>S[b]-S[a]).slice(0,5), emo = emocionesTop().slice(0,5);
+  const tipo = (TIPOS.find(t=>t[0]===P.tipo)||[])[2]||'';
+  const extra = P.tipo==='ambiente' ? [P.m2 && P.m2+' m²', P.ambientes && P.ambientes+' ambientes'].filter(Boolean).join(' · ') : P.tipo==='evento' ? [P.evento, P.personas && P.personas+' personas'].filter(Boolean).join(' · ') : '';
+  /* armado en dos pasadas: la primera mide el alto, la segunda dibuja */
+  const pasada = dibuja => {
+    let y = 0;
+    const txt = (t, x, px, wt, col, maxW, lh, fam) => { c.font = `${wt} ${px}px ${fam||'Montserrat'}`; c.fillStyle = col; c.textAlign = 'left';
+      const pal = String(t).split(' '); let linea = '', n = 0;
+      pal.forEach(p=>{ const prueba = linea ? linea + ' ' + p : p; if(c.measureText(prueba).width > maxW && linea){ if(dibuja) c.fillText(linea, x, y + px); y += lh; linea = p; n++; } else linea = prueba; });
+      if(linea){ if(dibuja) c.fillText(linea, x, y + px); y += lh; } };
+    const titulo = t => { y += 26; if(dibuja){ c.font = '600 22px Montserrat'; c.fillStyle = '#A4553A'; try{ c.letterSpacing = '4px'; }catch(e){} c.textAlign = 'left'; c.fillText(t.toUpperCase(), M, y + 22); try{ c.letterSpacing = '0px'; }catch(e){}
+      c.strokeStyle = '#E6DCCB'; c.lineWidth = 2; c.beginPath(); c.moveTo(M, y + 36); c.lineTo(W - M, y + 36); c.stroke(); } y += 52; };
+    const dato = (k, v) => { if(!v) return; const y0 = y; txt(k, M, 22, 600, '#7A6E62', 230, 32); y = y0; txt(v, M + 240, 24, 400, '#2B2420', W - 2*M - 240, 34); y += 4; };
+    const aroma = (a, nombre) => { const v = P.v[a.k], e = (P.emo[a.k]||[]).join(', '), r = P.rec[a.k];
+      txt(`${EMOJI[v]}  ${nombre}`, M, 26, 600, '#2B2420', W - 2*M, 36);
+      if(e) txt('Emociones: ' + e, M + 40, 21, 400, '#2F4A3A', W - 2*M - 40, 30);
+      if(r) txt('Recuerdo: "' + r + '"', M + 40, 21, 400, '#7A6E62', W - 2*M - 40, 30);
+      y += 8; };
+    const grupo = (kit, tit) => {
+      const items = L.filter(a=>a.kit===kit && P.v[a.k]>=1).sort((a,b)=>P.v[b.k]-P.v[a.k]); if(!items.length) return;
+      titulo(tit);
+      [[3,'Me encanta'],[2,'Me gusta'],[1,'Un poquito']].forEach(([v,t])=>{ const l = items.filter(a=>P.v[a.k]===v); if(!l.length) return;
+        txt(t + ' (' + l.length + ')', M, 22, 600, '#B08A4E', W - 2*M, 34);
+        l.forEach(a=>aroma(a, kit==='notas' ? `${a.n} · ${ETN[a.et]} · ${a.fam}` : `N° ${a.num} · ${a.n} (${a.marca}) · ${a.fam}`)); y += 6; });
+    };
+    /* encabezado */
+    y = 56; txt('EMOTIONAL REMINDER · FICHA DE CLIENTE', M, 22, 600, '#A4553A', W - 2*M, 34);
+    txt(P.nom.trim() || 'Cliente', M, 64, 600, '#2B2420', W - 2*M, 72, '"Cormorant Garamond", Georgia, serif');
+    txt(`Código ${P.cod} · ${P.creado} · Vendedora: ${CONFIG.VENDEDORA}`, M, 21, 400, '#7A6E62', W - 2*M, 32);
+    titulo('Cliente');
+    dato('WhatsApp', P.wa.trim()); dato('Ciudad', P.ciudad.trim()); dato('Busca', [tipo, extra].filter(Boolean).join(' · '));
+    dato('Lo que imagina', P.busca.trim()); dato('Perfumes que usa', P.perf.filter(x=>x&&x.trim()).join(' · '));
+    titulo('Perfil');
+    dato('Emociones', emo.join(' · ')); dato('Familias', fams.map(k=>FAMN[k]).join(' · '));
+    dato('Olió', `${L.filter(a=>P.v[a.k]!=null).length} de ${L.length} aromas · ♥ ${L.filter(a=>P.v[a.k]===3).length} · ✦ ${L.filter(a=>P.v[a.k]===2).length} · ◦ ${L.filter(a=>P.v[a.k]===1).length}`);
+    grupo('notas', 'Notas (27)'); grupo('perfumes', 'Perfumes tapa rosa');
+    if(P.obs.trim()){ titulo('Observaciones de ' + CONFIG.VENDEDORA); txt(P.obs.trim(), M, 24, 400, '#2B2420', W - 2*M, 34); }
+    y += 40; txt('Uso interno del perfumista · no compartir con el cliente', M, 18, 400, '#A99C8E', W - 2*M, 28);
+    return y + 40;
+  };
+  cv.width = W; cv.height = 2000; const H = pasada(false);
+  cv.height = Math.max(1350, H); c.fillStyle = '#F6F1E7'; c.fillRect(0, 0, W, cv.height);
+  c.fillStyle = '#2B2420'; c.fillRect(0, 0, W, 14);
+  pasada(true);
+  return new Promise(r=>cv.toBlob(r, 'image/png'));
+}
+let FICHA = null;
+async function prepararFicha(){ FICHA = await dibujarFicha(); }
+async function bajarFicha(){
+  if(!FICHA){ aviso('Preparando la ficha…'); await prepararFicha(); }
+  const nom = 'ficha_' + (nz(P.nom)||'cliente').replace(/ /g,'_') + '_' + P.cod + '.png', file = new File([FICHA], nom, {type:'image/png'});
+  const ios = dispositivo()==='iOS';
+  if(ios){ try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'Ficha ' + P.nom}); return; } }catch(e){ if(e && e.name==='AbortError') return; } }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(FICHA); a.download = nom; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  aviso('Ficha descargada');
 }
 function otro(){ if(!confirm('¿Empezar con un cliente nuevo? Este ya quedó guardado.')) return; vaciar(); P = nuevo(); guardar(); pintar(); window.scrollTo(0,0); }
 
@@ -321,6 +385,7 @@ function pintar(){
   barraTop();
   const V = {cliente:vCliente, cata:vCata, indice:vIndice, resumen:vResumen, listo:vListo};
   $('#app').innerHTML = V[P.paso]();
+  if(P.paso==='listo'){ FICHA = null; setTimeout(prepararFicha, 0); }
 }
 pintar(); vaciar();
 </script>

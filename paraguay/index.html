@@ -104,6 +104,17 @@ dl.tec dt{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var
 .favs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .favs .card{padding:8px;text-align:center;font-size:13px;font-weight:600;}
 .favs img{width:100%;aspect-ratio:1;object-fit:contain;}
+.mini{border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--card);font-size:14px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}.cal .cab{text-align:center;font-size:11px;color:var(--dim);letter-spacing:1px}
+.dia{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:14px;position:relative}.dia.hoy{border-color:var(--acc);font-weight:700}
+.dia.con{background:var(--ink);color:#fff}.dia i{position:absolute;top:2px;right:4px;font-size:10px;font-style:normal;color:#F1C9A4}
+.vis{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;margin-top:8px;padding:12px}.vis>b{font-size:18px;font-weight:600}
+.linea{margin-top:10px;padding:12px}.linea .lt{display:flex;justify-content:space-between;align-items:center}
+.linea .campos{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.linea .campos select,.linea .campos input{padding:9px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-size:15px;max-width:100%}
+.linea .campos select{flex:1 1 100%}.linea .campos label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--dim)}.linea .campos label input{width:84px}
+.linea .lr{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:14px;color:var(--dim)}.linea .lr b{color:var(--ink)}
+.tot{margin-top:14px;display:flex;flex-direction:column;gap:6px}.tot div{display:flex;justify-content:space-between;gap:10px;font-size:15px}.tot div b{font-weight:600;text-align:right}
+.tot .gran{border-top:2px solid var(--ink);padding-top:10px;margin-top:4px;font-size:18px}.tot .gran small{display:block;font-weight:400;font-size:14px;color:var(--dim)}
 .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;z-index:50;max-width:calc(100% - 32px);text-align:center;}
 .aviso{margin-top:12px;padding:12px 14px;border-radius:12px;background:#FBEDE4;color:#7A3B1E;font-size:14px;}
 .ok{margin-top:12px;padding:12px 14px;border-radius:12px;background:#E5F1E9;color:#1F5136;font-size:14px;}
@@ -140,50 +151,6 @@ const CLIENTES = [
         ['p_20','Rosa especiada y terrosa: la más compatible'],['p_9','Pomelo y jengibre en la salida'],['p_22','Rosa oscura con azafrán y oud'],['p_4','Jengibre y bergamota sobre tabaco'],['p_21','Jengibre y bergamota, más fresco']]}
 ];
 const CLI = Object.fromEntries(CLIENTES.map(c=>[c.id,c]));
-const COSTOS = {
-  DOLAR: 1625, DOLAR_FECHA: '26/11/2026',
-  ENVIO_PY: 300,                 /* US$ por encomienda de máquinas a Paraguay */
-  ESENCIA_PCT: 0.30, DILUYENTE_L: 15, FACTOR: 2.5, ALTO_TECHO: 2.7,
-  MAQUINAS: [['Cardiff', 'chica', 100, 260330.58], ['Edimburgo', 'mediana', 200, 409090.91], ['Windsor', 'grande', 3000, 632231.40]],   /* nombre, tamaño, m³, ARS sin impuestos */
-  /* US$/kg de la esencia de cada nota (Acordes) y de cada perfume de tapa rosa */
-  NOTA: {bergamota:80, citrico:340, lima:450, grosellas:56, pera:30, cereza:33, bruma:110.4, grass:41.58, jazmin:71.28, peonia:42.77, nardo:120, violeta:25, rosas:25,
-    lavanda:41.58, higo:27, azahar:71.28, tabaco:41.58, sandalo:53.46, cedro:112.86, vetiver:190.08, oriental:65.34, cuero:59.4, ddl:20, vainilla:27, tonka:38, musk:40, ambar:53.46},
-  PERFUME: {1:120, 2:195, 3:120, 4:120, 5:398.08, 6:200, 7:398.08, 8:250, 9:246, 10:120, 11:308, 12:150, 13:240, 14:250, 15:120, 16:308, 17:180, 18:120, 19:150, 20:333, 21:250, 22:250, 23:200}
-};
-/* precios del día: los trae el script de la planilla (dólar BNA y máquinas Jeane Mortenson); si no hay señal, quedan los últimos guardados */
-function aplicarPrecios(p){
-  if(!p) return;
-  if(p.dolar_venta > 0){ COSTOS.DOLAR = p.dolar_venta; const f = new Date(p._fecha_dolar_venta);
-    COSTOS.DOLAR_FECHA = !isNaN(f) ? f.toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : (p._fecha_dolar_venta || COSTOS.DOLAR_FECHA); }
-  COSTOS.MAQUINAS.forEach(m=>{ const k = m[0].toLowerCase(); if(p['maquina_'+k] > 0) m[3] = p['maquina_'+k]; if(p['maquina_'+k+'_m3'] > 0) m[2] = p['maquina_'+k+'_m3']; });
-  COSTOS.PYG = p.guaranies_por_dolar || null;
-}
-async function traerPrecios(){
-  if(!CONFIG.SCRIPT_URL.startsWith('http')) return;
-  try{ const j = await (await fetch(CONFIG.SCRIPT_URL + '?accion=precios&t=' + Date.now())).json();
-    if(j && j.ok && j.precios){ LS.set(CONFIG.LS+'_precios', j.precios); aplicarPrecios(j.precios); } }catch(e){}
-}
-const usdKg = a => a.kit==='notas' ? COSTOS.NOTA[a.id] : COSTOS.PERFUME[a.num];
-const aromaLitro = u => COSTOS.FACTOR * (COSTOS.ESENCIA_PCT*u + (1-COSTOS.ESENCIA_PCT)*COSTOS.DILUYENTE_L);
-const usd = x => 'US$ ' + Math.round(x).toLocaleString('es-AR');
-function estimado(){
-  if(P.tipo!=='ambiente') return null;
-  /* cada salón se calcula aparte (ej. "115 + 60") y se elige la opción más económica que lo cubre */
-  const salones = String(P.m2).split(/[+\/;]| y /).map(x=>parseFloat(x.replace(',','.'))).filter(x=>x>0);
-  const m2 = salones.reduce((a,b)=>a+b,0), vol = m2 * COSTOS.ALTO_TECHO;
-  const porSalon = salones.map(s=>{ const v = s*COSTOS.ALTO_TECHO;
-    const ops = COSTOS.MAQUINAS.map(([n,t,cap,ars])=>{ const k = Math.max(1, Math.ceil(v/cap)); return {n, t, cap, k, tot: k*ars/COSTOS.DOLAR}; }).sort((a,b)=>a.tot-b.tot);
-    return {m2:s, vol:v, ops, mejor:ops[0]}; });
-  const ops = porSalon.length===1 ? porSalon[0].ops : [];
-  const maq = porSalon.length ? {k: porSalon.reduce((a,x)=>a+x.mejor.k,0), n: porSalon.map(x=>x.mejor.k+' '+x.mejor.n).join(' + '), tot: porSalon.reduce((a,x)=>a+x.mejor.tot,0)} : null;
-  const litros = maq && maq.k >= 2 ? 20 : 10;
-  const fav = lista().filter(a=>P.v[a.k]===3 && usdKg(a)).map(a=>({a, l:aromaLitro(usdKg(a))})).sort((x,y)=>x.l-y.l);
-  const min = fav.length ? fav[0] : null, max = fav.length ? fav[fav.length-1] : null;
-  const fijo = (maq ? maq.tot : 0) + COSTOS.ENVIO_PY;
-  return {m2, vol, ops, porSalon, maq, litros, fav, min, max, desde: min ? fijo + litros*min.l : null, hasta: max ? fijo + litros*max.l : null};
-}
-function textoEstimado(){ const e = estimado(); if(!e) return '';
-  return [e.maq ? `${e.maq.n} (${usd(e.maq.tot)})` : 'sin m²', `${e.litros} L de aroma`, e.min ? `desde ${usd(e.desde)} hasta ${usd(e.hasta)}` : 'sin favoritos'].join(' · '); }   /* logos de Emotional Reminder */
 const KIT = {"B": [{"et": "cima", "fam": "Cítrica", "tit": "Los cítricos", "baj": "La explosión, la golosa y la diplomática.", "dato": "El perfume de la naranja no está en el jugo. Está en la cáscara.", "notas": [{"id": "bergamota", "n": "Bergamota", "p": "La diplomática", "f": 5}, {"id": "citrico", "n": "Cítrico", "p": "La golosa", "f": 6}, {"id": "lima", "n": "Lima", "p": "La explosión", "f": 9}]}, {"et": "cima", "fam": "Frutal", "tit": "Las frutas", "baj": "Las tres están inventadas.", "dato": "Ninguna fruta jugosa se puede destilar: es casi toda agua.", "notas": [{"id": "grosellas", "n": "Grosellas", "p": "La ácida", "f": 8}, {"id": "pera", "n": "Pera", "p": "La almohada", "f": 7}, {"id": "cereza", "n": "Cereza", "p": "La tramposa", "f": 9}]}, {"et": "cima", "fam": "Ozónica · Green", "tit": "El aire y el verde", "baj": "No son flores ni frutas. Son lugares.", "dato": "El olor a pasto cortado es el pasto pidiendo ayuda.", "notas": [{"id": "bruma", "n": "Bruma de mar", "p": "El espacio", "f": 8}, {"id": "grass", "n": "Grass", "p": "La alarma", "f": 7}]}, {"et": "corazon", "fam": "Floral", "tit": "Las flores", "baj": "Cinco flores, y entre ellas los dos extremos del corazón.", "dato": "La violeta apaga la nariz. Olela de nuevo: ya casi no está.", "notas": [{"id": "jazmin", "n": "Jazmín", "p": "La adolescente", "f": 7}, {"id": "peonia", "n": "Peonía", "p": "La muda", "f": 3}, {"id": "nardo", "n": "Nardo", "p": "La adulta", "f": 9}, {"id": "violeta", "n": "Violeta", "p": "La maga", "f": 6}, {"id": "rosas", "n": "Rosas", "p": "La reina", "f": 7}]}, {"et": "corazon", "fam": "Aromático", "tit": "La lavanda", "baj": "Sola en su familia: abre una puerta que ninguna otra abre.", "dato": "Se destila: el aceite queda flotando arriba, como en una vinagreta.", "ref": {"n": "Peonía", "f": 3}, "notas": [{"id": "lavanda", "n": "Lavanda", "p": "El puente de arriba", "f": 6}]}, {"et": "corazon", "fam": "Floral/Frutal · Floral/Cítrico", "tit": "El higo y el azahar", "baj": "Las únicas dos de la mesa con la misma fuerza.", "dato": "La hoja de higo de verdad se prohibió en 2006: manchaba la piel al sol.", "notas": [{"id": "higo", "n": "Flor de Higo", "p": "El puente de abajo", "f": 5}, {"id": "azahar", "n": "Azahar", "p": "La luminosa", "f": 5}]}, {"et": "fondo", "fam": "Especiado", "tit": "El tabaco", "baj": "Con dos gotas cambia el carácter de todo el fondo.", "dato": "Los absolutos de tabaco están entre los materiales más tenaces que existen.", "ref": {"n": "Cedro", "f": 3}, "notas": [{"id": "tabaco", "n": "Tabaco Pimienta", "p": "Humo de hoja", "f": 8}]}, {"et": "fondo", "fam": "Amaderado", "tit": "Las maderas", "baj": "Los dos extremos de toda la paleta, en la misma familia.", "dato": "El sándalo tarda 30 años. El vetiver ni siquiera es madera: es raíz.", "notas": [{"id": "sandalo", "n": "Sándalo", "p": "El noble", "f": 6}, {"id": "cedro", "n": "Cedro", "p": "El manso", "f": 3}, {"id": "vetiver", "n": "Vetiver", "p": "El que persigue", "f": 9}]}, {"et": "fondo", "fam": "Oriental · Leather", "tit": "El humo", "baj": "Resina y cuero: dos humos distintos.", "dato": "El cuero no huele a cuero. Huele al humo con el que se curtía.", "notas": [{"id": "oriental", "n": "Acorde Oriental", "p": "Humo de resina", "f": 7}, {"id": "cuero", "n": "Cuero", "p": "Humo de madera", "f": 9}]}, {"et": "fondo", "fam": "Gourmand", "tit": "Los dulces", "baj": "Tres dulces, tres trabajos.", "dato": "La vainilla es una orquídea que se abre un solo día al año.", "notas": [{"id": "ddl", "n": "Dulce de Leche", "p": "El invasor", "f": 8}, {"id": "vainilla", "n": "Vainilla", "p": "El pegamento", "f": 7}, {"id": "tonka", "n": "Tonka", "p": "El dulce seco", "f": 7}]}, {"et": "fondo", "fam": "Musky · Ámbar", "tit": "Los invisibles", "baj": "Las dos huelen a piel, en dos momentos del día.", "dato": "El musk no se nota cuando está. Se nota cuando falta.", "notas": [{"id": "musk", "n": "Acorde Musk", "p": "Piel recién bañada", "f": 5}, {"id": "ambar", "n": "Ámbar", "p": "Piel al final de la noche", "f": 9}]}], "T": {"bergamota": {"tipo": "Aceite esencial", "org": "Calabria, Italia (+90% mundial)", "ext": "Expresión en frío de la cáscara (sfumatura)", "comp": "Acetato de linalilo, limoneno, linalol", "ev": "Muy alta — 15 a 45 min en piel", "aporta": "Es el cítrico universal: se siente que es cítrico pero no se identifica cuál. La única salida que tolera ser protagonista absoluta sin saturar a nadie.", "desc": "CHISPA · EFERVESCENTE · LUMINOSO"}, "citrico": {"tipo": "Acorde compuesto", "org": "Acorde compuesto", "ext": "Mezcla de aceites cítricos expresados + especias destiladas", "comp": "Limoneno, acetato de linalilo, aldehídos cítricos", "ev": "Alta, con cola especiada", "aporta": "Acorde ya construido, con más cuerpo que un cítrico suelto. El mejor puente cuando el fondo va a ser amaderado o especiado.", "desc": "NARANJA CONFITADA · CÁSCARA MELADA · NAVIDEÑO"}, "lima": {"tipo": "Aceite esencial", "org": "México / Italia / Persia", "ext": "Destilación por arrastre de vapor, o expresión en frío", "comp": "Citral (neral + geranial), limoneno", "ev": "Extrema — impacto inmediato, muy fugaz", "aporta": "Máximo impacto, mínima duración: es el flash de apertura. Con pocas gotas ya se siente; si se sobrepasa, tapa todo lo demás al principio.", "desc": "CHISPEANTE · ETÉREO · LUJO DE TOCADOR"}, "grosellas": {"tipo": "Natural + síntesis", "org": "Borgoña, Francia (yema real) + reconstrucción", "ext": "Extracción con solventes de la yema + síntesis de tioles", "comp": "Tioles (4-MMP), absoluto de yema de cassis", "ev": "Alta", "aporta": "Compuestos azufrados de umbral bajísimo. Aporta una acidez jugosa que corta el dulzor: clave cuando el fondo va a ser gourmand.", "desc": "CAIPIRINHA · ÁCIDO · JUGOSO"}, "pera": {"tipo": "Esencia sintética", "org": "Nota fantasía — sin origen natural", "ext": "Síntesis en laboratorio (ésteres + aldehídos)", "comp": "Acetato de isoamilo, ésteres frutales", "ev": "Alta-media", "aporta": "Ninguna fruta jugosa rinde aceite esencial: el agua domina y el aroma se pierde. Se reconstruye con ésteres. Suaviza aperturas muy ácidas o filosas.", "desc": "JUGOSO · SUAVE · VERANIEGO"}, "cereza": {"tipo": "Esencia sintética", "org": "Nota fantasía / acorde de autor", "ext": "Síntesis en laboratorio", "comp": "Benzaldehído, damascona, heliotropina", "ev": "Media — con cola hacia el corazón", "aporta": "Las damasconas son de las moléculas más potentes de la perfumería. Su base balsámica la ancla al corazón: sigue presente cuando las demás cimas ya se fueron.", "desc": "CARAMELO · ALMENDRA · LICOROSO"}, "bruma": {"tipo": "Esencia sintética", "org": "Molécula 100% sintética", "ext": "Síntesis química", "comp": "Calone y moléculas acuáticas afines", "ev": "Media — persiste hasta el corazón", "aporta": "El mar no se puede destilar: el aroma acuático es una invención del siglo XX. Aporta espacio y aire; con mucho almizcle puede virar a jabonoso.", "desc": "BRISA SALADA · ACUÁTICO · MINERAL"}, "grass": {"tipo": "Esencia sintética", "org": "Nota fantasía — sin origen natural", "ext": "Síntesis en laboratorio (moléculas verdes de hoja)", "comp": "cis-3-Hexenol, acetato de hexenilo, galbanum", "ev": "Extrema — flash verde de minutos", "aporta": "El pasto libera sus moléculas justo al cortarse, imposibles de embotellar. Aporta naturalidad vegetal: el toque de realidad al principio de la fórmula.", "desc": "CÉSPED CORTADO · VERDE · HÚMEDO"}, "jazmin": {"tipo": "Extracto natural", "org": "Egipto e India / Grasse, Francia", "ext": "Extracción con solventes → concreto → absoluto", "comp": "Acetato de bencilo, indol, jasmona, linalol", "ev": "Media", "aporta": "El indol le da tenacidad inusual y un lado casi animal que lo vuelve adulto. Es el corazón que se hace notar.", "desc": "FLOR BLANCA · EMPUJE · CÁLIDO"}, "peonia": {"tipo": "Esencia sintética", "org": "Flor muda — no rinde esencia por ningún método", "ext": "Síntesis en laboratorio (reconstrucción floral)", "comp": "Alcohol feniletílico, ésteres rosados", "ev": "Media-alta", "aporta": "La peonía es una \"flor muda\": ni destilación ni solventes capturan su aroma. Sin molécula de alto impacto: construye por volumen, ideal para perfiles limpios.", "desc": "LINO BLANCO · LIMPIO · DELICADO"}, "nardo": {"tipo": "Extracto natural", "org": "India y Marruecos (tuberosa)", "ext": "Extracción con solventes (absoluto)", "comp": "Metil benzoato, cis-jasmona, lactonas", "ev": "Baja — muy tenaz", "aporta": "Bomba floral cremosa, con más cuerpo que un floral común. Va siempre en dosis chicas: en exceso convierte la fórmula en un solo aroma.", "desc": "CREMOSO · NOCTURNO · ENVOLVENTE"}, "violeta": {"tipo": "Extracto natural", "org": "Francia (hoja de violeta)", "ext": "Extracción con solventes de la hoja", "comp": "Alfa y beta-ionona, nonadienal", "ev": "Media — satura el receptor", "aporta": "La flor es muda, pero la hoja sí se extrae. Las iononas producen anosmia temporal: parece suave pero satura. Se mide con la cabeza, no solo con la nariz.", "desc": "ATALCADO · TERCIOPELO · ROCOCÓ"}, "rosas": {"tipo": "Extracto natural", "org": "Bulgaria / Turquía / Marruecos", "ext": "Destilación al vapor o extracción con solventes", "comp": "Citronelol, geraniol, feniletanol, especias", "ev": "Media", "aporta": "La nota más versátil del corazón: funciona en registros joviales o profundos según la dosis. Estructura clásica sobre la que se apoya casi cualquier construcción.", "desc": "JARDÍN · LLUVIA · PÉTALO"}, "lavanda": {"tipo": "Aceite esencial", "org": "Provenza, Francia", "ext": "Destilación al vapor de la espiga floral", "comp": "Linalol, acetato de linalilo, 1,8-cineol", "ev": "Alta — 2 a 4 horas", "aporta": "Puente técnico entre cima y corazón. Aporta limpieza y aire herbal: es la única aromática de la paleta, abre una familia entera por sí sola.", "desc": "SÁBANAS PLANCHADAS · HERBAL · LIMPIO"}, "higo": {"tipo": "Esencia sintética", "org": "Nota fantasía (el absoluto natural fue prohibido en 2006)", "ext": "Reconstrucción sintética", "comp": "Lactonas (gamma-octalactona), moléculas verdes", "ev": "Media", "aporta": "Existió un absoluto real de hoja, prohibido por fototoxicidad. Sus lactonas dejan una cola cremosa que baja al fondo: puente entre corazón y base.", "desc": "HIGUERA · SOMBRA FRESCA · HOJA DE TÉ"}, "azahar": {"tipo": "Extracto natural", "org": "Túnez y Marruecos (naranjo amargo)", "ext": "Destilación (neroli) o extracción con solventes", "comp": "Linalol, antranilato de metilo, indol", "ev": "Media", "aporta": "Floral luminoso con lado cítrico: conversa con la salida y evita que el paso a corazón se sienta como un corte.", "desc": "INFANCIA · FLOR BLANCA · LUMINOSO"}, "tabaco": {"tipo": "Acorde compuesto", "org": "Acorde compuesto (tabaco + especias)", "ext": "Absoluto de tabaco + destilación de especias", "comp": "Cumarina, piperina, nicotina en trazas", "ev": "Baja — muy tenaz", "aporta": "Los absolutos de tabaco están entre los materiales más tenaces que existen. Con dos o tres gotas ya cambia la identidad de todo el fondo.", "desc": "BIBLIOTECA · AHUMADO · ESPECIADO"}, "sandalo": {"tipo": "Aceite esencial", "org": "India (Mysore) / Australia", "ext": "Destilación al vapor del duramen", "comp": "Alfa y beta-santalol", "ev": "Muy baja", "aporta": "Tenacidad alta, impacto medio: acompaña sin gritar. De las pocas maderas usables como protagonista sin riesgo. Cremosidad noble que suaviza fondos ásperos.", "desc": "CHESTERFIELD · CREMOSO · NOBLE"}, "cedro": {"tipo": "Aceite esencial", "org": "Virginia, EE.UU. / Marruecos (Atlas)", "ext": "Destilación al vapor de la madera", "comp": "Cedrol, tuyopsina", "ev": "Muy baja", "aporta": "Mucha persistencia con bajo poder odorífero: el fondo más manejable de la paleta, dosificable en volumen sin miedo. Estructura seca y limpia.", "desc": "LÁPIZ RECIÉN CORTADO · SECO · LIMPIO"}, "vetiver": {"tipo": "Aceite esencial", "org": "Haití / Java / Isla Reunión", "ext": "Destilación al vapor de la raíz seca", "comp": "Khusimol, vetiverol", "ev": "Extremadamente baja — máxima persistencia", "aporta": "Umbral de detección de 0,029 ng/L: de las moléculas más potentes de la perfumería. Siempre en acento: dos gotas se sienten al día siguiente.", "desc": "RAÍZ · TIERRA HÚMEDA · AHUMADO"}, "oriental": {"tipo": "Acorde compuesto", "org": "Acorde (benjuí de Laos + incienso de Omán)", "ext": "Extracción con solventes (resinoide)", "comp": "Ácido benzoico, ácido cinámico, ácido boswélico", "ev": "Muy baja", "aporta": "Alta tenacidad con impacto identitario medio-alto. Convierte un perfume correcto en un perfume con historia.", "desc": "TEMPLO · HUMO · RESINOSO"}, "cuero": {"tipo": "Esencia sintética", "org": "Nota fantasía — sin aceite esencial", "ext": "Síntesis (a partir de brea de abedul)", "comp": "Isobutil quinolina, estirax", "ev": "Muy baja", "aporta": "El cuero curtido no tiene aroma útil: el olor que reconocemos viene del curtido con humo de abedul. Las quinoleínas saturan con trazas mínimas.", "desc": "AUTO CLÁSICO · AHUMADO · ANIMÁLICO"}, "ddl": {"tipo": "Esencia sintética", "org": "Nota fantasía (identidad rioplatense)", "ext": "Síntesis en laboratorio", "comp": "Maltol, etil-maltol, furaneol", "ev": "Baja", "aporta": "Maltol y furanonas de umbral muy bajo: invasores clásicos de las fórmulas gourmand. Necesita una cima ácida que lo equilibre o se vuelve empalagoso.", "desc": "ALFAJOR · CARAMELO · LÁCTEO"}, "vainilla": {"tipo": "Acorde recreado en laboratorio (vainilla crema)", "comp": "Vainillina, acetovainillona", "ev": "Muy baja — fijador clásico", "aporta": "Fijador de manual: su sustantividad se mide en semanas. Impacto medio que crece con el tiempo, y ayuda a que todo el resto dure más.", "desc": "HELADO DE CREMA · DULCE · ENVOLVENTE"}, "tonka": {"tipo": "Extracto natural", "org": "Venezuela y Brasil", "ext": "Curado del haba + extracción con solventes", "comp": "Cumarina", "ev": "Muy baja — fijador clásico", "aporta": "Tenacidad enorme con impacto que crece a lo largo del día. Dulzor más seco que la vainilla: el puente perfecto entre gourmand y amaderado.", "desc": "HENO DULCE · CACAO · EXÓTICO"}, "musk": {"tipo": "Esencia sintética", "org": "100% sintético (los naturales están vedados)", "ext": "Síntesis (almizcles policíclicos o macrocíclicos)", "comp": "Almizcles blancos, muscenona", "ev": "Muy baja", "aporta": "Los almizcles naturales están prohibidos hace décadas. Suave pero omnipresente: no se nota como aroma propio, se nota cuando falta. El pegamento invisible.", "desc": "PIEL TIBIA · SEDOSO · LIMPIO"}, "ambar": {"tipo": "Natural + síntesis", "org": "España y Marruecos (jara/cistus)", "ext": "Extracción del labdanum + síntesis de ambroxide", "comp": "Ácido labdánico, ambroxide, vainillina", "ev": "Muy baja — máxima tenacidad", "aporta": "No tiene nada que ver con la resina fósil: nace como sustituto del ámbar gris. Faceta mineral y casi animal que lo vuelve magnético. Muy potente.", "desc": "PIEL AL FINAL DE LA NOCHE · CÁLIDO · MINERAL"}}, "F": {"bergamota": "citrica", "citrico": "citrica", "lima": "citrica", "grosellas": "frutal", "pera": "frutal", "cereza": "frutal", "bruma": "ozonica", "grass": "green", "jazmin": "floral", "peonia": "floral", "nardo": "floral", "violeta": "floral", "rosas": "floral", "higo": "floral", "azahar": "floral", "lavanda": "aromatico", "tabaco": "especiado", "sandalo": "amaderado", "cedro": "amaderado", "vetiver": "amaderado", "oriental": "oriental", "cuero": "cuero", "ddl": "gourmand", "vainilla": "gourmand", "tonka": "gourmand", "musk": "musky", "ambar": "ambar"}};          /* las 27 notas: grupos y fichas técnicas */
 const PERFUMES = [
 {
@@ -567,7 +534,7 @@ function filaCliente(){
     ['Metros cuadrados',P.m2],['Cantidad de ambientes',P.ambientes],['Tipo de evento',P.evento],['Cantidad de personas',P.personas],['Qué busca',P.busca.trim()],
     ['Perfumes que usa',P.perf.filter(x=>x&&x.trim()).join(' | ')],['Cata',P.sug ? 'Sugerida (' + (CLI[P.sug]||{}).nombre + ')' + (P.libre ? ' + libre' : '') : 'Libre'],['Muestrarios',[P.kits.notas&&'27 notas',P.kits.perfumes&&'Tapa rosa'].filter(Boolean).join(' + ')],
     ['Notas favoritas',favoritos('notas').map(a=>a.n).join(', ')],['Perfumes favoritos',favoritos('perfumes').map(a=>`N° ${a.num} ${a.n}`).join(', ')],
-    ['Emociones principales',emocionesTop().slice(0,3).join(', ')],['Familias olfativas',fams],['Observaciones de la vendedora',P.obs.trim()],['País',P.pais||''],['Moneda',P.moneda||''],['Tipo de factura',P.factura||''],['RUC',P.ruc||''],['Dirección fiscal',P.dirFiscal||''],['Estimado interno (US$)',textoEstimado()],['Dispositivo',P.dev]];
+    ['Emociones principales',emocionesTop().slice(0,3).join(', ')],['Familias olfativas',fams],['Observaciones de la vendedora',P.obs.trim()],['País',P.pais||''],['Moneda',P.moneda||''],['Tipo de factura',P.factura||''],['RUC',P.ruc||''],['Dirección fiscal',P.dirFiscal||''],['Dispositivo',P.dev]];
   cols.push(['Aromas olidos', lista().filter(a=>P.v[a.k]!=null).length], ['Me encanta', lista().filter(a=>P.v[a.k]===3).length], ['No me gusta', lista().filter(a=>P.v[a.k]===0).length]);
   /* el detalle de cada aroma va en la pestaña "Detalle por aroma" (una fila por aroma), que es la que sirve para analizar */
   return {id:P.id, columnas:cols};
@@ -605,7 +572,7 @@ document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) vaciar(
 function ir(p){ P.paso = p; guardar(); pintar(); window.scrollTo(0,0); vaciar(); }
 function atras(){
   if(P.paso==='cata' && P.i > 0){ P.i--; guardar(); pintar(); window.scrollTo(0,0); return; }
-  const m = {cata:'cliente', indice:'cata', resumen:'cata', listo:'resumen', fin_sug:'cata', ficha:'clientes'};
+  const m = {cata:'cliente', indice:'cata', resumen:'cata', listo:'resumen', fin_sug:'cata', achu_cli:'achu', achu_nuevo:'achu', admin_cli:'admin', admin_pres:'admin_cli'};
   if(m[P.paso]) ir(m[P.paso]);
 }
 function barraTop(){
@@ -800,18 +767,6 @@ async function dibujarFicha(){
     dato('Emociones', emo.join(' · ')); dato('Familias', fams.map(k=>FAMN[k]).join(' · '));
     dato('Olió', `${L.filter(a=>P.v[a.k]!=null).length} de ${L.length} aromas · ♥ ${L.filter(a=>P.v[a.k]===3).length} · ✦ ${L.filter(a=>P.v[a.k]===2).length} · ◦ ${L.filter(a=>P.v[a.k]===1).length}`);
     grupo('notas', 'Notas (27)'); grupo('perfumes', 'Perfumes tapa rosa');
-    const e = estimado();
-    if(e){ titulo('Estimado interno · ambiente (US$)');
-      if(e.vol){ e.porSalon.forEach((x,i)=>{ dato(e.porSalon.length > 1 ? 'Salón ' + (i+1) : 'Espacio', `${x.m2} m² × ${COSTOS.ALTO_TECHO} m ≈ ${Math.round(x.vol)} m³`);
-          dato('', x.ops.map(o=>`${o.k} ${o.n} (${o.t}, ${o.cap} m³) = ${usd(o.tot)}`).join(' · ')); });
-        dato('Máquinas', `Opción más económica: ${e.maq.n} = ${usd(e.maq.tot)}`); }
-      else dato('Máquinas', 'Faltan los m² para calcular');
-      dato('Envío a Paraguay', usd(COSTOS.ENVIO_PY));
-      dato('Aroma', `${e.litros} L (${e.maq && e.maq.k >= 2 ? 'dos máquinas o más' : 'una máquina'}) · 30 % esencia + diluyente · ×${COSTOS.FACTOR}`);
-      e.fav.forEach(x=>dato('', `${x.a.kit==='notas' ? x.a.n : 'N° ' + x.a.num + ' ' + x.a.n}: ${usd(x.l)}/L → ${e.litros} L = ${usd(x.l*e.litros)}`));
-      if(e.min) dato('Total estimado', `desde ${usd(e.desde)} (${e.min.a.kit==='notas'?e.min.a.n:'N° '+e.min.a.num}) hasta ${usd(e.hasta)} (${e.max.a.kit==='notas'?e.max.a.n:'N° '+e.max.a.num})`);
-      if(COSTOS.PYG && e.min) dato('En guaraníes', `desde ₲ ${Math.round(e.desde*COSTOS.PYG).toLocaleString('es-PY')} hasta ₲ ${Math.round(e.hasta*COSTOS.PYG).toLocaleString('es-PY')}`);
-      dato('Supuestos', `Dólar BNA venta ${COSTOS.DOLAR} (${COSTOS.DOLAR_FECHA}) · máquinas sin impuestos nacionales · revisar antes de cotizar`); }
     if(P.obs.trim()){ titulo('Observaciones de ' + CONFIG.VENDEDORA); txt(P.obs.trim(), M, 24, 400, '#2B2420', W - 2*M, 34); }
     y += 40; if(dibuja){ c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(M, y); c.lineTo(M + 120, y); c.stroke(); } y += 18;
     txt('Agustín Melazo Díaz', M, 24, 500, '#2B2420', W - 2*M, 32);
@@ -837,17 +792,329 @@ async function bajarFicha(){
 }
 function otro(){ if(!confirm('¿Empezar con un cliente nuevo? Este ya quedó guardado.')) return; vaciar(); P = nuevo(); guardar(); pintar(); window.scrollTo(0,0); }
 
+/* ======================= PANELES: Achu (clientes y agenda) y Emotional Reminder (administración) =======================
+   Achu: ve sus clientes, lo que les gustó, la agenda y los presupuestos publicados SIN precios (salvo que el admin muestre el total).
+   Emotional Reminder: con clave (la verifica el script). Ve todo, arma presupuestos tildando productos y los publica. */
+const MAQ_IMG = {"windsor": "data:image/webp;base64,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", "edimburgo": "data:image/webp;base64,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", "cardiff": "data:image/webp;base64,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", "balmoral": "data:image/webp;base64,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"};
+let REM = {achu:null, admin:null, cargando:false, error:''};
+let UI = Object.assign({tab:'clientes', cli:'', atab:'agenda', pres:null, mes:''}, LS.get(CONFIG.LS+'_ui', {}));
+const guardarUI = () => LS.set(CONFIG.LS+'_ui', {tab:UI.tab, cli:UI.cli, atab:UI.atab, mes:UI.mes});
+const claveAdmin = () => { try{ return sessionStorage.getItem('er_py_admin') || ''; }catch(e){ return ''; } };
+const hoyISO = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+const fechaLarga = iso => { const d = new Date(iso + 'T12:00:00'); return isNaN(d) ? iso : d.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}); };
+const fmtU = x => 'US$ ' + (Math.round(x*100)/100).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0});
+const fmtG = x => '₲ ' + Math.round(x).toLocaleString('es-PY');
+
+/* envío genérico a la planilla (usa la misma cola que la cata: si no hay señal, sale después) */
+function enviarFilas(hoja, filas, admin){
+  const body = {clave:CONFIG.CLAVE, hoja, filas}; if(admin) body.claveAdmin = claveAdmin();
+  const cola = LS.get(CONFIG.LS+'_cola',[]); cola.push({tipo:'gen', id:'g-'+uid(), t:Date.now(), body}); LS.set(CONFIG.LS+'_cola', cola); vaciar();
+}
+const fila = (id, obj) => ({id, columnas:[['ID',id], ...Object.entries(obj)]});
+
+async function cargar(quien){
+  if(!CONFIG.SCRIPT_URL.startsWith('http')) return;
+  REM.cargando = true; REM.error = '';
+  try{
+    const clave = quien==='admin' ? claveAdmin() : CONFIG.CLAVE;
+    const j = await (await fetch(`${CONFIG.SCRIPT_URL}?accion=${quien}&clave=${encodeURIComponent(clave)}&t=${Date.now()}`)).json();
+    if(!j.ok){ if(quien==='admin' && j.error==='clave'){ try{ sessionStorage.removeItem('er_py_admin'); }catch(e){} REM.error = 'Clave incorrecta.'; }
+      else REM.error = j.error==='clave' ? 'Falta actualizar el script de la planilla.' : (j.error || 'Error'); }
+    else { REM[quien] = j; if(quien==='achu') LS.set(CONFIG.LS+'_achu', j); }
+  }catch(e){ REM.error = 'Sin conexión con la planilla.'; if(quien==='achu' && !REM.achu) REM.achu = LS.get(CONFIG.LS+'_achu', null); }
+  REM.cargando = false; if(['achu','achu_cli','admin','admin_cli','admin_pres'].includes(P.paso)) pintar();
+}
+
+/* ---------- clientes (planilla + precargados) ---------- */
+function clientesDe(d){
+  const out = [], vistos = {};
+  (d && d.clientes || []).forEach(c=>{ const k = c['Código'] || c['ID']; if(!k || vistos[k]) return; vistos[k] = 1;
+    out.push({k, nombre:c['Cliente']||'', wa:c['WhatsApp']||'', ciudad:c['Ciudad']||'', tipo:c['Tipo']||'', m2:c['Metros cuadrados']||'', busca:c['Qué busca']||'',
+      fecha:c['Fecha']||'', estado:c['Estado']||'', notas:c['Notas favoritas']||'', perfumes:c['Perfumes favoritos']||'', emociones:c['Emociones principales']||'',
+      familias:c['Familias olfativas']||'', usa:c['Perfumes que usa']||'', obs:c['Observaciones de la vendedora']||'', fila:c}); });
+  CLIENTES.forEach(c=>{ if(!out.some(x=>nz(x.nombre)===nz(c.nombre))) out.push({k:'pre:'+c.id, nombre:c.nombre, wa:c.wa||'', ciudad:c.ciudad, tipo:(TIPOS.find(t=>t[0]===c.tipo)||[])[2]||'',
+    m2:c.m2||'', busca:c.busca, fecha:c.fecha, estado:'Precargado', notas:'', perfumes:'', emociones:'', familias:'', usa:c.usa, pre:c.id}); });
+  return out;
+}
+const presDe = (d, cli) => (d && d.presupuestos || []).filter(p=>p['Clave cliente']===cli.k || nz(p['Cliente'])===nz(cli.nombre));
+const visitasDe = (d, cli) => (d && d.agenda || []).filter(v=>v['Clave cliente']===cli.k || nz(v['Cliente'])===nz(cli.nombre));
+
+/* ---------- agenda (compartida) ---------- */
+function vAgenda(d, quien){
+  const ag = (d && d.agenda || []).filter(v=>v['Estado']!=='Cancelada').sort((a,b)=>(a['Fecha']+a['Hora']).localeCompare(b['Fecha']+b['Hora']));
+  const base = UI.mes || hoyISO().slice(0,7), [yy, mm] = base.split('-').map(Number), primero = new Date(yy, mm-1, 1), dias = new Date(yy, mm, 0).getDate();
+  const off = (primero.getDay()+6)%7, cuenta = {}; ag.forEach(v=>{ cuenta[v['Fecha']] = (cuenta[v['Fecha']]||0) + 1; });
+  const celdas = Array.from({length:off}, ()=>'<span></span>').concat(Array.from({length:dias}, (_,i)=>{ const iso = `${base}-${String(i+1).padStart(2,'0')}`;
+    return `<button class="dia ${iso===hoyISO()?'hoy':''} ${cuenta[iso]?'con':''}" onclick="document.getElementById('v_fecha').value='${iso}';document.getElementById('v_fecha').scrollIntoView({block:'center'})">${i+1}${cuenta[iso]?`<i>${cuenta[iso]}</i>`:''}</button>`; }));
+  const mesTxt = primero.toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+  const mover = n => { const d2 = new Date(yy, mm-1+n, 1); return d2.getFullYear() + '-' + String(d2.getMonth()+1).padStart(2,'0'); };
+  const prox = ag.filter(v=>v['Fecha'] >= hoyISO()), porDia = {}; prox.forEach(v=>(porDia[v['Fecha']] = porDia[v['Fecha']] || []).push(v));
+  const clis = clientesDe(d);
+  return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><button class="mini" onclick="UI.mes='${mover(-1)}';guardarUI();pintar()">‹</button>
+      <b style="text-transform:capitalize;font-weight:500">${mesTxt}</b><button class="mini" onclick="UI.mes='${mover(1)}';guardarUI();pintar()">›</button></div>
+      <div class="cal">${['L','M','M','J','V','S','D'].map(x=>`<span class="cab">${x}</span>`).join('')}${celdas.join('')}</div></div>
+    <h2>Próximas visitas</h2>
+    ${Object.keys(porDia).length ? Object.entries(porDia).map(([f, l])=>`<div class="eb" style="margin-top:12px;text-transform:capitalize">${fechaLarga(f)}</div>${l.map(v=>`<div class="card vis">
+      <b>${esc(v['Hora']||'')}</b><div><div style="font-weight:600">${esc(v['Cliente'])}</div><div class="sub" style="font-size:13px">${esc([v['Lugar'], v['Nota']].filter(Boolean).join(' · '))}</div>
+      <div class="sub" style="font-size:12px">Cargó: ${esc(v['Cargado por']||'')}</div></div><button class="mini" onclick="cancelarVisita('${esc(v['ID'])}','${quien}')" aria-label="Cancelar">✕</button></div>`).join('')}`).join('') : '<p class="sub">No hay visitas agendadas.</p>'}
+    <h2>Agendar visita</h2>
+    <div class="card">
+      <div class="fld"><label for="v_cli">Cliente</label><input id="v_cli" list="v_lista" placeholder="Nombre del cliente"><datalist id="v_lista">${clis.map(c=>`<option value="${esc(c.nombre)}">`).join('')}</datalist></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="fld"><label for="v_fecha">Fecha</label><input id="v_fecha" type="date" value="${hoyISO()}"></div>
+      <div class="fld"><label for="v_hora">Hora</label><input id="v_hora" type="time" value="10:00"></div></div>
+      <div class="fld"><label for="v_lugar">Lugar</label><input id="v_lugar" placeholder="Dirección o videollamada"></div>
+      <div class="fld"><label for="v_nota">Nota</label><input id="v_nota" placeholder="Qué se va a hacer: cata, entrega, presupuesto…"></div>
+      <button class="btn" onclick="agendar('${quien}')">Agendar</button></div>`;
+}
+function agendar(quien){
+  const v = id => (document.getElementById(id)||{}).value || '', nom = v('v_cli').trim(); if(!nom || !v('v_fecha')){ aviso('Completá cliente y fecha'); return; }
+  const d = REM[quien], cli = clientesDe(d).find(c=>nz(c.nombre)===nz(nom)), id = 'ag-' + uid();
+  const o = {'Cliente':nom, 'Clave cliente':cli ? cli.k : '', 'Fecha':v('v_fecha'), 'Hora':v('v_hora'), 'Lugar':v('v_lugar'), 'Nota':v('v_nota'), 'Estado':'Pendiente',
+    'Cargado por': quien==='admin' ? 'Emotional Reminder' : CONFIG.VENDEDORA, 'Creado':new Date().toLocaleString('es-PY')};
+  enviarFilas('Agenda', [fila(id, o)], quien==='admin');
+  if(d){ d.agenda = (d.agenda||[]).concat([Object.assign({ID:id}, o)]); }
+  aviso('Visita agendada'); pintar();
+}
+function cancelarVisita(id, quien){
+  if(!confirm('¿Cancelar esta visita?')) return; const d = REM[quien];
+  enviarFilas('Agenda', [fila(id, {'Estado':'Cancelada'})], quien==='admin');
+  if(d) d.agenda = (d.agenda||[]).map(v=>v['ID']===id ? Object.assign({}, v, {Estado:'Cancelada'}) : v); pintar();
+}
+
+/* ---------- panel de Achu ---------- */
+function tabsArriba(){
+  const en = P.paso.startsWith('achu') ? 'achu' : P.paso.startsWith('admin') ? 'admin' : 'cata';
+  return `<div class="chips" style="margin:0 0 14px"><button aria-pressed="${en==='cata'}" onclick="ir(P.ultimo||'cliente')">Cata</button>
+    <button aria-pressed="${en==='achu'}" onclick="if(!P.paso.startsWith('a')) P.ultimo=P.paso; ir('achu')">${esc(CONFIG.VENDEDORA)}</button>
+    <button aria-pressed="${en==='admin'}" onclick="if(!P.paso.startsWith('a')) P.ultimo=P.paso; ir('admin')">Emotional Reminder</button></div>`;
+}
+function vAchu(){
+  if(!REM.achu && !REM.cargando) cargar('achu');
+  const d = REM.achu; fijo(UI.tab==='clientes' ? `<button class="btn dark" onclick="ir('achu_nuevo')">+ Cargar cliente</button>` : '');
+  const clis = clientesDe(d).sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha)));
+  return `<div class="eb">Panel de ${esc(CONFIG.VENDEDORA)}</div><h1>${UI.tab==='clientes' ? 'Clientes' : 'Agenda'}</h1>
+    <div class="chips" style="margin:6px 0 12px"><button aria-pressed="${UI.tab==='clientes'}" onclick="UI.tab='clientes';guardarUI();pintar()">Clientes</button><button aria-pressed="${UI.tab==='agenda'}" onclick="UI.tab='agenda';guardarUI();pintar()">Agenda</button>
+      <button onclick="cargar('achu')" aria-label="Actualizar">↻</button></div>
+    ${REM.error ? `<div class="aviso">${esc(REM.error)}</div>` : ''}${REM.cargando && !d ? '<p class="sub">Cargando…</p>' : ''}
+    ${UI.tab==='agenda' ? vAgenda(d, 'achu') : clis.map(c=>{ const pr = presDe(d, c).length;
+      return `<button class="card" style="display:block;width:100%;text-align:left;margin-top:10px" onclick="UI.cli='${esc(c.k)}';guardarUI();ir('achu_cli')">
+        <div class="eb">${esc([c.tipo, c.ciudad].filter(Boolean).join(' · '))}</div><div style="font-size:21px;font-weight:300;margin-top:3px">${esc(c.nombre)}</div>
+        <div class="sub" style="font-size:13px">${esc(c.estado)}${pr ? ' · 📄 presupuesto listo' : ''}</div></button>`; }).join('')}`;
+}
+function vAchuNuevo(){
+  fijo(`<button class="btn ghost" onclick="ir('achu')">Volver</button><button class="btn" onclick="guardarCliente()">Guardar cliente</button>`);
+  return `<div class="eb">Panel de ${esc(CONFIG.VENDEDORA)}</div><h1>Cargar cliente</h1>
+    <div class="fld"><label for="n_nom">Nombre y apellido</label><input id="n_nom"></div>
+    <div class="fld"><label for="n_wa">WhatsApp</label><input id="n_wa" type="tel" placeholder="+595 9xx xxx xxx"></div>
+    <div class="fld"><label for="n_ciudad">Ciudad</label><input id="n_ciudad" value="Asunción"></div>
+    <div class="fld"><label for="n_tipo">Qué busca</label><select id="n_tipo">${TIPOS.map(t=>`<option value="${t[0]}">${t[2]}</option>`).join('')}</select></div>
+    <div class="fld"><label for="n_busca">Nota</label><textarea id="n_busca" rows="3" placeholder="Qué le interesa, qué usa hoy, cómo la conociste…"></textarea></div>`;
+}
+function guardarCliente(){
+  const v = id => (document.getElementById(id)||{}).value || ''; if(!v('n_nom').trim()){ aviso('Falta el nombre'); return; }
+  const id = uid(), cod = codigo(), o = {'Código':cod, 'Fecha':new Date().toLocaleString('es-PY'), 'Última actualización':new Date().toLocaleString('es-PY'), 'Estado':'Cargado (sin cata)',
+    'Vendedora':CONFIG.VENDEDORA, 'Cliente':v('n_nom').trim(), 'WhatsApp':v('n_wa').trim(), 'Ciudad':v('n_ciudad').trim(), 'Tipo':(TIPOS.find(t=>t[0]===v('n_tipo'))||[])[2]||'', 'Qué busca':v('n_busca').trim()};
+  enviarFilas('Clientes', [fila(id, o)]);
+  if(REM.achu) REM.achu.clientes = (REM.achu.clientes||[]).concat([Object.assign({ID:id}, o)]);
+  UI.cli = cod; guardarUI(); aviso('Cliente cargado'); ir('achu_cli');
+}
+function bloqueGustos(c){
+  return `${c.emociones ? `<h2>Lo que más le hizo sentir</h2><div class="card" style="font-weight:300;font-size:20px;text-align:center">${esc(c.emociones.split(', ').join(' · '))}</div>` : ''}
+    ${c.notas ? `<h2>Notas que le encantaron</h2><p>${esc(c.notas)}</p>` : ''}${c.perfumes ? `<h2>Perfumes que le encantaron</h2><p>${esc(c.perfumes)}</p>` : ''}
+    ${c.familias ? `<h2>Familias olfativas</h2><p>${esc(c.familias)}</p>` : ''}`;
+}
+function vAchuCli(){
+  const d = REM.achu, c = clientesDe(d).find(x=>x.k===UI.cli); if(!c){ ir('achu'); return ''; }
+  fijo(`<button class="btn ghost" onclick="ir('achu')">Volver</button><button class="btn" onclick="cataDe('${esc(c.k)}','achu')">${c.pre ? 'Cata sugerida' : 'Empezar cata'}</button>`);
+  const pres = presDe(d, c), vis = visitasDe(d, c).filter(v=>v['Estado']!=='Cancelada');
+  return `<div class="eb">${esc([c.tipo, c.ciudad].filter(Boolean).join(' · '))}</div><h1>${esc(c.nombre)}</h1>
+    <div class="card"><dl class="tec">${[['WhatsApp',c.wa],['Espacio',c.m2 && c.m2+' m²'],['Hoy usa',c.usa],['Nota',c.busca],['Estado',c.estado]].filter(x=>x[1]).map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('')}</dl></div>
+    ${bloqueGustos(c)}
+    <h2>Presupuesto</h2>${pres.length ? pres.map(p=>`<div class="card"><div class="eb">${esc(p['Fecha'])}</div><div style="white-space:pre-line;margin-top:6px">${esc(p['Resumen'])}</div>
+      ${p['Total'] ? `<div style="margin-top:10px;font-weight:600">Total: ${esc(p['Total'])}</div>` : `<p class="sub" style="font-size:13px;margin-top:8px">El precio te lo pasa Emotional Reminder.</p>`}</div>`).join('') : '<p class="sub">Todavía no hay presupuesto. Emotional Reminder lo prepara con la cata.</p>'}
+    <h2>Visitas</h2>${vis.length ? vis.map(v=>`<div class="card vis"><b>${esc(v['Hora']||'')}</b><div style="text-transform:capitalize">${fechaLarga(v['Fecha'])}<div class="sub" style="font-size:13px;text-transform:none">${esc([v['Lugar'],v['Nota']].filter(Boolean).join(' · '))}</div></div></div>`).join('') : '<p class="sub">Sin visitas.</p>'}
+    <button class="btn ghost" style="margin-top:14px" onclick="UI.tab='agenda';guardarUI();ir('achu');setTimeout(()=>{const i=document.getElementById('v_cli');if(i){i.value=${JSON.stringify(c.nombre).replace(/"/g,'&quot;')};i.scrollIntoView({block:'center'});}},50)">Agendar visita</button>`;
+}
+function cataDe(k, quien){
+  const d = REM[quien], c = clientesDe(d).find(x=>x.k===k); if(!c) return;
+  if(c.pre){ cataSugerida(c.pre); return; }
+  if(P.nom.trim() && P.est && P.est !== 'Terminó' && !confirm('Hay una cata en curso. ¿Empezar la de ' + c.nombre + '?')) return;
+  P = nuevo(); P.nom = c.nombre; P.wa = c.wa; P.ciudad = c.ciudad; P.busca = c.busca; P.tipo = (TIPOS.find(t=>t[2]===c.tipo)||[])[0] || ''; if(c.fila && c.fila['Código']) P.cod = c.fila['Código'];
+  guardar(); ir('cliente');
+}
+
+/* ---------- panel Emotional Reminder (administración) ---------- */
+function vAdmin(){
+  if(!claveAdmin()){ fijo('');
+    return `<div class="eb">Administración</div><h1>Emotional Reminder</h1><p class="sub">Panel del perfumista: costos, presupuestos, clientes y agenda.</p>
+      <div class="fld"><label for="adm_k">Clave</label><input id="adm_k" type="password" autocomplete="off" onkeydown="if(event.key==='Enter') entrarAdmin()"></div>
+      ${REM.error ? `<div class="aviso">${esc(REM.error)}</div>` : ''}<button class="btn" onclick="entrarAdmin()">Entrar</button>`; }
+  if(!REM.admin && !REM.cargando) cargar('admin');
+  const d = REM.admin; fijo('');
+  const tabs = [['agenda','Agenda'],['clientes','Clientes'],['precios','Precios del día']];
+  return `<div class="eb">Administración</div><h1>Emotional Reminder</h1>
+    <div class="chips" style="margin:6px 0 12px">${tabs.map(([k,t])=>`<button aria-pressed="${UI.atab===k}" onclick="UI.atab='${k}';guardarUI();pintar()">${t}</button>`).join('')}
+      <button onclick="cargar('admin')" aria-label="Actualizar">↻</button><button onclick="salirAdmin()">Salir</button></div>
+    ${REM.error ? `<div class="aviso">${esc(REM.error)}</div>` : ''}${!d ? '<p class="sub">Cargando…</p>' : UI.atab==='agenda' ? vAgenda(d, 'admin') : UI.atab==='precios' ? vPrecios(d) :
+      clientesDe(d).sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha))).map(c=>{ const pr = presDe(d, c);
+        return `<button class="card" style="display:block;width:100%;text-align:left;margin-top:10px" onclick="UI.cli='${esc(c.k)}';guardarUI();ir('admin_cli')">
+          <div class="eb">${esc([c.tipo, c.ciudad, c.fecha].filter(Boolean).join(' · '))}</div><div style="font-size:21px;font-weight:300;margin-top:3px">${esc(c.nombre)}</div>
+          <div class="sub" style="font-size:13px">${esc(c.estado)}${pr.length ? ' · presupuesto ' + esc(pr[pr.length-1]['Estado']).toLowerCase() : ''}</div></button>`; }).join('')}`;
+}
+function entrarAdmin(){ const k = (document.getElementById('adm_k')||{}).value || ''; if(!k) return; try{ sessionStorage.setItem('er_py_admin', k); }catch(e){} REM.admin = null; REM.error = ''; cargar('admin'); pintar(); }
+function salirAdmin(){ try{ sessionStorage.removeItem('er_py_admin'); }catch(e){} REM.admin = null; ir('cliente'); }
+function vPrecios(d){
+  const c = d.costos || {}, p = d.precios || {}, dol = p.dolar_venta || 0;
+  return `<div class="card"><dl class="tec"><dt>Dólar BNA venta</dt><dd>${dol ? '$ ' + dol : '—'} <span class="sub">${esc(p._fecha_dolar_venta ? new Date(p._fecha_dolar_venta).toLocaleString('es-AR') : '')}</span></dd>
+    <dt>Guaraníes</dt><dd>${p.guaranies_por_dolar ? Math.round(p.guaranies_por_dolar) + ' por dólar' : '—'}</dd>
+    ${['windsor','edimburgo','cardiff','balmoral'].map(m=>`<dt style="text-transform:capitalize">${m}</dt><dd>${p['maquina_'+m] ? '$ ' + Math.round(p['maquina_'+m]).toLocaleString('es-AR') + ' sin imp. = ' + fmtU(p['maquina_'+m]/dol) + ' · ' + p['maquina_'+m+'_m3'] + ' m³' : '—'}</dd>`).join('')}
+    <dt>Factor</dt><dd>×${c.factor}</dd><dt>Comisión JM</dt><dd>${Math.round((c.comision_jm||0)*100)} %</dd><dt>Envío a PY</dt><dd>${fmtU(c.envio_py||0)}</dd>
+    <dt>Máquina</dt><dd>${Math.round(c.maquina.aroma*100)} % aroma · ${Math.round(c.maquina.mmb*100)} % MMB · resto alcohol</dd><dt>Difusor</dt><dd>${Math.round(c.difusor.aroma*100)} % aroma · ${Math.round(c.difusor.mmb*100)} % MMB · resto alcohol</dd>
+    <dt>Jabón</dt><dd>${Math.round(c.jabon.base*100)} % base · ${Math.round(c.jabon.aroma*100)} % aroma · resto agua</dd></dl>
+    <p class="sub" style="font-size:12px;margin-top:8px">Los costos se cambian en el script de la planilla (objeto COSTOS). El dólar y las máquinas se actualizan solos cada 6 horas.</p></div>`;
+}
+function vAdminCli(){
+  const d = REM.admin; if(!d){ ir('admin'); return ''; } const c = clientesDe(d).find(x=>x.k===UI.cli); if(!c){ ir('admin'); return ''; }
+  const pres = presDe(d, c), ult = pres[pres.length-1];
+  fijo(`<button class="btn ghost" onclick="ir('admin')">Volver</button><button class="btn" onclick="abrirPresupuesto('${esc(c.k)}')">${ult ? 'Editar presupuesto' : 'Armar presupuesto'}</button>`);
+  const f = c.fila || {};
+  return `<div class="eb">${esc([c.tipo, c.ciudad, c.fecha].filter(Boolean).join(' · '))}</div><h1>${esc(c.nombre)}</h1>
+    <div class="card"><dl class="tec">${[['WhatsApp',c.wa],['Espacio',c.m2 && c.m2+' m²'],['Ambientes',f['Cantidad de ambientes']],['Hoy usa',c.usa],['Busca',c.busca],['Factura',f['Tipo de factura']],['RUC',f['RUC']],['Dir. fiscal',f['Dirección fiscal']],['Obs. de Achu',c.obs],['Estado',c.estado]].filter(x=>x[1]).map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('')}</dl></div>
+    ${bloqueGustos(c)}
+    ${ult ? `<h2>Presupuesto (${esc(ult['Estado'])})</h2><div class="card"><div style="white-space:pre-line">${esc(ult['Resumen'])}</div><div style="margin-top:8px;font-weight:600">${esc(ult['Total para el cliente']||'')}</div>
+      <div class="sub" style="font-size:13px">Costo ${esc(ult['Costo US$']||'')} · Tu ganancia ${esc(ult['Ganancia ER US$']||'')} · Achu ${esc(ult['Achu US$']||'')}</div></div>` : ''}`;
+}
+
+/* ---------- armador de presupuestos ---------- */
+const TIPOS_LINEA = [['maq','Máquina'],['rec','Recarga para máquina'],['dif','Difusor de varillas'],['jab','Jabón de manos'],['per','Perfume 100 ml'],['env','Envío a Paraguay'],['otro','Otro']];
+const PRESETS = {
+  susana: [{t:'maq', modelo:'windsor', cant:1, espacio:'Casa · 115 m²'}, {t:'maq', modelo:'edimburgo', cant:1, espacio:'Quincho · 60 m²'}, {t:'maq', modelo:'edimburgo', cant:1, espacio:'Oficina del esposo'},
+    {t:'rec', espacio:'Casa', esencia:'Acorde Marino M (Bruma de mar)', litros:10}, {t:'rec', espacio:'Quincho', esencia:'Rose Prick (Tom Ford)', litros:10}, {t:'rec', espacio:'Oficina del esposo', esencia:'Oud Wood (Tom Ford)', litros:10},
+    {t:'dif', espacio:'Habitación del hijo', esencia:'Erba Pura M4 (Xerjoff)', litros:5, varillas:1}, {t:'jab', esencia:'Acorde Marino M (Bruma de mar)', litros:5},
+    {t:'per', esencia:'Arabians Tonka (Montale)', cant:1, extra:'cofre de cedro'}, {t:'env', usd:300}]
+};
+function abrirPresupuesto(k){
+  const d = REM.admin, c = clientesDe(d).find(x=>x.k===k), ult = presDe(d, c).slice(-1)[0];
+  let datos = null; try{ datos = ult && JSON.parse(ult['Datos'] || 'null'); }catch(e){}
+  const pre = c.pre || (CLIENTES.find(x=>nz(x.nombre)===nz(c.nombre))||{}).id;
+  UI.pres = datos || {id:'pr-'+uid(), cli:k, nombre:c.nombre, factor:(d.costos||{}).factor||2.5, achuPct:0.10, achuModo:'sale', mostrarTotal:false, lineas:JSON.parse(JSON.stringify(PRESETS[pre] || [{t:'maq', modelo:'edimburgo', cant:1, espacio:''}, {t:'env', usd:(d.costos||{}).envio_py||300}]))};
+  ir('admin_pres');
+}
+function ctx(){ const d = REM.admin, c = d.costos, p = d.precios || {}, dol = p.dolar_venta || 1625;
+  return {c, dol, pyg:p.guaranies_por_dolar || 0, alc:c.alcohol_ars_l/dol, maq:m=>({ars:p['maquina_'+m]||0, m3:p['maquina_'+m+'_m3']||0}), ess:n=>{ const e = c.esencias.find(x=>x[0]===n); return e ? e[1] : 0; }}; }
+const NOM_MAQ = {windsor:'Windsor (grande)', edimburgo:'Edimburgo (mediana)', cardiff:'Cardiff (chica)', balmoral:'Balmoral (autos)'};
+function calcLinea(l, X, factor){
+  const u = l.usd != null && l.t!=='env' && l.t!=='otro' && l.usdManual ? Number(l.usd) : X.ess(l.esencia);
+  const liq = (f) => f.aroma*u + f.mmb*X.c.mmb_kg + (1-f.aroma-f.mmb)*X.alc;
+  if(l.t==='maq'){ const m = X.maq(l.modelo), v = (m.ars/X.dol)*(l.cant||1); return {costo:v, precio:v, jm:v*X.c.comision_jm, txt:`${l.cant||1} × Máquina ${NOM_MAQ[l.modelo]} · cubre ${m.m3} m³${l.espacio ? ' · ' + l.espacio : ''}`}; }
+  if(l.t==='rec'){ const k = liq(X.c.maquina)*l.litros; return {costo:k, precio:k*factor, jm:0, txt:`Recarga ${l.litros} L · ${l.esencia}${l.espacio ? ' · ' + l.espacio : ''} · dura ${Math.round(l.litros/2)} a ${l.litros} meses`}; }
+  if(l.t==='dif'){ const k = liq(X.c.difusor)*l.litros + (l.varillas||0)*X.c.varillas_pack_usd; return {costo:k, precio:k*factor, jm:0, txt:`Difusor ${l.litros} L · ${l.esencia}${l.varillas ? ' · ' + l.varillas*100 + ' varillas' : ''}${l.espacio ? ' · ' + l.espacio : ''}`}; }
+  if(l.t==='jab'){ const k = (X.c.jabon.base*X.c.jabon.base_usd_kg + X.c.jabon.aroma*u)*l.litros; return {costo:k, precio:k*factor, jm:0, txt:`Jabón de manos ${l.litros} L · ${l.esencia}`}; }
+  if(l.t==='per'){ const n = l.cant||1; return {costo:n*X.c.perfume100.costo_ars/X.dol, precio:n*X.c.perfume100.precio_ars/X.dol, jm:0, txt:`${n} × Perfume 100 ml · ${l.esencia}${l.extra ? ' · ' + l.extra : ''}`}; }
+  if(l.t==='env') return {costo:Number(l.usd)||0, precio:Number(l.usd)||0, jm:0, txt:'Envío a Paraguay'};
+  return {costo:Number(l.costo)||0, precio:Number(l.precio)||0, jm:0, txt:l.desc||'Otro'};
+}
+function totales(pr){
+  const X = ctx(), ls = pr.lineas.map(l=>Object.assign({l}, calcLinea(l, X, pr.factor)));
+  const costo = ls.reduce((a,x)=>a+x.costo,0), precio = ls.reduce((a,x)=>a+x.precio,0), jm = ls.reduce((a,x)=>a+x.jm,0);
+  const achu = precio*pr.achuPct, total = pr.achuModo==='suma' ? precio + achu : precio, gan = precio - costo + jm - (pr.achuModo==='suma' ? 0 : achu);
+  return {X, ls, costo, precio, jm, achu, total, gan, pyg:X.pyg ? total*X.pyg : 0};
+}
+function vPres(){
+  const pr = UI.pres; if(!pr || !REM.admin){ ir('admin'); return ''; }
+  const T = totales(pr), X = T.X, ess = X.c.esencias;
+  fijo(`<button class="btn ghost" onclick="guardarPres('Borrador')">Guardar</button><button class="btn" onclick="guardarPres('Publicado')">Publicar para ${esc(CONFIG.VENDEDORA)}</button>`);
+  const sel = (i, campo, ops, val) => `<select onchange="UI.pres.lineas[${i}].${campo}=this.value;pintarPres()">${ops.map(([v,t])=>`<option value="${esc(v)}" ${v===val?'selected':''}>${esc(t)}</option>`).join('')}</select>`;
+  const num = (i, campo, val, paso) => `<input type="number" step="${paso||1}" value="${val}" onchange="UI.pres.lineas[${i}].${campo}=Number(this.value);pintarPres()">`;
+  const txt = (i, campo, val, ph) => `<input value="${esc(val||'')}" placeholder="${ph||''}" onchange="UI.pres.lineas[${i}].${campo}=this.value;pintarPres()">`;
+  const essOps = ess.map(e=>[e[0], `${e[0]} · US$ ${e[1]}/kg`]);
+  const linea = (x, i) => { const l = x.l; let campos = '';
+    if(l.t==='maq') campos = `${sel(i,'modelo',Object.entries(NOM_MAQ),l.modelo)}<label>Cant.${num(i,'cant',l.cant||1)}</label>${txt(i,'espacio',l.espacio,'Espacio')}`;
+    if(['rec','dif','jab'].includes(l.t)) campos = `${sel(i,'esencia',essOps,l.esencia)}<label>Litros${num(i,'litros',l.litros||10)}</label>${l.t==='dif' ? `<label>Paq. varillas${num(i,'varillas',l.varillas||0)}</label>` : ''}${l.t!=='jab' ? txt(i,'espacio',l.espacio,'Espacio') : ''}`;
+    if(l.t==='per') campos = `${sel(i,'esencia',essOps,l.esencia)}<label>Cant.${num(i,'cant',l.cant||1)}</label>${txt(i,'extra',l.extra,'Cofre de cedro / bolsa')}`;
+    if(l.t==='env') campos = `<label>US$${num(i,'usd',l.usd||0)}</label>`;
+    if(l.t==='otro') campos = `${txt(i,'desc',l.desc,'Descripción')}<label>Costo US$${num(i,'costo',l.costo||0,0.01)}</label><label>Precio US$${num(i,'precio',l.precio||0,0.01)}</label>`;
+    return `<div class="card linea"><div class="lt"><b>${esc((TIPOS_LINEA.find(t=>t[0]===l.t)||[])[1])}</b><button class="mini" onclick="UI.pres.lineas.splice(${i},1);pintarPres()" aria-label="Quitar">✕</button></div>
+      <div class="campos">${campos}</div><div class="lr"><span>Costo ${fmtU(x.costo)}</span><span>Precio <b>${fmtU(x.precio)}</b></span>${x.jm ? `<span>Comisión JM ${fmtU(x.jm)}</span>` : ''}</div></div>`; };
+  return `<div class="eb">Presupuesto</div><h1>${esc(pr.nombre)}</h1>
+    <div class="card"><dl class="tec"><dt>Dólar</dt><dd>BNA venta $ ${X.dol}</dd><dt>Factor</dt><dd><input type="number" step="0.1" value="${pr.factor}" style="width:80px" onchange="UI.pres.factor=Number(this.value);pintarPres()"></dd>
+      <dt>${esc(CONFIG.VENDEDORA)}</dt><dd><input type="number" step="1" value="${Math.round(pr.achuPct*100)}" style="width:70px" onchange="UI.pres.achuPct=Number(this.value)/100;pintarPres()"> %
+        <select onchange="UI.pres.achuModo=this.value;pintarPres()"><option value="sale" ${pr.achuModo==='sale'?'selected':''}>sale de mi ganancia</option><option value="suma" ${pr.achuModo==='suma'?'selected':''}>se suma al precio</option></select></dd>
+      <dt>Achu ve</dt><dd><label style="font-size:14px"><input type="checkbox" ${pr.mostrarTotal?'checked':''} onchange="UI.pres.mostrarTotal=this.checked"> el total final (nunca los costos)</label></dd></dl></div>
+    <div id="lineas">${T.ls.map(linea).join('')}</div>
+    <div class="fld"><select id="nueva" onchange="if(this.value){agregarLinea(this.value);this.value=''}"><option value="">+ Agregar producto…</option>${TIPOS_LINEA.map(([k,t])=>`<option value="${k}">${t}</option>`).join('')}</select></div>
+    <div class="card tot"><div><span>Costo total</span><b>${fmtU(T.costo)}</b></div><div><span>Precio de los productos</span><b>${fmtU(T.precio)}</b></div>
+      <div><span>Comisión Jeane Mortenson (20 %)</span><b>${fmtU(T.jm)}</b></div><div><span>${esc(CONFIG.VENDEDORA)} (${Math.round(pr.achuPct*100)} %, ${pr.achuModo==='suma'?'se suma':'sale de tu parte'})</span><b>${fmtU(T.achu)}</b></div>
+      <div><span>Tu ganancia</span><b>${fmtU(T.gan)}</b></div>
+      <div class="gran"><span>Total para el cliente</span><b>${fmtU(T.total)}${T.pyg ? `<small>${fmtG(T.pyg)}</small>` : ''}</b></div></div>
+    <button class="btn ghost" style="margin-top:12px" onclick="bajarPresupuesto()">⬇ Descargar presupuesto para el cliente (PNG)</button>`;
+}
+function pintarPres(){ const y = window.scrollY; pintar(); window.scrollTo(0, y); }
+function agregarLinea(t){ const c = REM.admin.costos, e0 = c.esencias[0][0];
+  const base = {maq:{modelo:'edimburgo', cant:1, espacio:''}, rec:{esencia:e0, litros:10, espacio:''}, dif:{esencia:e0, litros:5, varillas:1, espacio:''}, jab:{esencia:e0, litros:5}, per:{esencia:e0, cant:1, extra:'cofre de cedro'}, env:{usd:c.envio_py}, otro:{desc:'', costo:0, precio:0}}[t];
+  UI.pres.lineas.push(Object.assign({t}, base)); pintarPres(); }
+function guardarPres(estado){
+  const pr = UI.pres, T = totales(pr), d = REM.admin, ahora = new Date().toLocaleString('es-PY');
+  const resumen = T.ls.map(x=>'• ' + x.txt).join('\n');
+  const o = {'Cliente':pr.nombre, 'Clave cliente':pr.cli, 'Fecha':ahora, 'Estado':estado, 'Mostrar total a Achu':pr.mostrarTotal ? 'Sí' : 'No',
+    'Total para el cliente':fmtU(T.total) + (T.pyg ? ' · ' + fmtG(T.pyg) : ''), 'Total US$':Math.round(T.total*100)/100, 'Costo US$':Math.round(T.costo*100)/100,
+    'Comisión JM US$':Math.round(T.jm*100)/100, 'Achu US$':Math.round(T.achu*100)/100, 'Ganancia ER US$':Math.round(T.gan*100)/100, 'Dólar':T.X.dol, 'Factor':pr.factor,
+    'Resumen':resumen, 'Datos':JSON.stringify(pr)};
+  enviarFilas('Presupuestos', [fila(pr.id, o)], true);
+  d.presupuestos = (d.presupuestos||[]).filter(p=>p['ID']!==pr.id).concat([Object.assign({ID:pr.id}, o)]);
+  aviso(estado==='Publicado' ? 'Publicado: ' + CONFIG.VENDEDORA + ' ya lo ve (sin costos)' : 'Guardado'); ir('admin_cli');
+}
+
+/* ---------- presupuesto para el cliente (PNG, solo desde administración) ---------- */
+function imgP(src){ return new Promise(r=>{ const i = new Image(); i.onload = ()=>r(i); i.onerror = ()=>r(null); i.src = src; }); }
+async function bajarPresupuesto(){
+  try{ await Promise.all(['200 40px Montserrat','300 40px Montserrat','400 40px Montserrat','600 40px Montserrat'].map(f=>document.fonts.load(f))); }catch(e){}
+  const pr = UI.pres, T = totales(pr), W = 1080, M = 70, GOLD = '#C9A45C', INK = '#F4EBDD', DIM = '#B9A98F';
+  const logo = await imgP(LOGOS.er_claro), fotos = {}; for(const k of Object.keys(MAQ_IMG)) fotos[k] = await imgP(MAQ_IMG[k]);
+  const cv = document.createElement('canvas'), c = cv.getContext('2d');
+  const pasada = dib => { let y = 0;
+    const t = (s, x, px, wt, col, al, maxW, lh, track) => { c.font = `${wt} ${px}px Montserrat`; c.fillStyle = col; c.textAlign = al||'left'; try{ c.letterSpacing = (track||0)+'px'; }catch(e){}
+      const pal = String(s).split(' '); let ln = ''; const out = []; pal.forEach(w=>{ const pr2 = ln ? ln+' '+w : w; if(maxW && c.measureText(pr2).width > maxW && ln){ out.push(ln); ln = w; } else ln = pr2; }); if(ln) out.push(ln);
+      out.forEach(l=>{ if(dib) c.fillText(l, x, y + px); y += lh || px*1.35; }); try{ c.letterSpacing = '0px'; }catch(e){} };
+    y = 70; if(dib && logo){ const h = 90, w = logo.width*h/logo.height; c.drawImage(logo, W/2 - w/2, y, w, h); } y += 120;
+    t('EMOTIONAL REMINDER · AROMA PARA TUS ESPACIOS', W/2, 20, 600, GOLD, 'center', 0, 34, 5);
+    t('Propuesta para ' + pr.nombre, W/2, 54, 200, INK, 'center', W-2*M, 66);
+    t(new Date().toLocaleDateString('es-AR', {day:'numeric', month:'long', year:'numeric'}), W/2, 22, 300, DIM, 'center', 0, 40);
+    y += 20;
+    T.ls.forEach(x=>{ const l = x.l, y0 = y; if(dib){ c.strokeStyle = 'rgba(201,164,92,.35)'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(M, y); c.lineTo(W-M, y); c.stroke(); } y += 24;
+      let tx = M;
+      if(l.t==='maq' && fotos[l.modelo]){ if(dib){ c.save(); c.beginPath(); c.roundRect ? c.roundRect(M, y, 170, 170, 16) : c.rect(M, y, 170, 170); c.clip(); c.drawImage(fotos[l.modelo], M, y, 170, 170); c.restore(); } tx = M + 200; }
+      const yt = y; const tit = {maq:'Máquina ' + NOM_MAQ[l.modelo], rec:'Recarga ' + l.litros + ' L', dif:'Difusor de varillas ' + l.litros + ' L', jab:'Jabón de manos ' + l.litros + ' L', per:'Perfume 100 ml', env:'Envío a Paraguay', otro:l.desc||'Otro'}[l.t];
+      t((l.cant && l.cant>1 ? l.cant + ' × ' : '') + tit, tx, 30, 400, INK, 'left', W - tx - M - 220, 40);
+      const det = l.t==='maq' ? `Cubre hasta ${T.X.maq(l.modelo).m3} m³${l.espacio ? ' · ' + l.espacio : ''}` : l.t==='rec' ? `${l.esencia}${l.espacio ? ' · ' + l.espacio : ''} · rinde ${Math.round(l.litros/2)} a ${l.litros} meses` :
+        l.t==='dif' ? `${l.esencia}${l.varillas ? ' · ' + l.varillas*100 + ' varillas' : ''}${l.espacio ? ' · ' + l.espacio : ''}` : l.t==='jab' ? l.esencia : l.t==='per' ? `${l.esencia}${l.extra ? ' · ' + l.extra : ''}` : '';
+      if(det) t(det, tx, 22, 300, DIM, 'left', W - tx - M - 220, 32);
+      if(dib){ c.font = '400 30px Montserrat'; c.fillStyle = GOLD; c.textAlign = 'right'; c.fillText(fmtU(x.precio), W-M, yt + 30); }
+      y = Math.max(y, l.t==='maq' ? yt + 170 : y) + 24; });
+    if(dib){ c.strokeStyle = GOLD; c.lineWidth = 2; c.beginPath(); c.moveTo(M, y); c.lineTo(W-M, y); c.stroke(); } y += 30;
+    if(pr.achuModo==='suma' && T.achu){ t('Gestión comercial', M, 24, 300, DIM, 'left', 0, 0); if(dib){ c.font = '400 24px Montserrat'; c.fillStyle = DIM; c.textAlign = 'right'; c.fillText(fmtU(T.achu), W-M, y + 24); } y += 44; }
+    t('TOTAL', M, 26, 600, GOLD, 'left', 0, 0, 5); if(dib){ c.font = '300 52px Montserrat'; c.fillStyle = INK; c.textAlign = 'right'; c.fillText(fmtU(T.total), W-M, y + 44); } y += 64;
+    if(T.pyg){ if(dib){ c.font = '300 28px Montserrat'; c.fillStyle = DIM; c.textAlign = 'right'; c.fillText(fmtG(T.pyg), W-M, y + 26); } y += 50; }
+    y += 30; t('Máquinas sin impuestos argentinos · Factura E de exportación · Precios en dólares al tipo de cambio del día · Validez 7 días.', W/2, 19, 300, DIM, 'center', W-2*M, 28);
+    y += 40; t('Agustín Melazo Díaz', W/2, 24, 400, INK, 'center', 0, 34); t('Licenciado en Biotecnología · Especialista en perfumería personalizada', W/2, 18, 300, DIM, 'center', 0, 30);
+    return y + 70; };
+  cv.width = W; cv.height = 4000; const H = pasada(false); cv.height = H;
+  c.fillStyle = '#0E0C0B'; c.fillRect(0, 0, W, H); c.strokeStyle = 'rgba(201,164,92,.5)'; c.lineWidth = 1.5; c.strokeRect(30, 30, W-60, H-60); pasada(true);
+  const blob = await new Promise(r=>cv.toBlob(r,'image/png')), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'presupuesto_' + (nz(pr.nombre)||'cliente').replace(/ /g,'_') + '.png'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+
 const FIRMA = `<div class="firma"><img src="${LOGOS.circular}" alt=""><b>Agustín Melazo Díaz</b>Licenciado en Biotecnología<br>Especialista en perfumería personalizada</div>`;
 function pintar(){
-  if(!['cliente','cata','indice','resumen','listo','fin_sug','clientes','ficha'].includes(P.paso)) P.paso = 'cliente';
-  if(!['cliente','clientes','ficha'].includes(P.paso) && !listoCliente()) P.paso = 'cliente';
+  if(['clientes','ficha'].includes(P.paso)) P.paso = 'achu';
+  if(!['cliente','cata','indice','resumen','listo','fin_sug','achu','achu_cli','achu_nuevo','admin','admin_cli','admin_pres'].includes(P.paso)) P.paso = 'cliente';
+  if(!['cliente'].includes(P.paso) && !P.paso.startsWith('a') && !listoCliente()) P.paso = 'cliente';
   barraTop();
-  const V = {cliente:vCliente, cata:vCata, indice:vIndice, resumen:vResumen, listo:vListo, fin_sug:vFinSug, clientes:vClientes, ficha:vFicha};
-  $('#app').innerHTML = (['cliente','clientes','ficha','listo'].includes(P.paso) ? pestanas() : '') + (['cliente','listo'].includes(P.paso) ? `<img class="logo-grande" src="${LOGOS.completo}" alt="Emotional Reminder">` : '') + V[P.paso]() + FIRMA;
+  const V = {cliente:vCliente, cata:vCata, indice:vIndice, resumen:vResumen, listo:vListo, fin_sug:vFinSug, achu:vAchu, achu_cli:vAchuCli, achu_nuevo:vAchuNuevo, admin:vAdmin, admin_cli:vAdminCli, admin_pres:vPres};
+  $('#app').innerHTML = (['cliente','listo'].includes(P.paso) || P.paso.startsWith('a') ? tabsArriba() : '') + (['cliente','listo'].includes(P.paso) ? `<img class="logo-grande" src="${LOGOS.completo}" alt="Emotional Reminder">` : '') + V[P.paso]() + FIRMA;
   if(P.paso==='listo'){ FICHA = null; setTimeout(prepararFicha, 0); }
 }
-aplicarPrecios(LS.get(CONFIG.LS+'_precios', null));
-pintar(); vaciar(); traerPrecios();
+pintar(); vaciar(); cargar('achu');
 </script>
 </body>
 </html>

@@ -104,6 +104,17 @@ dl.tec dt{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var
 .favs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .favs .card{padding:8px;text-align:center;font-size:13px;font-weight:600;}
 .favs img{width:100%;aspect-ratio:1;object-fit:contain;}
+.mini{border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--card);font-size:14px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}.cal .cab{text-align:center;font-size:11px;color:var(--dim);letter-spacing:1px}
+.dia{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:14px;position:relative}.dia.hoy{border-color:var(--acc);font-weight:700}
+.dia.con{background:var(--ink);color:#fff}.dia i{position:absolute;top:2px;right:4px;font-size:10px;font-style:normal;color:#F1C9A4}
+.vis{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;margin-top:8px;padding:12px}.vis>b{font-size:18px;font-weight:600}
+.linea{margin-top:10px;padding:12px}.linea .lt{display:flex;justify-content:space-between;align-items:center}
+.linea .campos{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.linea .campos select,.linea .campos input{padding:9px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-size:15px;max-width:100%}
+.linea .campos select{flex:1 1 100%}.linea .campos label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--dim)}.linea .campos label input{width:84px}
+.linea .lr{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:14px;color:var(--dim)}.linea .lr b{color:var(--ink)}
+.tot{margin-top:14px;display:flex;flex-direction:column;gap:6px}.tot div{display:flex;justify-content:space-between;gap:10px;font-size:15px}.tot div b{font-weight:600;text-align:right}
+.tot .gran{border-top:2px solid var(--ink);padding-top:10px;margin-top:4px;font-size:18px}.tot .gran small{display:block;font-weight:400;font-size:14px;color:var(--dim)}
 .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;z-index:50;max-width:calc(100% - 32px);text-align:center;}
 .aviso{margin-top:12px;padding:12px 14px;border-radius:12px;background:#FBEDE4;color:#7A3B1E;font-size:14px;}
 .ok{margin-top:12px;padding:12px 14px;border-radius:12px;background:#E5F1E9;color:#1F5136;font-size:14px;}
@@ -140,50 +151,6 @@ const CLIENTES = [
         ['p_20','Rosa especiada y terrosa: la más compatible'],['p_9','Pomelo y jengibre en la salida'],['p_22','Rosa oscura con azafrán y oud'],['p_4','Jengibre y bergamota sobre tabaco'],['p_21','Jengibre y bergamota, más fresco']]}
 ];
 const CLI = Object.fromEntries(CLIENTES.map(c=>[c.id,c]));
-const COSTOS = {
-  DOLAR: 1625, DOLAR_FECHA: '26/11/2026',
-  ENVIO_PY: 300,                 /* US$ por encomienda de máquinas a Paraguay */
-  ESENCIA_PCT: 0.30, DILUYENTE_L: 15, FACTOR: 2.5, ALTO_TECHO: 2.7,
-  MAQUINAS: [['Cardiff', 'chica', 100, 260330.58], ['Edimburgo', 'mediana', 200, 409090.91], ['Windsor', 'grande', 3000, 632231.40]],   /* nombre, tamaño, m³, ARS sin impuestos */
-  /* US$/kg de la esencia de cada nota (Acordes) y de cada perfume de tapa rosa */
-  NOTA: {bergamota:80, citrico:340, lima:450, grosellas:56, pera:30, cereza:33, bruma:110.4, grass:41.58, jazmin:71.28, peonia:42.77, nardo:120, violeta:25, rosas:25,
-    lavanda:41.58, higo:27, azahar:71.28, tabaco:41.58, sandalo:53.46, cedro:112.86, vetiver:190.08, oriental:65.34, cuero:59.4, ddl:20, vainilla:27, tonka:38, musk:40, ambar:53.46},
-  PERFUME: {1:120, 2:195, 3:120, 4:120, 5:398.08, 6:200, 7:398.08, 8:250, 9:246, 10:120, 11:308, 12:150, 13:240, 14:250, 15:120, 16:308, 17:180, 18:120, 19:150, 20:333, 21:250, 22:250, 23:200}
-};
-/* precios del día: los trae el script de la planilla (dólar BNA y máquinas Jeane Mortenson); si no hay señal, quedan los últimos guardados */
-function aplicarPrecios(p){
-  if(!p) return;
-  if(p.dolar_venta > 0){ COSTOS.DOLAR = p.dolar_venta; const f = new Date(p._fecha_dolar_venta);
-    COSTOS.DOLAR_FECHA = !isNaN(f) ? f.toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : (p._fecha_dolar_venta || COSTOS.DOLAR_FECHA); }
-  COSTOS.MAQUINAS.forEach(m=>{ const k = m[0].toLowerCase(); if(p['maquina_'+k] > 0) m[3] = p['maquina_'+k]; if(p['maquina_'+k+'_m3'] > 0) m[2] = p['maquina_'+k+'_m3']; });
-  COSTOS.PYG = p.guaranies_por_dolar || null;
-}
-async function traerPrecios(){
-  if(!CONFIG.SCRIPT_URL.startsWith('http')) return;
-  try{ const j = await (await fetch(CONFIG.SCRIPT_URL + '?accion=precios&t=' + Date.now())).json();
-    if(j && j.ok && j.precios){ LS.set(CONFIG.LS+'_precios', j.precios); aplicarPrecios(j.precios); } }catch(e){}
-}
-const usdKg = a => a.kit==='notas' ? COSTOS.NOTA[a.id] : COSTOS.PERFUME[a.num];
-const aromaLitro = u => COSTOS.FACTOR * (COSTOS.ESENCIA_PCT*u + (1-COSTOS.ESENCIA_PCT)*COSTOS.DILUYENTE_L);
-const usd = x => 'US$ ' + Math.round(x).toLocaleString('es-AR');
-function estimado(){
-  if(P.tipo!=='ambiente') return null;
-  /* cada salón se calcula aparte (ej. "115 + 60") y se elige la opción más económica que lo cubre */
-  const salones = String(P.m2).split(/[+\/;]| y /).map(x=>parseFloat(x.replace(',','.'))).filter(x=>x>0);
-  const m2 = salones.reduce((a,b)=>a+b,0), vol = m2 * COSTOS.ALTO_TECHO;
-  const porSalon = salones.map(s=>{ const v = s*COSTOS.ALTO_TECHO;
-    const ops = COSTOS.MAQUINAS.map(([n,t,cap,ars])=>{ const k = Math.max(1, Math.ceil(v/cap)); return {n, t, cap, k, tot: k*ars/COSTOS.DOLAR}; }).sort((a,b)=>a.tot-b.tot);
-    return {m2:s, vol:v, ops, mejor:ops[0]}; });
-  const ops = porSalon.length===1 ? porSalon[0].ops : [];
-  const maq = porSalon.length ? {k: porSalon.reduce((a,x)=>a+x.mejor.k,0), n: porSalon.map(x=>x.mejor.k+' '+x.mejor.n).join(' + '), tot: porSalon.reduce((a,x)=>a+x.mejor.tot,0)} : null;
-  const litros = maq && maq.k >= 2 ? 20 : 10;
-  const fav = lista().filter(a=>P.v[a.k]===3 && usdKg(a)).map(a=>({a, l:aromaLitro(usdKg(a))})).sort((x,y)=>x.l-y.l);
-  const min = fav.length ? fav[0] : null, max = fav.length ? fav[fav.length-1] : null;
-  const fijo = (maq ? maq.tot : 0) + COSTOS.ENVIO_PY;
-  return {m2, vol, ops, porSalon, maq, litros, fav, min, max, desde: min ? fijo + litros*min.l : null, hasta: max ? fijo + litros*max.l : null};
-}
-function textoEstimado(){ const e = estimado(); if(!e) return '';
-  return [e.maq ? `${e.maq.n} (${usd(e.maq.tot)})` : 'sin m²', `${e.litros} L de aroma`, e.min ? `desde ${usd(e.desde)} hasta ${usd(e.hasta)}` : 'sin favoritos'].join(' · '); }   /* logos de Emotional Reminder */
 const KIT = __KIT__;          /* las 27 notas: grupos y fichas técnicas */
 const PERFUMES = __PERFUMES__;  /* los 23 perfumes de tapa rosa */
 const FRA = __FRA__;
@@ -243,7 +210,7 @@ function filaCliente(){
     ['Metros cuadrados',P.m2],['Cantidad de ambientes',P.ambientes],['Tipo de evento',P.evento],['Cantidad de personas',P.personas],['Qué busca',P.busca.trim()],
     ['Perfumes que usa',P.perf.filter(x=>x&&x.trim()).join(' | ')],['Cata',P.sug ? 'Sugerida (' + (CLI[P.sug]||{}).nombre + ')' + (P.libre ? ' + libre' : '') : 'Libre'],['Muestrarios',[P.kits.notas&&'27 notas',P.kits.perfumes&&'Tapa rosa'].filter(Boolean).join(' + ')],
     ['Notas favoritas',favoritos('notas').map(a=>a.n).join(', ')],['Perfumes favoritos',favoritos('perfumes').map(a=>`N° ${a.num} ${a.n}`).join(', ')],
-    ['Emociones principales',emocionesTop().slice(0,3).join(', ')],['Familias olfativas',fams],['Observaciones de la vendedora',P.obs.trim()],['País',P.pais||''],['Moneda',P.moneda||''],['Tipo de factura',P.factura||''],['RUC',P.ruc||''],['Dirección fiscal',P.dirFiscal||''],['Estimado interno (US$)',textoEstimado()],['Dispositivo',P.dev]];
+    ['Emociones principales',emocionesTop().slice(0,3).join(', ')],['Familias olfativas',fams],['Observaciones de la vendedora',P.obs.trim()],['País',P.pais||''],['Moneda',P.moneda||''],['Tipo de factura',P.factura||''],['RUC',P.ruc||''],['Dirección fiscal',P.dirFiscal||''],['Dispositivo',P.dev]];
   cols.push(['Aromas olidos', lista().filter(a=>P.v[a.k]!=null).length], ['Me encanta', lista().filter(a=>P.v[a.k]===3).length], ['No me gusta', lista().filter(a=>P.v[a.k]===0).length]);
   /* el detalle de cada aroma va en la pestaña "Detalle por aroma" (una fila por aroma), que es la que sirve para analizar */
   return {id:P.id, columnas:cols};
@@ -281,7 +248,7 @@ document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) vaciar(
 function ir(p){ P.paso = p; guardar(); pintar(); window.scrollTo(0,0); vaciar(); }
 function atras(){
   if(P.paso==='cata' && P.i > 0){ P.i--; guardar(); pintar(); window.scrollTo(0,0); return; }
-  const m = {cata:'cliente', indice:'cata', resumen:'cata', listo:'resumen', fin_sug:'cata', ficha:'clientes'};
+  const m = {cata:'cliente', indice:'cata', resumen:'cata', listo:'resumen', fin_sug:'cata', achu_cli:'achu', achu_nuevo:'achu', admin_cli:'admin', admin_pres:'admin_cli'};
   if(m[P.paso]) ir(m[P.paso]);
 }
 function barraTop(){
@@ -476,18 +443,6 @@ async function dibujarFicha(){
     dato('Emociones', emo.join(' · ')); dato('Familias', fams.map(k=>FAMN[k]).join(' · '));
     dato('Olió', `${L.filter(a=>P.v[a.k]!=null).length} de ${L.length} aromas · ♥ ${L.filter(a=>P.v[a.k]===3).length} · ✦ ${L.filter(a=>P.v[a.k]===2).length} · ◦ ${L.filter(a=>P.v[a.k]===1).length}`);
     grupo('notas', 'Notas (27)'); grupo('perfumes', 'Perfumes tapa rosa');
-    const e = estimado();
-    if(e){ titulo('Estimado interno · ambiente (US$)');
-      if(e.vol){ e.porSalon.forEach((x,i)=>{ dato(e.porSalon.length > 1 ? 'Salón ' + (i+1) : 'Espacio', `${x.m2} m² × ${COSTOS.ALTO_TECHO} m ≈ ${Math.round(x.vol)} m³`);
-          dato('', x.ops.map(o=>`${o.k} ${o.n} (${o.t}, ${o.cap} m³) = ${usd(o.tot)}`).join(' · ')); });
-        dato('Máquinas', `Opción más económica: ${e.maq.n} = ${usd(e.maq.tot)}`); }
-      else dato('Máquinas', 'Faltan los m² para calcular');
-      dato('Envío a Paraguay', usd(COSTOS.ENVIO_PY));
-      dato('Aroma', `${e.litros} L (${e.maq && e.maq.k >= 2 ? 'dos máquinas o más' : 'una máquina'}) · 30 % esencia + diluyente · ×${COSTOS.FACTOR}`);
-      e.fav.forEach(x=>dato('', `${x.a.kit==='notas' ? x.a.n : 'N° ' + x.a.num + ' ' + x.a.n}: ${usd(x.l)}/L → ${e.litros} L = ${usd(x.l*e.litros)}`));
-      if(e.min) dato('Total estimado', `desde ${usd(e.desde)} (${e.min.a.kit==='notas'?e.min.a.n:'N° '+e.min.a.num}) hasta ${usd(e.hasta)} (${e.max.a.kit==='notas'?e.max.a.n:'N° '+e.max.a.num})`);
-      if(COSTOS.PYG && e.min) dato('En guaraníes', `desde ₲ ${Math.round(e.desde*COSTOS.PYG).toLocaleString('es-PY')} hasta ₲ ${Math.round(e.hasta*COSTOS.PYG).toLocaleString('es-PY')}`);
-      dato('Supuestos', `Dólar BNA venta ${COSTOS.DOLAR} (${COSTOS.DOLAR_FECHA}) · máquinas sin impuestos nacionales · revisar antes de cotizar`); }
     if(P.obs.trim()){ titulo('Observaciones de ' + CONFIG.VENDEDORA); txt(P.obs.trim(), M, 24, 400, '#2B2420', W - 2*M, 34); }
     y += 40; if(dibuja){ c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(M, y); c.lineTo(M + 120, y); c.stroke(); } y += 18;
     txt('Agustín Melazo Díaz', M, 24, 500, '#2B2420', W - 2*M, 32);
@@ -513,17 +468,18 @@ async function bajarFicha(){
 }
 function otro(){ if(!confirm('¿Empezar con un cliente nuevo? Este ya quedó guardado.')) return; vaciar(); P = nuevo(); guardar(); pintar(); window.scrollTo(0,0); }
 
+/*__PANEL__*/
 const FIRMA = `<div class="firma"><img src="${LOGOS.circular}" alt=""><b>Agustín Melazo Díaz</b>Licenciado en Biotecnología<br>Especialista en perfumería personalizada</div>`;
 function pintar(){
-  if(!['cliente','cata','indice','resumen','listo','fin_sug','clientes','ficha'].includes(P.paso)) P.paso = 'cliente';
-  if(!['cliente','clientes','ficha'].includes(P.paso) && !listoCliente()) P.paso = 'cliente';
+  if(['clientes','ficha'].includes(P.paso)) P.paso = 'achu';
+  if(!['cliente','cata','indice','resumen','listo','fin_sug','achu','achu_cli','achu_nuevo','admin','admin_cli','admin_pres'].includes(P.paso)) P.paso = 'cliente';
+  if(!['cliente'].includes(P.paso) && !P.paso.startsWith('a') && !listoCliente()) P.paso = 'cliente';
   barraTop();
-  const V = {cliente:vCliente, cata:vCata, indice:vIndice, resumen:vResumen, listo:vListo, fin_sug:vFinSug, clientes:vClientes, ficha:vFicha};
-  $('#app').innerHTML = (['cliente','clientes','ficha','listo'].includes(P.paso) ? pestanas() : '') + (['cliente','listo'].includes(P.paso) ? `<img class="logo-grande" src="${LOGOS.completo}" alt="Emotional Reminder">` : '') + V[P.paso]() + FIRMA;
+  const V = {cliente:vCliente, cata:vCata, indice:vIndice, resumen:vResumen, listo:vListo, fin_sug:vFinSug, achu:vAchu, achu_cli:vAchuCli, achu_nuevo:vAchuNuevo, admin:vAdmin, admin_cli:vAdminCli, admin_pres:vPres};
+  $('#app').innerHTML = (['cliente','listo'].includes(P.paso) || P.paso.startsWith('a') ? tabsArriba() : '') + (['cliente','listo'].includes(P.paso) ? `<img class="logo-grande" src="${LOGOS.completo}" alt="Emotional Reminder">` : '') + V[P.paso]() + FIRMA;
   if(P.paso==='listo'){ FICHA = null; setTimeout(prepararFicha, 0); }
 }
-aplicarPrecios(LS.get(CONFIG.LS+'_precios', null));
-pintar(); vaciar(); traerPrecios();
+pintar(); vaciar(); cargar('achu');
 </script>
 </body>
 </html>

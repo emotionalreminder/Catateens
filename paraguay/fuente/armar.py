@@ -12,7 +12,11 @@ LG = {}
 for k, f in [('completo','logo_completo'),('circular','logo_circular'),('er','logo_er'),('er_claro','logo_er_claro')]:
     LG[k] = 'data:image/png;base64,' + base64.b64encode(open(os.path.join(AQUI, 'logos', f + '.png'), 'rb').read()).decode()
 url = sys.argv[1] if len(sys.argv) > 1 else open(os.path.join(AQUI, 'script_url.txt')).read().strip() if os.path.exists(os.path.join(AQUI, 'script_url.txt')) else ''
-html = (open(os.path.join(AQUI, 'app.html')).read().replace('__IMGS__', json.dumps(IM)).replace('__LOGOS__', json.dumps(LG)).replace('__KIT__', json.dumps(kit, ensure_ascii=False))
+MQ = {}
+for k in ['windsor','edimburgo','cardiff','balmoral']:
+    MQ[k] = 'data:image/webp;base64,' + base64.b64encode(open(os.path.join(AQUI, 'maquinas', k + '.webp'), 'rb').read()).decode()
+panel = open(os.path.join(AQUI, 'panel.js')).read().replace('__MAQUINAS__', json.dumps(MQ))
+html = (open(os.path.join(AQUI, 'app.html')).read().replace('/*__PANEL__*/', panel).replace('__IMGS__', json.dumps(IM)).replace('__LOGOS__', json.dumps(LG)).replace('__KIT__', json.dumps(kit, ensure_ascii=False))
   .replace('__PERFUMES__', open(os.path.join(AQUI, 'perfumes.json')).read()).replace('__FRA__', open(os.path.join(R, 'caro-cuomo', 'fuente', 'fra_full.json')).read().strip())
   .replace('__SCRIPT_URL__', url))
 open(os.path.join(AQUI, '..', 'index.html'), 'w').write(html)

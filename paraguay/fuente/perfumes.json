@@ -1,0 +1,325 @@
+[
+{
+"num": 1,
+"n": "Scandal femenino",
+"marca": "Jean Paul Gaultier",
+"fam": "Chipre floral · Gourmand",
+"w": {
+"floral": 0.4,
+"gourmand": 0.4,
+"frutal": 0.2
+},
+"S": "naranja sanguina, mandarina",
+"C": "miel, gardenia, azahar, jazmín, durazno",
+"F": "cera de abejas, caramelo, pachulí, regaliz"
+},
+{
+"num": 2,
+"n": "Libre",
+"marca": "Yves Saint Laurent",
+"fam": "Floral · Aromático",
+"w": {
+"floral": 0.45,
+"aromatico": 0.35,
+"gourmand": 0.2
+},
+"S": "lavanda, mandarina, grosella negra, petitgrain",
+"C": "lavanda, azahar, jazmín",
+"F": "vainilla de Madagascar, almizcle, cedro, ámbar gris"
+},
+{
+"num": 3,
+"n": "212 Sexy femenino",
+"marca": "Carolina Herrera",
+"fam": "Oriental floral",
+"w": {
+"floral": 0.4,
+"gourmand": 0.35,
+"musky": 0.25
+},
+"S": "pimienta rosa, mandarina, bergamota",
+"C": "algodón de azúcar, gardenia, flores, geranio, rosa",
+"F": "vainilla, almizcle, sándalo, caramelo, violeta, pachulí"
+},
+{
+"num": 4,
+"n": "Tobacco Absolute",
+"marca": "Molton Brown",
+"fam": "Especiado · Tabaco",
+"w": {
+"especiado": 0.5,
+"amaderado": 0.3,
+"cuero": 0.2
+},
+"S": "jengibre, bergamota, vino blanco",
+"C": "tabaco, nuez moscada, cedro, iris, violeta",
+"F": "bálsamo de Perú, pachulí"
+},
+{
+"num": 5,
+"n": "Oud Wood",
+"marca": "Tom Ford",
+"fam": "Amaderado · Oud",
+"w": {
+"amaderado": 0.6,
+"oriental": 0.25,
+"especiado": 0.15
+},
+"S": "",
+"C": "",
+"F": "oud, palo de rosa, cardamomo, sándalo, pimienta de Sichuan, vainilla, vetiver, haba tonka, ámbar"
+},
+{
+"num": 6,
+"n": "Sauvage",
+"marca": "Dior",
+"fam": "Aromático · Fresco especiado",
+"w": {
+"aromatico": 0.4,
+"citrica": 0.25,
+"especiado": 0.2,
+"ambar": 0.15
+},
+"S": "bergamota de Calabria, pimienta",
+"C": "pimienta de Sichuan, lavanda, pimienta rosa, vetiver, pachulí, geranio, elemí",
+"F": "ambroxan, cedro, ládano"
+},
+{
+"num": 7,
+"n": "Alien",
+"marca": "Mugler",
+"fam": "Floral ambarado",
+"w": {
+"floral": 0.5,
+"ambar": 0.35,
+"amaderado": 0.15
+},
+"S": "jazmín sambac",
+"C": "cashmeran",
+"F": "ámbar"
+},
+{
+"num": 8,
+"n": "Invictus Intense",
+"marca": "Paco Rabanne",
+"fam": "Ámbar · Especiado",
+"w": {
+"ambar": 0.45,
+"especiado": 0.3,
+"floral": 0.25
+},
+"S": "azahar, pimienta negra",
+"C": "whisky, laurel",
+"F": "ámbar, ámbar gris, sal"
+},
+{
+"num": 9,
+"n": "Bleu de Chanel",
+"marca": "Chanel",
+"fam": "Amaderado aromático",
+"w": {
+"amaderado": 0.45,
+"citrica": 0.3,
+"aromatico": 0.25
+},
+"S": "pomelo, limón, menta, bergamota, pimienta rosa, aldehídos, cilantro",
+"C": "jengibre, jazmín, nuez moscada, melón",
+"F": "incienso, ámbar, cedro, sándalo, pachulí, ládano"
+},
+{
+"num": 10,
+"n": "Invictus",
+"marca": "Paco Rabanne",
+"fam": "Acuático · Amaderado",
+"w": {
+"ozonica": 0.4,
+"citrica": 0.3,
+"amaderado": 0.3
+},
+"S": "notas marinas, pomelo, mandarina",
+"C": "laurel, jazmín",
+"F": "ámbar gris, guayaco, musgo de roble, pachulí"
+},
+{
+"num": 11,
+"n": "Tobacco Vanille",
+"marca": "Tom Ford",
+"fam": "Gourmand · Tabaco",
+"w": {
+"gourmand": 0.5,
+"especiado": 0.3,
+"amaderado": 0.2
+},
+"S": "hoja de tabaco, notas especiadas",
+"C": "vainilla, cacao, haba tonka, flor de tabaco",
+"F": "frutos secos, notas amaderadas"
+},
+{
+"num": 12,
+"n": "Scandal Pour Homme",
+"marca": "Jean Paul Gaultier",
+"fam": "Aromático · Gourmand",
+"w": {
+"aromatico": 0.35,
+"gourmand": 0.45,
+"amaderado": 0.2
+},
+"S": "mandarina, salvia esclarea",
+"C": "caramelo, haba tonka",
+"F": "vetiver"
+},
+{
+"num": 13,
+"n": "Fame",
+"marca": "Paco Rabanne",
+"fam": "Floral frutal · Ámbar",
+"w": {
+"frutal": 0.35,
+"floral": 0.35,
+"ambar": 0.3
+},
+"S": "mango, bergamota",
+"C": "jazmín, olíbano",
+"F": "vainilla, sándalo"
+},
+{
+"num": 14,
+"n": "Santal 33",
+"marca": "Le Labo",
+"fam": "Amaderado",
+"w": {
+"amaderado": 0.7,
+"cuero": 0.2,
+"floral": 0.1
+},
+"S": "",
+"C": "",
+"F": "sándalo, cuero, papiro, cedro de Virginia, cardamomo, violeta, iris, ámbar"
+},
+{
+"num": 15,
+"n": "Erba Pura",
+"marca": "Xerjoff",
+"fam": "Frutal · Almizclado",
+"w": {
+"frutal": 0.4,
+"citrica": 0.3,
+"musky": 0.3
+},
+"S": "naranja de Sicilia, bergamota de Calabria, limón de Sicilia",
+"C": "frutas",
+"F": "almizcle blanco, vainilla de Madagascar, ámbar"
+},
+{
+"num": 16,
+"n": "Black Orchid",
+"marca": "Tom Ford",
+"fam": "Oriental floral",
+"w": {
+"floral": 0.35,
+"oriental": 0.35,
+"gourmand": 0.3
+},
+"S": "trufa, gardenia, grosella negra, ylang-ylang, jazmín, bergamota, mandarina, limón de Amalfi",
+"C": "orquídea, especias, gardenia, notas frutales, ylang-ylang, jazmín, loto",
+"F": "chocolate, pachulí, vainilla, incienso, ámbar, sándalo, vetiver, almizcle blanco"
+},
+{
+"num": 17,
+"n": "Tuscan Leather",
+"marca": "Tom Ford",
+"fam": "Cuero",
+"w": {
+"cuero": 0.6,
+"frutal": 0.2,
+"amaderado": 0.2
+},
+"S": "frambuesa, azafrán, tomillo",
+"C": "olíbano, jazmín",
+"F": "cuero, gamuza, notas amaderadas, ámbar"
+},
+{
+"num": 18,
+"n": "La Vie Est Belle",
+"marca": "Lancôme",
+"fam": "Gourmand · Floral",
+"w": {
+"gourmand": 0.5,
+"floral": 0.3,
+"frutal": 0.2
+},
+"S": "grosella negra, pera",
+"C": "iris, jazmín, azahar",
+"F": "praliné, vainilla, pachulí, haba tonka"
+},
+{
+"num": 19,
+"n": "Mandarino di Amalfi",
+"marca": "Tom Ford",
+"fam": "Cítrico aromático",
+"w": {
+"citrica": 0.6,
+"aromatico": 0.25,
+"green": 0.15
+},
+"S": "limón, pomelo, menta, albahaca, estragón, grosella negra",
+"C": "azahar, jazmín, salvia esclarea, shiso, cilantro, pimienta negra",
+"F": "almizcle, vetiver, ámbar, ládano"
+},
+{
+"num": 20,
+"n": "Rose Prick",
+"marca": "Tom Ford",
+"fam": "Floral · Especiado",
+"w": {
+"floral": 0.6,
+"especiado": 0.25,
+"amaderado": 0.15
+},
+"S": "pimienta de Sichuan, cúrcuma",
+"C": "rosa de mayo, rosa búlgara, rosa turca",
+"F": "pachulí, haba tonka"
+},
+{
+"num": 21,
+"n": "Y Eau de Parfum",
+"marca": "Yves Saint Laurent",
+"fam": "Aromático · Fougère",
+"w": {
+"aromatico": 0.45,
+"citrica": 0.25,
+"amaderado": 0.3
+},
+"S": "manzana, jengibre, bergamota",
+"C": "salvia, bayas de enebro, geranio",
+"F": "amberwood, haba tonka, cedro, vetiver, olíbano"
+},
+{
+"num": 22,
+"n": "Arabians Tonka",
+"marca": "Montale",
+"fam": "Oriental · Gourmand",
+"w": {
+"oriental": 0.4,
+"gourmand": 0.35,
+"floral": 0.25
+},
+"S": "azafrán, bergamota",
+"C": "oud, rosa búlgara",
+"F": "haba tonka, caña de azúcar, ámbar, almizcle blanco, musgo de roble"
+},
+{
+"num": 23,
+"n": "Lost Cherry",
+"marca": "Tom Ford",
+"fam": "Gourmand · Frutal",
+"w": {
+"gourmand": 0.45,
+"frutal": 0.4,
+"floral": 0.15
+},
+"S": "almendra amarga, cereza negra, licor de cereza",
+"C": "guinda, ciruela, rosa turca, jazmín sambac",
+"F": "vainilla, haba tonka, canela, bálsamo de Perú, sándalo, benjuí, clavo, cedro, pachulí, vetiver"
+}
+]

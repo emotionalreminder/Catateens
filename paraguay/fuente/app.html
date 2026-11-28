@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2B2420">
+<title>Cata sensorial · Emotional Reminder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{ --bg:#F6F1E7; --card:#FFFDF8; --ink:#2B2420; --dim:#7A6E62; --acc:#A4553A; --gold:#B08A4E; --green:#2F4A3A; --line:#E6DCCB; --soft:#EFE6D6; --rosa:#E7A5B8;
+  --sans:Montserrat, system-ui, -apple-system, sans-serif; --serif:Montserrat, system-ui, sans-serif; color-scheme:light; }
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.45;-webkit-text-size-adjust:100%;}
+body{padding:0 max(16px, env(safe-area-inset-left,0px)) 120px max(16px, env(safe-area-inset-right,0px));}
+button,input,select,textarea{font:inherit;color:inherit;}
+button{cursor:pointer;border:0;background:none;}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;}
+.top{position:sticky;top:0;z-index:10;background:var(--ink);color:#F6F1E7;display:flex;align-items:center;gap:10px;padding:10px max(16px, env(safe-area-inset-left,0px));margin:0 calc(-1 * max(16px, env(safe-area-inset-left,0px)));}
+.top .back{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.3);font-size:18px;color:#fff;flex:none;}
+.top .marca{flex:1;min-width:0;}
+.top .marca b{display:block;font-weight:500;letter-spacing:4px;font-size:12px;text-transform:uppercase;}
+.top .marca small{display:block;font-size:11px;letter-spacing:1px;color:#D9C9AE;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.top .prog{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#D9C9AE;white-space:nowrap;}
+.top .pend{font-size:11px;color:#F1C9A4;}
+main{max-width:560px;margin:0 auto;padding-top:18px;}
+.eb{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--acc);font-weight:600;}
+h1{font-family:var(--sans);font-weight:300;font-size:30px;line-height:1.15;letter-spacing:.5px;margin:6px 0 8px;}
+h2{font-weight:600;font-size:12px;letter-spacing:3px;text-transform:uppercase;margin:22px 0 10px;color:var(--green);}
+.sub{color:var(--dim);font-size:15px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;}
+.btn{display:block;width:100%;padding:16px;border-radius:14px;background:var(--acc);color:#fff;font-weight:600;letter-spacing:2px;text-transform:uppercase;font-size:14px;margin-top:12px;text-align:center;}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink);}
+.btn.dark{background:var(--ink);}
+.btn:disabled{opacity:.35;cursor:default;}
+.fijo{position:fixed;left:0;right:0;bottom:0;z-index:9;background:linear-gradient(transparent, var(--bg) 30%);padding:18px max(16px, env(safe-area-inset-left,0px)) calc(14px + env(safe-area-inset-bottom,0px));}
+.fijo .in{max-width:560px;margin:0 auto;display:flex;gap:10px;}
+.fijo .btn{margin-top:0;}
+.fijo .btn.ghost{flex:0 0 34%;}
+.fld{margin-top:14px;}
+.fld label{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:6px;}
+.fld small{font-weight:400;color:var(--dim);letter-spacing:0;text-transform:none;}
+.fld input,.fld textarea,.fld select{width:100%;padding:13px 15px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:17px;}
+.fld input:focus,.fld textarea:focus{border-color:var(--acc);outline:none;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chips button{padding:10px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-size:15px;}
+.chips button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink);}
+.tipos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.tipos button{border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:14px 6px;font-weight:600;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.tipos button b{font-size:24px;font-weight:400;}
+.tipos button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink);}
+.ac{position:relative;margin-top:8px;}
+.acl{display:none;position:absolute;left:0;right:0;top:100%;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:4px;box-shadow:0 8px 24px rgba(0,0,0,.08);overflow:hidden;}
+.acl button{display:block;width:100%;text-align:left;padding:12px 14px;border-bottom:1px solid var(--soft);font-size:15px;}
+.acl button span{color:var(--dim);font-size:13px;}
+/* ficha de cata */
+.foto{width:100%;aspect-ratio:4/3;object-fit:contain;display:block;margin:0 auto 4px;max-height:32vh;}
+.frasco{width:150px;height:190px;margin:6px auto 10px;position:relative;}
+.frasco .tapa{position:absolute;left:50%;top:0;width:54px;height:46px;margin-left:-27px;border-radius:10px 10px 4px 4px;background:var(--rosa);}
+.frasco .vidrio{position:absolute;left:50%;top:40px;width:110px;height:150px;margin-left:-55px;border-radius:22px;background:linear-gradient(180deg,#fff,#F3E8DA);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:54px;font-weight:300;color:var(--ink);}
+.apodo{font-style:italic;font-weight:300;font-size:18px;color:var(--acc);}
+.firma{text-align:center;margin:40px 0 10px;color:var(--dim);font-size:11px;letter-spacing:2px;text-transform:uppercase;line-height:1.7;}
+.firma img{height:70px;display:block;margin:0 auto 10px;opacity:.85;}
+.firma b{display:block;color:var(--ink);font-weight:500;letter-spacing:3px;}
+.top .logo{height:30px;width:auto;flex:none;}
+.logo-grande{display:block;height:92px;margin:4px auto 18px;}
+.fuerza{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--dim);}
+.fuerza .b{display:flex;gap:3px;}
+.fuerza i{width:13px;height:8px;border-radius:2px;background:var(--line);display:block;}
+.fuerza i.on{background:var(--green);}
+.desc{font-size:13px;letter-spacing:2.5px;text-transform:uppercase;color:var(--green);font-weight:600;margin-top:8px;}
+.pir{margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+.pir div{display:grid;grid-template-columns:82px 1fr;gap:8px;font-size:15px;}
+.pir b{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding-top:3px;}
+details.mas{margin-top:12px;border:1px solid var(--line);border-radius:14px;background:var(--card);}
+details.mas summary{list-style:none;cursor:pointer;padding:12px 14px;font-weight:600;font-size:14px;display:flex;justify-content:space-between;align-items:center;}
+details.mas summary::-webkit-details-marker{display:none;}
+details.mas summary::after{content:'＋';font-size:18px;color:var(--acc);}
+details.mas[open] summary::after{content:'－';}
+details.mas .in{padding:0 14px 14px;}
+dl.tec{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px;}
+dl.tec dt{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:600;padding-top:2px;}
+.votos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.votos button{border:1.5px solid var(--line);border-radius:14px;padding:12px 4px;background:var(--card);font-size:12.5px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:74px;justify-content:center;}
+.votos button b{font-size:20px;}
+.votos button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink);}
+.emos{display:flex;flex-wrap:wrap;gap:8px;}
+.emos button{padding:9px 13px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);font-size:14px;}
+.emos button[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green);}
+.cuenta{font-size:12px;color:var(--dim);text-align:right;margin-top:4px;}
+/* lista de aromas */
+.grilla{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.grilla button{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:8px 4px;font-size:12px;text-align:center;position:relative;}
+.grilla button img{width:100%;aspect-ratio:1;object-fit:contain;}
+.grilla button .n{display:block;font-weight:600;line-height:1.2;}
+.grilla button .v{position:absolute;top:6px;right:6px;font-size:13px;}
+.grilla button.hecho{border-color:var(--green);}
+.num{display:flex;align-items:center;justify-content:center;aspect-ratio:1;font-family:var(--sans);font-size:26px;font-weight:300;background:linear-gradient(180deg,#fff,#F3E8DA);border-radius:10px;border-top:8px solid var(--rosa);}
+.barras{display:flex;flex-direction:column;gap:8px;}
+.barra{display:grid;grid-template-columns:104px 1fr 34px;align-items:center;gap:10px;font-size:14px;}
+.barra .t{height:12px;border-radius:6px;background:var(--soft);overflow:hidden;}
+.barra .t i{display:block;height:100%;background:var(--green);border-radius:6px;}
+.barra span:last-child{text-align:right;color:var(--dim);font-size:13px;}
+.favs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.favs .card{padding:8px;text-align:center;font-size:13px;font-weight:600;}
+.favs img{width:100%;aspect-ratio:1;object-fit:contain;}
+.mini{border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--card);font-size:14px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}.cal .cab{text-align:center;font-size:11px;color:var(--dim);letter-spacing:1px}
+.dia{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:14px;position:relative}.dia.hoy{border-color:var(--acc);font-weight:700}
+.dia.con{background:var(--ink);color:#fff}.dia i{position:absolute;top:2px;right:4px;font-size:10px;font-style:normal;color:#F1C9A4}
+.vis{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;margin-top:8px;padding:12px}.vis>b{font-size:18px;font-weight:600}
+.linea{margin-top:10px;padding:12px}.linea .lt{display:flex;justify-content:space-between;align-items:center}
+.linea .campos{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.linea .campos select,.linea .campos input{padding:9px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);font-size:15px;max-width:100%}
+.linea .campos select{flex:1 1 100%}.linea .campos label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--dim)}.linea .campos label input{width:84px}
+.linea .lr{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:14px;color:var(--dim)}.linea .lr b{color:var(--ink)}
+.tot{margin-top:14px;display:flex;flex-direction:column;gap:6px}.tot div{display:flex;justify-content:space-between;gap:10px;font-size:15px}.tot div b{font-weight:600;text-align:right}
+.tot .gran{border-top:2px solid var(--ink);padding-top:10px;margin-top:4px;font-size:18px}.tot .gran small{display:block;font-weight:400;font-size:14px;color:var(--dim)}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;z-index:50;max-width:calc(100% - 32px);text-align:center;}
+.aviso{margin-top:12px;padding:12px 14px;border-radius:12px;background:#FBEDE4;color:#7A3B1E;font-size:14px;}
+.ok{margin-top:12px;padding:12px 14px;border-radius:12px;background:#E5F1E9;color:#1F5136;font-size:14px;}
+</style>
+</head>
+<body>
+<header class="top" id="top"></header>
+<main id="app"></main>
+<div class="fijo" id="fijo" hidden><div class="in" id="fijo-in"></div></div>
+<script>
+/* ======================= CONFIGURACIÓN ======================= */
+const CONFIG = {
+  VENDEDORA: 'Achu',
+  PAIS: 'Paraguay',
+  SCRIPT_URL: '__SCRIPT_URL__',     /* el link /exec del script de Paraguay */
+  CLAVE: 'ER-py-2026',
+  LS: 'er_py_cata'
+};
+const IMGS = __IMGS__;
+const LOGOS = __LOGOS__;
+/* ======================= ESTIMADO INTERNO (solo en la ficha y la planilla; el cliente no lo ve) =======================
+   Dólar billete venta Banco Nación del 26/11/2026. Máquinas Jeane Mortenson: precio sin impuestos nacionales (para Paraguay). */
+/* ======================= CLIENTES PRECARGADOS (los carga el perfumista) =======================
+   Cata sugerida: primero se huele lo sugerido, en este orden; después se puede seguir con la cata libre. */
+const CLIENTES = [
+  {id:'susana', nombre:'Susana', ciudad:'Asunción', pais:'Paraguay', tipo:'ambiente', fecha:'27/11/2026',
+   wa:'+595 985 319340', m2:'115 + 60', ambientes:'2', moneda:'Guaraníes y dólares', factura:'E · Factura de exportación',
+   busca:'Aromatizar dos salones: uno de 115 m² y otro de 60 m². Hoy usa Black Pearls de Baobab Collection.',
+   usa:'Black Pearls · Baobab Collection',
+   perfil:'Salida fresca de pomelo y jengibre, corazón de rosa negra y un fondo terroso y sofisticado. Buscamos una rosa especiada y profunda con salida cítrica.',
+   sug:[['n_citrico','Lo más cercano al pomelo: cítrico jugoso con cuerpo'],['n_lima','La faceta ácida y chispeante del pomelo'],['n_grosellas','La rosa negra suele ir con cassis: da el tono oscuro y frutal'],
+        ['n_rosas','El corazón del aroma'],['n_violeta','Oscurece la rosa, le da lo "negro"'],['n_tabaco','Abre con jengibre y tiene cuerpo especiado'],
+        ['n_vetiver','Lo terroso y sofisticado'],['n_cuero','Profundidad oscura'],
+        ['p_20','Rosa especiada y terrosa: la más compatible'],['p_9','Pomelo y jengibre en la salida'],['p_22','Rosa oscura con azafrán y oud'],['p_4','Jengibre y bergamota sobre tabaco'],['p_21','Jengibre y bergamota, más fresco']]}
+];
+const CLI = Object.fromEntries(CLIENTES.map(c=>[c.id,c]));
+const KIT = __KIT__;          /* las 27 notas: grupos y fichas técnicas */
+const PERFUMES = __PERFUMES__;  /* los 23 perfumes de tapa rosa */
+const FRA = __FRA__;
+
+const FAMN = {citrica:'Cítrica', frutal:'Frutal', ozonica:'Ozónica', green:'Verde', floral:'Floral', aromatico:'Aromática', especiado:'Especiada', amaderado:'Amaderada', oriental:'Oriental', cuero:'Cuero', gourmand:'Gourmand', musky:'Almizclada', ambar:'Ámbar'};
+const ETN = {cima:'Salida', corazon:'Corazón', fondo:'Fondo'};
+const VOTOS = [[3,'♥','Me encanta'],[2,'✦','Me gusta'],[1,'◦','Un poquito'],[0,'✕','No me gusta']];
+const EMOCIONES = ['Alegría','Calma','Energía','Nostalgia','Sensualidad','Elegancia','Infancia','Hogar','Viaje','Naturaleza','Limpieza','Misterio','Frescura','Romance','Poder','Lujo'];
+const TIPOS = [['ambiente','🏠','Ambiente'],['piel','✋','Perfume de piel'],['evento','🎉','Evento']];
+
+/* lista de aromas: primero las 27 notas (por grupo, de salida a fondo) y después los 23 perfumes */
+const NOTAS = []; KIT.B.forEach(g=>g.notas.forEach(n=>NOTAS.push({...n, k:'n_'+n.id, kit:'notas', et:g.et, fam:g.fam, grupo:g.tit, ficha:KIT.T[n.id]||{}, famKey:KIT.F[n.id]})));
+const PERFS = PERFUMES.map(p=>({...p, k:'p_'+p.num, kit:'perfumes'}));
+const TODOS = NOTAS.concat(PERFS); const POR = Object.fromEntries(TODOS.map(a=>[a.k,a]));
+const nombreA = a => a.kit==='notas' ? a.n : 'Perfume N° ' + a.num;
+
+/* ======================= utilidades ======================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nz = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+const LS = {get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function aviso(t){ const d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),2200); }
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now().toString(36)+Math.random().toString(36).slice(2,8));
+const dispositivo = () => { const u = navigator.userAgent||''; return /iPhone|iPad|iPod/i.test(u) || (/Macintosh/.test(u) && navigator.maxTouchPoints>1) ? 'iOS' : /Android/i.test(u) ? 'Android' : 'otro'; };
+const codigo = () => 'PY-' + Math.random().toString(36).slice(2,6).toUpperCase();
+
+function nuevo(){ return {id:uid(), cod:codigo(), creado:new Date().toLocaleString('es-PY'), nom:'', wa:'', ciudad:'', tipo:'', m2:'', ambientes:'', evento:'', personas:'', perf:['','',''], busca:'',
+  pais:'Paraguay', moneda:'Guaraníes y dólares', factura:'E · Factura de exportación', ruc:'', dirFiscal:'', kits:{notas:true, perfumes:true}, sug:'', libre:false, v:{}, emo:{}, rec:{}, obs:'', paso:'cliente', i:0, est:'', dev:dispositivo()}; }
+let P = Object.assign(nuevo(), LS.get(CONFIG.LS, {}));
+const guardar = () => LS.set(CONFIG.LS, P);
+const sugeridos = () => P.sug && CLI[P.sug] ? CLI[P.sug].sug.map(x=>POR[x[0]]).filter(Boolean) : [];
+const motivo = a => { const c = P.sug && CLI[P.sug]; const x = c && c.sug.find(y=>y[0]===a.k); return x ? x[1] : ''; };
+const lista = () => { const sg = sugeridos(); if(!sg.length) return TODOS.filter(a=>P.kits[a.kit]);
+  return P.libre ? sg.concat(TODOS.filter(a=>P.kits[a.kit] && !sg.includes(a))) : sg; };
+
+/* ======================= perfumes que usa (buscador) ======================= */
+const FRAX = FRA.map(([n,b])=>({n,b,k:nz(n+' '+b),kn:nz(n)}));
+function buscar(q){ q = nz(q); if(q.length<2) return []; const ws = q.split(' ');
+  return FRAX.filter(f=>ws.every(w=>f.k.includes(w))).sort((a,b)=>(b.kn.startsWith(q)-a.kn.startsWith(q)) || a.n.length-b.n.length).slice(0,6); }
+
+/* ======================= análisis para el perfumista ======================= */
+function perfil(){
+  const S = {}; Object.keys(FAMN).forEach(k=>S[k]=0);
+  lista().forEach(a=>{ const v = P.v[a.k]; if(v==null) return;
+    if(a.kit==='notas'){ if(a.famKey) S[a.famKey] += v; } else Object.entries(a.w).forEach(([k,w])=>S[k] += v*w); });
+  return S;
+}
+function emocionesTop(){ const c = {}; Object.values(P.emo).forEach(l=>l.forEach(e=>c[e]=(c[e]||0)+1)); return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(x=>x[0]); }
+const favoritos = kit => lista().filter(a=>a.kit===kit && P.v[a.k]===3);
+
+/* ======================= planilla (con cola si no hay señal) ======================= */
+function filaCliente(){
+  const S = perfil(), fams = Object.keys(S).filter(k=>S[k]>0).sort((a,b)=>S[b]-S[a]).slice(0,3).map(k=>FAMN[k]).join(', ');
+  const voto = k => { const v = P.v[k]; return v==null ? '' : VOTOS.find(x=>x[0]===v)[2]; };
+  const cols = [['ID',P.id],['Código',P.cod],['Fecha',P.creado],['Última actualización',new Date().toLocaleString('es-PY')],['Estado',P.est],['Vendedora',CONFIG.VENDEDORA],
+    ['Cliente',P.nom.trim()],['WhatsApp',P.wa.trim()],['Ciudad',P.ciudad.trim()],['Tipo',(TIPOS.find(t=>t[0]===P.tipo)||[])[2]||''],
+    ['Metros cuadrados',P.m2],['Cantidad de ambientes',P.ambientes],['Tipo de evento',P.evento],['Cantidad de personas',P.personas],['Qué busca',P.busca.trim()],
+    ['Perfumes que usa',P.perf.filter(x=>x&&x.trim()).join(' | ')],['Cata',P.sug ? 'Sugerida (' + (CLI[P.sug]||{}).nombre + ')' + (P.libre ? ' + libre' : '') : 'Libre'],['Muestrarios',[P.kits.notas&&'27 notas',P.kits.perfumes&&'Tapa rosa'].filter(Boolean).join(' + ')],
+    ['Notas favoritas',favoritos('notas').map(a=>a.n).join(', ')],['Perfumes favoritos',favoritos('perfumes').map(a=>`N° ${a.num} ${a.n}`).join(', ')],
+    ['Emociones principales',emocionesTop().slice(0,3).join(', ')],['Familias olfativas',fams],['Observaciones de la vendedora',P.obs.trim()],['País',P.pais||''],['Moneda',P.moneda||''],['Tipo de factura',P.factura||''],['RUC',P.ruc||''],['Dirección fiscal',P.dirFiscal||''],['Dispositivo',P.dev]];
+  cols.push(['Aromas olidos', lista().filter(a=>P.v[a.k]!=null).length], ['Me encanta', lista().filter(a=>P.v[a.k]===3).length], ['No me gusta', lista().filter(a=>P.v[a.k]===0).length]);
+  /* el detalle de cada aroma va en la pestaña "Detalle por aroma" (una fila por aroma), que es la que sirve para analizar */
+  return {id:P.id, columnas:cols};
+}
+function filasDetalle(){
+  return lista().filter(a=>P.v[a.k]!=null || (P.emo[a.k]||[]).length || P.rec[a.k]).map(a=>({id:P.id+'·'+a.k, columnas:[
+    ['ID',P.id+'·'+a.k],['Código cliente',P.cod],['Cliente',P.nom.trim()],['Fecha',P.creado],['Ciudad',P.ciudad.trim()],['Tipo de cliente',(TIPOS.find(t=>t[0]===P.tipo)||[])[2]||''],['Muestrario',a.kit==='notas'?'27 notas':'Tapa rosa'],
+    ['N°',a.kit==='notas'?'':a.num],['Aroma',a.n],['Referencia',a.kit==='notas'?'':a.marca],['Etapa / familia',a.kit==='notas'?ETN[a.et]+' · '+a.fam:a.fam],
+    ['Voto',P.v[a.k]==null?'':VOTOS.find(x=>x[0]===P.v[a.k])[2]],['Puntos',P.v[a.k]==null?'':P.v[a.k]],['Emociones',(P.emo[a.k]||[]).join(', ')],['Recuerdo',P.rec[a.k]||'']]}));
+}
+function registrar(estado, conDetalle){
+  P.est = estado; guardar();
+  const cola = LS.get(CONFIG.LS+'_cola',[]).filter(r=>!(r.tipo==='cliente' && r.id===P.id) && !(r.tipo==='detalle' && conDetalle && r.cli===P.id));
+  cola.push({tipo:'cliente', id:P.id, t:Date.now(), body:{clave:CONFIG.CLAVE, hoja:'Clientes', filas:[filaCliente()]}});
+  if(conDetalle) cola.push({tipo:'detalle', id:P.id+'-d', cli:P.id, t:Date.now(), body:{clave:CONFIG.CLAVE, hoja:'Detalle por aroma', filas:filasDetalle()}});
+  LS.set(CONFIG.LS+'_cola', cola); vaciar();
+}
+let enviando = false;
+async function vaciar(){
+  if(enviando || !CONFIG.SCRIPT_URL.startsWith('http')) return; enviando = true;
+  try{
+    for(const r of LS.get(CONFIG.LS+'_cola',[])){
+      let ok = false; const body = JSON.stringify(r.body);
+      try{ const resp = await fetch(CONFIG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body}); const j = await resp.json(); ok = !!j.ok; }catch(e){}
+      if(!ok){ try{ await fetch(CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body}); ok = true; }catch(e){} }
+      if(ok) LS.set(CONFIG.LS+'_cola', LS.get(CONFIG.LS+'_cola',[]).filter(x=>!(x.id===r.id && x.t===r.t)));
+      else break;
+    }
+  } finally { enviando = false; barraTop(); }
+}
+setInterval(vaciar, 20000); window.addEventListener('online', vaciar);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) vaciar(); });
+
+/* ======================= navegación ======================= */
+function ir(p){ P.paso = p; guardar(); pintar(); window.scrollTo(0,0); vaciar(); }
+function atras(){
+  if(P.paso==='cata' && P.i > 0){ P.i--; guardar(); pintar(); window.scrollTo(0,0); return; }
+  const m = {cata:'cliente', indice:'cata', resumen:'cata', listo:'resumen', fin_sug:'cata', achu_cli:'achu', achu_nuevo:'achu', admin_cli:'admin', admin_pres:'admin_cli'};
+  if(m[P.paso]) ir(m[P.paso]);
+}
+function barraTop(){
+  const L = lista(), pend = LS.get(CONFIG.LS+'_cola',[]).length;
+  const prog = P.paso==='cata' && L[P.i] && P.sug ? (P.libre && P.i >= sugeridos().length ? 'Libre · ' + (P.i+1) + ' de ' + L.length : 'Sugerida · ' + (P.i+1) + ' de ' + sugeridos().length) : P.paso==='cata' && L[P.i] ? (L[P.i].kit==='notas' ? 'Nota ' + (NOTAS.indexOf(L[P.i])+1) + ' de 27' : 'Perfume ' + L[P.i].num + ' de 23') : '';
+  $('#top').innerHTML = (P.paso!=='cliente' ? `<button class="back" onclick="atras()" aria-label="Volver">←</button>` : '') +
+    `<img class="logo" src="${LOGOS.er_claro}" alt="ER"><div class="marca"><b>Emotional Reminder</b><small>Cata sensorial · ${esc(CONFIG.PAIS)}${P.nom.trim() ? ' · ' + esc(P.nom.trim()) : ''}</small></div>` +
+    `<div style="text-align:right"><div class="prog">${prog}</div>${pend ? `<div class="pend">${pend} sin enviar</div>` : ''}</div>`;
+}
+function fijo(html){ const f = $('#fijo'); if(!html){ f.hidden = true; return; } f.hidden = false; $('#fijo-in').innerHTML = html; }
+
+/* ---------- clientes del perfumista ---------- */
+function vClientes(){
+  fijo(`<button class="btn dark" onclick="cataNueva()">+ Cata libre (cliente nuevo)</button>`);
+  return `<div class="eb">Clientes</div><h1>Fichas de clientes</h1><p class="sub">Las prepara el perfumista. Tocá una para ver su ficha y empezar su cata sugerida.</p>
+    ${CLIENTES.map(c=>`<button class="card" style="display:block;width:100%;text-align:left;margin-top:10px" onclick="P.verCli='${c.id}';ir('ficha')"><div class="eb">${esc((TIPOS.find(t=>t[0]===c.tipo)||[])[2]||'')} · ${esc(c.ciudad)}</div>
+      <div style="font-size:22px;font-weight:300;margin-top:4px">${esc(c.nombre)}</div><div class="sub" style="font-size:14px">${esc(c.usa)} · ${c.sug.length} aromas sugeridos</div></button>`).join('')}`;
+}
+function vFicha(){
+  const c = CLI[P.verCli]; if(!c){ ir('clientes'); return ''; }
+  fijo(`<button class="btn ghost" onclick="ir('clientes')">Volver</button><button class="btn" onclick="cataSugerida('${c.id}')">Empezar cata sugerida</button>`);
+  const item = ([k, por]) => { const a = POR[k]; if(!a) return '';
+    return `<div class="card" style="display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center;padding:10px 12px;margin-top:8px">
+      ${a.kit==='notas' ? `<img src="${IMGS[a.id]||''}" alt="" style="width:64px;height:64px;object-fit:contain">` : `<span class="num" style="width:64px">${a.num}</span>`}
+      <div><b style="font-weight:600">${esc(a.kit==='notas' ? a.n : 'Perfume N° ' + a.num)}</b><div style="font-size:12px;color:var(--dim)">${esc(a.kit==='notas' ? ETN[a.et] + ' · ' + a.fam : a.fam)}</div><div style="font-size:14px;margin-top:2px">${esc(por)}</div></div></div>`; };
+  const notas = c.sug.filter(x=>x[0].startsWith('n_')), perfs = c.sug.filter(x=>x[0].startsWith('p_'));
+  return `<div class="eb">Ficha de cliente · ${esc(c.fecha)}</div><h1>${esc(c.nombre)}</h1>
+    <div class="card" style="margin-top:8px"><dl class="tec"><dt>Busca</dt><dd>${esc((TIPOS.find(t=>t[0]===c.tipo)||[])[2]||'')} · ${esc(c.ciudad)}</dd><dt>Hoy usa</dt><dd>${esc(c.usa)}</dd><dt>Nota</dt><dd>${esc(c.busca)}</dd></dl></div>
+    <h2>Lo que buscamos</h2><p style="font-size:16px">${esc(c.perfil)}</p>
+    <h2>Notas sugeridas (${notas.length})</h2>${notas.map(item).join('')}
+    <h2>Perfumes sugeridos (${perfs.length})</h2>${perfs.map(item).join('')}
+    <p class="sub" style="margin-top:14px;font-size:13px">Orden de la cata: primero las notas, después los perfumes. Al terminar, puede seguir con la cata libre.</p>`;
+}
+function cataSugerida(id){
+  const c = CLI[id]; if(P.nom.trim() && P.est && P.est !== 'Terminó' && !confirm('Hay una cata en curso. ¿Empezar la de ' + c.nombre + '? La anterior ya quedó guardada.')) return;
+  P = nuevo(); P.sug = id; P.nom = c.nombre; P.ciudad = c.ciudad; P.tipo = c.tipo; P.busca = c.busca; P.perf = [c.usa, '', ''];
+  ['wa','m2','ambientes','moneda','factura','ruc','dirFiscal','pais'].forEach(k=>{ if(c[k]) P[k] = c[k]; }); guardar(); ir('cliente');
+}
+function cataNueva(){ if(P.nom.trim() && P.est && P.est !== 'Terminó' && !confirm('Hay una cata en curso. ¿Empezar una nueva?')) return; P = nuevo(); guardar(); ir('cliente'); }
+/* pestañas de arriba: Cata y Clientes */
+function pestanas(){ const en = ['clientes','ficha'].includes(P.paso);
+  return `<div class="chips" style="margin:0 0 14px"><button aria-pressed="${!en}" onclick="ir(P.ultimo||'cliente')">Cata</button><button aria-pressed="${en}" onclick="if(!['clientes','ficha'].includes(P.paso)) P.ultimo=P.paso; ir('clientes')">Clientes</button></div>`; }
+
+/* ---------- 1 · cliente ---------- */
+const listoCliente = () => P.nom.trim() && P.tipo && (P.kits.notas || P.kits.perfumes);
+function vCliente(){
+  fijo(`<button class="btn" id="go" ${listoCliente()?'':'disabled'} onclick="empezar()">Empezar la cata</button>`);
+  return `${P.sug && CLI[P.sug] ? `<div class="ok" style="margin:0 0 12px">✦ <b>Cata sugerida para ${esc(CLI[P.sug].nombre)}</b>: ${CLI[P.sug].sug.length} aromas elegidos por el perfumista. Completá los datos que falten y empezá.</div>` : ''}<div class="eb">${P.sug ? 'Cliente' : 'Nuevo cliente'}</div><h1>¿Para quién es?</h1>
+    <div class="fld"><label for="nom">Nombre y apellido</label><input id="nom" value="${esc(P.nom)}" autocomplete="off" oninput="P.nom=this.value;guardar();chk()"></div>
+    <div class="fld"><label for="wa">WhatsApp</label><input id="wa" type="tel" inputmode="tel" value="${esc(P.wa)}" placeholder="+595 9xx xxx xxx" oninput="P.wa=this.value;guardar()"></div>
+    <div class="fld"><label for="ciudad">Ciudad</label><input id="ciudad" value="${esc(P.ciudad)}" placeholder="Asunción" oninput="P.ciudad=this.value;guardar()"></div>
+    <div class="fld"><label>¿Qué busca?</label><div class="tipos">${TIPOS.map(([k,i,t])=>`<button aria-pressed="${P.tipo===k}" onclick="P.tipo='${k}';guardar();pintar()"><b>${i}</b>${t}</button>`).join('')}</div></div>
+    ${P.tipo==='ambiente' ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="fld"><label for="m2">Metros² aprox. <small>(varios: 115 + 60)</small></label><input id="m2" value="${esc(P.m2)}" placeholder="115 + 60" oninput="P.m2=this.value;guardar()"></div>
+      <div class="fld"><label for="amb">Ambientes</label><input id="amb" inputmode="numeric" value="${esc(P.ambientes)}" oninput="P.ambientes=this.value;guardar()"></div></div>` : ''}
+    ${P.tipo==='evento' ? `<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:10px"><div class="fld"><label for="ev">Tipo de evento</label><input id="ev" value="${esc(P.evento)}" placeholder="Casamiento, empresa…" oninput="P.evento=this.value;guardar()"></div>
+      <div class="fld"><label for="pers">Personas</label><input id="pers" inputmode="numeric" value="${esc(P.personas)}" oninput="P.personas=this.value;guardar()"></div></div>` : ''}
+    <details class="mas"${P.ruc || P.dirFiscal ? ' open' : ''}><summary>Datos de facturación</summary><div class="in">
+      <div class="fld"><label for="ruc">RUC <small>(número de identificación tributaria)</small></label><input id="ruc" value="${esc(P.ruc)}" oninput="P.ruc=this.value;guardar()"></div>
+      <div class="fld"><label for="dirf">Dirección fiscal</label><input id="dirf" value="${esc(P.dirFiscal)}" oninput="P.dirFiscal=this.value;guardar()"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="fld"><label for="fact">Tipo de factura</label><input id="fact" value="${esc(P.factura)}" oninput="P.factura=this.value;guardar()"></div>
+      <div class="fld"><label for="mon">Moneda</label><input id="mon" value="${esc(P.moneda)}" oninput="P.moneda=this.value;guardar()"></div></div></div></details>
+    <div class="fld"><label for="busca">Contanos qué imagina <small>(opcional)</small></label><textarea id="busca" rows="2" placeholder="Ej: que la casa huela como un hotel, algo fresco y limpio…" oninput="P.busca=this.value;guardar()">${esc(P.busca)}</textarea></div>
+    <div class="fld"><label>Perfumes que usa o le gustan <small>(opcional)</small></label>
+      ${P.perf.map((v,i)=>`<div class="ac"><input id="pf${i}" value="${esc(v)}" autocomplete="off" placeholder="Perfume ${i+1}" aria-label="Perfume ${i+1}" oninput="tipear(${i},this.value)" onblur="setTimeout(()=>cerrarAc(${i}),200)"><div class="acl" id="acl${i}"></div></div>`).join('')}</div>
+    <div class="fld"><label>Muestrarios que va a oler</label><div class="chips">
+      <button aria-pressed="${P.kits.notas}" onclick="P.kits.notas=!P.kits.notas;guardar();pintar()">27 notas</button>
+      <button aria-pressed="${P.kits.perfumes}" onclick="P.kits.perfumes=!P.kits.perfumes;guardar();pintar()">23 perfumes (tapa rosa)</button></div></div>`;
+}
+function chk(){ const b = $('#go'); if(b) b.disabled = !listoCliente(); barraTop(); }
+function tipear(i, val){ P.perf[i] = val; guardar(); const l = $('#acl'+i), r = buscar(val);
+  l.innerHTML = r.map(f=>`<button type="button" onmousedown="event.preventDefault()" onclick="elegirPerf(${i},this.dataset.v)" data-v="${esc(f.n+' · '+f.b)}"><b>${esc(f.n)}</b> <span>${esc(f.b)}</span></button>`).join('');
+  l.style.display = r.length ? 'block' : 'none'; }
+function elegirPerf(i, v){ P.perf[i] = v; guardar(); const inp = $('#pf'+i); if(inp) inp.value = v; cerrarAc(i); }
+function cerrarAc(i){ const l = $('#acl'+i); if(l) l.style.display = 'none'; }
+function empezar(){ if(!listoCliente()) return; registrar('Empezó la cata', false); P.i = Math.min(P.i, lista().length-1); ir('cata'); }
+
+/* ---------- 2 · cata: un aroma por pantalla ---------- */
+function vFinSug(){
+  fijo(`<button class="btn ghost" onclick="ir('resumen')">Ir al resumen</button><button class="btn" onclick="cataLibre()">Seguir con cata libre</button>`);
+  const n = TODOS.filter(a=>P.kits[a.kit]).length - sugeridos().length;
+  return `<div style="text-align:center;padding-top:4vh"><div class="eb">Cata sugerida</div><h1>¡Listo con lo sugerido!</h1>
+    <p class="sub" style="margin-top:10px">Olió los ${sugeridos().length} aromas que eligió el perfumista. Si tiene ganas, puede seguir con los otros ${n} en una cata libre: los ya votados no se repiten.</p></div>`;
+}
+function cataLibre(){ P.libre = true; P.i = sugeridos().length; guardar(); ir('cata'); }
+function vCata(){
+  const L = lista(), a = L[P.i]; if(!a){ ir('resumen'); return ''; }
+  const v = P.v[a.k], emo = P.emo[a.k] || [], ult = P.i === L.length-1;
+  fijo(`<button class="btn ghost" onclick="${P.i>0?'atras()':"ir('cliente')"}">Atrás</button><button class="btn" onclick="siguiente()">${ult ? 'Ver resumen' : v==null ? 'Saltear' : 'Siguiente'}</button>`);
+  const cab = a.kit==='notas'
+    ? `<img class="foto" src="${IMGS[a.id]||''}" alt=""><div class="eb">${ETN[a.et]} · ${esc(a.fam)}</div><h1>${esc(a.n)}</h1>
+       <div class="apodo">${esc(a.p)}</div>
+       <div class="fuerza"><span>Fuerza</span><span class="b" aria-label="Fuerza ${a.f} de 9">${Array.from({length:9},(_,i)=>`<i class="${i<a.f?'on':''}"></i>`).join('')}</span><span>${a.f}/9</span></div>
+       ${a.ficha.desc ? `<div class="desc">${esc(a.ficha.desc)}</div>` : ''}
+       <details class="mas"><summary>Ficha técnica</summary><div class="in"><dl class="tec">${[['Tipo',a.ficha.tipo],['Origen',a.ficha.org],['Extracción',a.ficha.ext],['Componentes',a.ficha.comp],['Evaporación',a.ficha.ev]].filter(x=>x[1]).map(([t,d])=>`<dt>${t}</dt><dd>${esc(d)}</dd>`).join('')}</dl>
+         ${a.ficha.aporta ? `<p style="margin-top:10px;font-size:14px"><b>Qué aporta.</b> ${esc(a.ficha.aporta)}</p>` : ''}</div></details>`
+    : `<div class="frasco" aria-hidden="true"><div class="tapa"></div><div class="vidrio">${a.num}</div></div>
+       <div class="eb" style="text-align:center">Muestrario tapa rosa · ${esc(a.fam)}</div><h1 style="text-align:center">Perfume N° ${a.num}</h1>
+       <div class="pir card">${a.S||a.C ? [['Salida',a.S],['Corazón',a.C],['Fondo',a.F]].filter(x=>x[1]).map(([t,d])=>`<div><b>${t}</b><span>${esc(d)}</span></div>`).join('') : `<div><b>Notas</b><span>${esc(a.F)}</span></div>`}</div>`;
+  const mot = motivo(a);
+  return `${mot ? `<div class="ok" style="margin:0 0 12px"><b>✦ Sugerido por el perfumista.</b> ${esc(mot)}</div>` : ''}${cab}
+    <h2>¿Qué te pareció?</h2>
+    <div class="votos" role="group" aria-label="¿Qué te pareció?">${VOTOS.map(([k,s,t])=>`<button aria-pressed="${v===k}" onclick="votar(${k})"><b>${s}</b>${t}</button>`).join('')}</div>
+    <details class="mas" id="emo-box" ${v!=null || emo.length || P.rec[a.k] ? 'open' : ''}><summary>¿Qué te hace sentir? ¿Qué te recuerda?</summary><div class="in">
+      <div class="emos">${EMOCIONES.map(e=>`<button aria-pressed="${emo.includes(e)}" onclick="emocion('${e}')">${e}</button>`).join('')}</div>
+      <div class="fld"><label for="rec">¿Qué te recuerda?</label><textarea id="rec" rows="2" maxlength="160" placeholder="Un lugar, una persona, un momento…" oninput="P.rec['${a.k}']=this.value;guardar();$('#cnt').textContent=this.value.length+'/160'">${esc(P.rec[a.k]||'')}</textarea><div class="cuenta" id="cnt">${(P.rec[a.k]||'').length}/160</div></div>
+    </div></details>
+    <button class="btn ghost" style="margin-top:18px" onclick="ir('indice')">Ver todos los aromas</button>`;
+}
+function votar(k){ const a = lista()[P.i]; P.v[a.k] = k; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
+function emocion(e){ const a = lista()[P.i], l = P.emo[a.k] || (P.emo[a.k] = []); const i = l.indexOf(e); if(i<0) l.push(e); else l.splice(i,1); guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
+function siguiente(){ const L = lista(); if(P.sug && !P.libre && P.i === L.length-1){ registrar('Terminó la cata sugerida', true); ir('fin_sug'); return; } if(P.i < L.length-1){ P.i++; guardar(); pintar(); window.scrollTo(0,0); if(P.i % 6 === 0) registrar('En la cata', false); } else { registrar('Terminó la cata', true); ir('resumen'); } }
+
+/* ---------- índice: saltar a cualquier aroma ---------- */
+function vIndice(){
+  fijo(`<button class="btn" onclick="ir('resumen')">Ver resumen</button>`);
+  const L = lista(), marca = a => { const v = P.v[a.k]; return v==null ? '' : VOTOS.find(x=>x[0]===v)[1]; };
+  const bloque = (tit, l) => l.length ? `<h2>${tit}</h2><div class="grilla">${l.map(a=>`<button class="${P.v[a.k]!=null?'hecho':''}" onclick="P.i=${L.indexOf(a)};ir('cata')">
+      <span class="v">${marca(a)}</span>${a.kit==='notas' ? `<img src="${IMGS[a.id]||''}" alt="">` : `<span class="num">${a.num}</span>`}<span class="n">${esc(a.kit==='notas'?a.n:'N° '+a.num)}</span></button>`).join('')}</div>` : '';
+  return `<div class="eb">Aromas</div><h1>Todos los aromas</h1><p class="sub">Tocá uno para olerlo o cambiar el voto.</p>
+    ${bloque('27 notas', L.filter(a=>a.kit==='notas'))}${bloque('Perfumes tapa rosa', L.filter(a=>a.kit==='perfumes'))}`;
+}
+
+/* ---------- 3 · resumen ---------- */
+function vResumen(){
+  const S = perfil(), o = Object.keys(S).filter(k=>S[k]>0).sort((a,b)=>S[b]-S[a]).slice(0,6), mx = o.length ? S[o[0]] : 1;
+  const L = lista(), hechos = L.filter(a=>P.v[a.k]!=null).length, fn = favoritos('notas'), fp = favoritos('perfumes'), emo = emocionesTop().slice(0,3);
+  fijo(`<button class="btn" onclick="terminar()">Guardar y terminar</button>`);
+  return `<div class="eb">Resumen</div><h1>El perfil de ${esc(P.nom.trim().split(' ')[0] || 'tu cliente')}</h1>
+    <p class="sub">Olió ${hechos} de ${L.length} aromas.${hechos < L.length ? ` <a href="#" onclick="ir('indice');return false">Ver los que faltan</a>` : ''}</p>
+    ${emo.length ? `<h2>Lo que más le hicieron sentir</h2><div class="card" style="font-weight:300;font-size:22px;text-align:center">${emo.map(esc).join(' · ')}</div>` : ''}
+    ${fn.length ? `<h2>Notas que le encantaron</h2><div class="favs">${fn.map(a=>`<div class="card"><img src="${IMGS[a.id]||''}" alt="">${esc(a.n)}</div>`).join('')}</div>` : ''}
+    ${fp.length ? `<h2>Perfumes que le encantaron</h2><div class="favs">${fp.map(a=>`<div class="card"><span class="num">${a.num}</span><div style="margin-top:6px">${esc(a.fam)}</div></div>`).join('')}</div>` : ''}
+    ${o.length ? `<h2>Familias olfativas</h2><div class="card"><div class="barras">${o.map(k=>`<div class="barra"><span>${FAMN[k]}</span><span class="t"><i style="width:${Math.round(100*S[k]/mx)}%"></i></span><span>${Math.round(100*S[k]/mx)}</span></div>`).join('')}</div></div>` : ''}
+    <div class="fld"><label for="obs">Observaciones para el perfumista <small>(solo las ves vos)</small></label><textarea id="obs" rows="3" placeholder="Lo que notaste: cómo reaccionó, presupuesto que mencionó, para cuándo lo quiere…" oninput="P.obs=this.value;guardar()">${esc(P.obs)}</textarea></div>`;
+}
+function terminar(){ registrar('Terminó', true); ir('listo'); }
+function vListo(){
+  const pend = LS.get(CONFIG.LS+'_cola',[]).length;
+  fijo(`<button class="btn dark" onclick="otro()">Nuevo cliente</button>`);
+  return `<div style="text-align:center;padding-top:8vh"><div class="eb">Listo</div><h1>¡Gracias, ${esc(P.nom.trim().split(' ')[0])}!</h1>
+    <p class="sub" style="margin-top:10px">Con lo que elegiste, el perfumista va a diseñar una propuesta a tu medida.</p>
+    <p style="margin-top:22px;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--dim)">Código ${esc(P.cod)}</p>
+    ${pend ? `<div class="aviso">Quedan ${pend} envíos pendientes: se mandan solos cuando haya señal. No borres la app ni los datos del navegador.</div>` : `<div class="ok">Todo guardado en la planilla.</div>`}
+    <button class="btn" style="margin-top:24px" onclick="bajarFicha()">⬇ Descargar ficha para el perfumista</button>
+    <p class="sub" style="font-size:13px;margin-top:6px">Es una imagen con todo el detalle. No se muestra en pantalla: mandala por WhatsApp o mail.</p>
+    <button class="btn ghost" style="margin-top:14px" onclick="ir('resumen')">Volver al resumen</button></div>`;
+}
+/* ======================= ficha del cliente (PNG para el perfumista) =======================
+   Incluye el nombre real de los perfumes de tapa rosa: no se muestra en pantalla, se descarga directo. */
+const EMOJI = {3:'♥', 2:'✦', 1:'◦'};
+let LOGO_IMG = null;
+function cargarLogo(){ return LOGO_IMG ? Promise.resolve(LOGO_IMG) : new Promise(r=>{ const i = new Image(); i.onload = ()=>{ LOGO_IMG = i; r(i); }; i.onerror = ()=>r(null); i.src = LOGOS.completo; }); }
+async function dibujarFicha(){
+  await cargarLogo();
+  try{ await Promise.all(['300 30px Montserrat','400 30px Montserrat','600 30px Montserrat'].map(f=>document.fonts.load(f))); }catch(e){}
+  const W = 1080, M = 64, cv = document.createElement('canvas'), c = cv.getContext('2d');
+  const L = lista(), S = perfil(), fams = Object.keys(S).filter(k=>S[k]>0).sort((a,b)=>S[b]-S[a]).slice(0,5), emo = emocionesTop().slice(0,5);
+  const tipo = (TIPOS.find(t=>t[0]===P.tipo)||[])[2]||'';
+  const extra = P.tipo==='ambiente' ? [P.m2 && P.m2+' m²', P.ambientes && P.ambientes+' ambientes'].filter(Boolean).join(' · ') : P.tipo==='evento' ? [P.evento, P.personas && P.personas+' personas'].filter(Boolean).join(' · ') : '';
+  /* armado en dos pasadas: la primera mide el alto, la segunda dibuja */
+  const pasada = dibuja => {
+    let y = 0;
+    const txt = (t, x, px, wt, col, maxW, lh, fam) => { c.font = `${wt} ${px}px ${fam||'Montserrat'}`; c.fillStyle = col; c.textAlign = 'left';
+      const pal = String(t).split(' '); let linea = '', n = 0;
+      pal.forEach(p=>{ const prueba = linea ? linea + ' ' + p : p; if(c.measureText(prueba).width > maxW && linea){ if(dibuja) c.fillText(linea, x, y + px); y += lh; linea = p; n++; } else linea = prueba; });
+      if(linea){ if(dibuja) c.fillText(linea, x, y + px); y += lh; } };
+    const titulo = t => { y += 26; if(dibuja){ c.font = '600 22px Montserrat'; c.fillStyle = '#A4553A'; try{ c.letterSpacing = '4px'; }catch(e){} c.textAlign = 'left'; c.fillText(t.toUpperCase(), M, y + 22); try{ c.letterSpacing = '0px'; }catch(e){}
+      c.strokeStyle = '#E6DCCB'; c.lineWidth = 2; c.beginPath(); c.moveTo(M, y + 36); c.lineTo(W - M, y + 36); c.stroke(); } y += 52; };
+    const dato = (k, v) => { if(!v) return; const y0 = y; txt(k, M, 22, 600, '#7A6E62', 230, 32); y = y0; txt(v, M + 240, 24, 400, '#2B2420', W - 2*M - 240, 34); y += 4; };
+    const aroma = (a, nombre) => { const v = P.v[a.k], e = (P.emo[a.k]||[]).join(', '), r = P.rec[a.k];
+      txt(`${EMOJI[v]}  ${nombre}`, M, 26, 600, '#2B2420', W - 2*M, 36);
+      if(e) txt('Emociones: ' + e, M + 40, 21, 400, '#2F4A3A', W - 2*M - 40, 30);
+      if(r) txt('Recuerdo: "' + r + '"', M + 40, 21, 400, '#7A6E62', W - 2*M - 40, 30);
+      y += 8; };
+    const grupo = (kit, tit) => {
+      const items = L.filter(a=>a.kit===kit && P.v[a.k]>=1).sort((a,b)=>P.v[b.k]-P.v[a.k]); if(!items.length) return;
+      titulo(tit);
+      [[3,'Me encanta'],[2,'Me gusta'],[1,'Un poquito']].forEach(([v,t])=>{ const l = items.filter(a=>P.v[a.k]===v); if(!l.length) return;
+        txt(t + ' (' + l.length + ')', M, 22, 600, '#B08A4E', W - 2*M, 34);
+        l.forEach(a=>aroma(a, kit==='notas' ? `${a.n} · ${ETN[a.et]} · ${a.fam}` : `N° ${a.num} · ${a.n} (${a.marca}) · ${a.fam}`)); y += 6; });
+    };
+    /* encabezado */
+    y = 50; if(dibuja && LOGO_IMG){ const h = 120, w = LOGO_IMG.width*h/LOGO_IMG.height; c.drawImage(LOGO_IMG, W - M - w, 40, w, h); }
+    txt('FICHA DE CLIENTE', M, 22, 600, '#A4553A', W - 2*M, 34);
+    txt(P.nom.trim() || 'Cliente', M, 56, 300, '#2B2420', W - 2*M - 260, 66);
+    txt(`Código ${P.cod} · ${P.creado} · Vendedora: ${CONFIG.VENDEDORA}`, M, 21, 400, '#7A6E62', W - 2*M, 32);
+    titulo('Cliente');
+    dato('WhatsApp', P.wa.trim()); dato('Ciudad', P.ciudad.trim()); dato('Busca', [tipo, extra].filter(Boolean).join(' · '));
+    dato('Lo que imagina', P.busca.trim());
+    dato('Facturación', [P.factura, P.moneda, P.ruc && 'RUC ' + P.ruc, P.dirFiscal].filter(Boolean).join(' · ')); dato('Perfumes que usa', P.perf.filter(x=>x&&x.trim()).join(' · '));
+    titulo('Perfil');
+    dato('Emociones', emo.join(' · ')); dato('Familias', fams.map(k=>FAMN[k]).join(' · '));
+    dato('Olió', `${L.filter(a=>P.v[a.k]!=null).length} de ${L.length} aromas · ♥ ${L.filter(a=>P.v[a.k]===3).length} · ✦ ${L.filter(a=>P.v[a.k]===2).length} · ◦ ${L.filter(a=>P.v[a.k]===1).length}`);
+    grupo('notas', 'Notas (27)'); grupo('perfumes', 'Perfumes tapa rosa');
+    if(P.obs.trim()){ titulo('Observaciones de ' + CONFIG.VENDEDORA); txt(P.obs.trim(), M, 24, 400, '#2B2420', W - 2*M, 34); }
+    y += 40; if(dibuja){ c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(M, y); c.lineTo(M + 120, y); c.stroke(); } y += 18;
+    txt('Agustín Melazo Díaz', M, 24, 500, '#2B2420', W - 2*M, 32);
+    txt('Licenciado en Biotecnología · Especialista en perfumería personalizada', M, 20, 300, '#2B2420', W - 2*M, 30);
+    y += 14; txt('Uso interno del perfumista · no compartir con el cliente', M, 18, 400, '#A99C8E', W - 2*M, 28);
+    return y + 40;
+  };
+  cv.width = W; cv.height = 2000; const H = pasada(false);
+  cv.height = Math.max(1350, H); c.fillStyle = '#F6F1E7'; c.fillRect(0, 0, W, cv.height);
+  c.fillStyle = '#2B2420'; c.fillRect(0, 0, W, 14);
+  pasada(true);
+  return new Promise(r=>cv.toBlob(r, 'image/png'));
+}
+let FICHA = null;
+async function prepararFicha(){ FICHA = await dibujarFicha(); }
+async function bajarFicha(){
+  if(!FICHA){ aviso('Preparando la ficha…'); await prepararFicha(); }
+  const nom = 'ficha_' + (nz(P.nom)||'cliente').replace(/ /g,'_') + '_' + P.cod + '.png', file = new File([FICHA], nom, {type:'image/png'});
+  const ios = dispositivo()==='iOS';
+  if(ios){ try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'Ficha ' + P.nom}); return; } }catch(e){ if(e && e.name==='AbortError') return; } }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(FICHA); a.download = nom; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  aviso('Ficha descargada');
+}
+function otro(){ if(!confirm('¿Empezar con un cliente nuevo? Este ya quedó guardado.')) return; vaciar(); P = nuevo(); guardar(); pintar(); window.scrollTo(0,0); }
+
+/*__PANEL__*/
+const FIRMA = `<div class="firma"><img src="${LOGOS.circular}" alt=""><b>Agustín Melazo Díaz</b>Licenciado en Biotecnología<br>Especialista en perfumería personalizada</div>`;
+function pintar(){
+  if(['clientes','ficha'].includes(P.paso)) P.paso = 'achu';
+  if(!['cliente','cata','indice','resumen','listo','fin_sug','achu','achu_cli','achu_nuevo','admin','admin_cli','admin_pres'].includes(P.paso)) P.paso = 'cliente';
+  if(!['cliente'].includes(P.paso) && !P.paso.startsWith('a') && !listoCliente()) P.paso = 'cliente';
+  barraTop();
+  const V = {cliente:vCliente, cata:vCata, indice:vIndice, resumen:vResumen, listo:vListo, fin_sug:vFinSug, achu:vAchu, achu_cli:vAchuCli, achu_nuevo:vAchuNuevo, admin:vAdmin, admin_cli:vAdminCli, admin_pres:vPres};
+  $('#app').innerHTML = (['cliente','listo'].includes(P.paso) || P.paso.startsWith('a') ? tabsArriba() : '') + (['cliente','listo'].includes(P.paso) ? `<img class="logo-grande" src="${LOGOS.completo}" alt="Emotional Reminder">` : '') + V[P.paso]() + FIRMA;
+  if(P.paso==='listo'){ FICHA = null; setTimeout(prepararFicha, 0); }
+}
+pintar(); vaciar(); cargar('achu');
+</script>
+</body>
+</html>

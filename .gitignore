@@ -1,0 +1,4 @@
+# piezas de imprenta generadas (pesadas): se regeneran con node etiquetas/armar_formatos.js
+etiquetas/formatos/
+# script de Paraguay: lleva la clave de administrador y los costos, no se publica
+paraguay/script-paraguay.gs

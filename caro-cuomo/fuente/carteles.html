@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0E0C0B">
+<title>Carteles · Bar de Perfumes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+nav{display:flex;gap:6px;}
+/* Cartel para tablet en negro y dorado, como las bolsas del evento. Dos pantallas: #bases y #notas. */
+:root{ --bg:#0E0C0B; --ink:#F4EBDD; --gold:#C9A45C; --dim:#B9A98F; --line:rgba(201,164,92,.35); --card:#161311;
+  --serif:"Cormorant Garamond", Georgia, serif; --sans:Inter, system-ui, -apple-system, sans-serif; color-scheme:dark; }
+/* modo claro, para sol directo: marfil con dorado oscuro */
+:root[data-tema="claro"]{ --bg:#F7F1E8; --ink:#1C1714; --gold:#8C6A2E; --dim:#5E5245; --line:rgba(140,106,46,.35); --card:#FFFDF9; color-scheme:light; }
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);height:100%;}
+body{padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));}
+.pant{min-height:100%;display:flex;flex-direction:column;padding-block:18px 14px;gap:14px;}
+header{display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line);padding-bottom:12px;}
+header img{height:78px;width:auto;}
+.acc{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.acc button,.acc a{font:inherit;color:var(--dim);background:transparent;cursor:pointer;text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;padding:9px 14px;border:1px solid var(--line);border-radius:999px;}
+.acc a.multi{color:var(--gold);border-color:var(--gold);}
+header .t{flex:1;min-width:0;}
+.eb{font-size:12px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);font-weight:600;}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,4.2vw,46px);line-height:1;margin-top:4px;}
+nav{display:flex;gap:6px;}
+nav a{color:var(--dim);text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;padding:9px 14px;border:1px solid var(--line);border-radius:999px;}
+nav a[aria-current="page"]{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700;}
+nav a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+/* bases: 2 x 2 */
+.bases{flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.base{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 18px;display:grid;grid-template-columns:clamp(90px,14vw,150px) 1fr;gap:16px;align-items:center;min-width:0;}
+.base img{width:100%;aspect-ratio:1/1;object-fit:contain;}
+.base h2{font-family:var(--serif);font-weight:600;font-size:clamp(30px,3.6vw,44px);line-height:1;}
+.base h2 span{color:var(--gold);font-size:.55em;letter-spacing:4px;text-transform:uppercase;font-family:var(--sans);font-weight:600;display:block;margin-bottom:4px;}
+.base .frase{font-family:var(--serif);font-style:italic;font-size:clamp(19px,2.1vw,25px);color:var(--dim);margin:4px 0 10px;}
+.pir{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:clamp(15px,1.6vw,19px);line-height:1.35;}
+.pir dt{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:600;padding-top:2px;}
+.pir dd{color:var(--ink);}
+
+/* notas */
+.notas{flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.grupo{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 16px;display:flex;flex-direction:column;min-width:0;}
+.grupo h2{font-size:13px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);font-weight:600;padding:4px 0 8px;border-bottom:1px solid var(--line);}
+.nota{display:grid;grid-template-columns:clamp(60px,8vw,92px) 1fr;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(201,164,92,.15);flex:1;}
+.nota:last-child{border-bottom:0;}
+.nota img{width:100%;aspect-ratio:1/1;object-fit:contain;}
+.nota b{font-family:var(--serif);font-weight:600;font-size:clamp(28px,3.2vw,38px);line-height:1;display:block;}
+.nota .ap{font-size:clamp(14px,1.5vw,17px);color:var(--gold);margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.fuerza{display:inline-flex;gap:3px;} .fuerza i{width:7px;height:7px;border-radius:50%;border:1px solid var(--gold);display:block;} .fuerza i.on{background:var(--gold);}
+.nota .pe{font-family:var(--serif);font-style:italic;font-size:clamp(19px,2.1vw,25px);color:var(--dim);margin-top:2px;}
+
+.qrgrande{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;}
+.qrgrande .cuadro{background:#fff;padding:28px;border-radius:24px;border:3px solid var(--gold);width:min(62vh,80vw);aspect-ratio:1/1;}
+.qrgrande svg{width:100%;height:100%;display:block;}
+.qrgrande h2{font-family:var(--serif);font-weight:600;font-size:44px;}
+.qrgrande p{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--dim);}
+.qrgrande button{font:inherit;cursor:pointer;background:var(--gold);color:var(--bg);border:0;border-radius:999px;padding:14px 34px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+footer{text-align:center;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);}
+footer i{display:block;font-family:var(--serif);font-size:15px;letter-spacing:0;text-transform:none;color:var(--dim);margin-top:2px;}
+/* tablet vertical (11" parada): una columna */
+@media (max-width:900px){ .bases,.notas{grid-template-columns:1fr;} header{flex-wrap:wrap;} .base{grid-template-columns:clamp(110px,22vw,170px) 1fr;} }
+</style>
+</head>
+<body>
+<main class="pant" id="app"></main>
+<script>
+const IMGS = __IMGS__;
+const DATOS = __DATOS__;
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const lista = a => a.map(x=>x.charAt(0).toLowerCase()+x.slice(1)).join(', ');
+const tema = () => { try{ return localStorage.getItem('caro_cartel_tema') || 'negro'; }catch(e){ return 'negro'; } };
+function cambiarTema(){ try{ localStorage.setItem('caro_cartel_tema', tema()==='claro' ? 'negro' : 'claro'); }catch(e){} aplicarTema(); pintar(); }
+function aplicarTema(){ document.documentElement.dataset.tema = tema(); }
+aplicarTema();
+const cab = (eb, tit, cual) => `<header><img src="${tema()==='claro' ? IMGS.logo_osc : IMGS.logo}" alt="Bar de Perfumes · Solo se vive una vez"><div class="t"><div class="eb">${eb}</div><h1>${tit}</h1></div>
+  <div class="acc"><nav aria-label="Carteles"><a href="#bases" ${cual==='bases'?'aria-current="page"':''}>Bases</a><a href="#notas" ${cual==='notas'?'aria-current="page"':''}>Notas</a></nav>
+  <button onclick="mostrarQR()">▦ QR celular</button><button onclick="cambiarTema()">${tema()==='claro'?'● Negro':'☀ Claro'}</button><a href="entregas.html">Entrega</a><a class="multi" href="./">Modo multiusuario →</a></div></header>`;
+const pie = `<footer>Método Emotional Reminder<i>Diseñado por Lic. Agustín Melazo Díaz · MP 240.297</i></footer>`;
+function vBases(){
+  return cab('Tablet 1', 'Las bases', 'bases') + `<section class="bases">${DATOS.bases.map(b=>`<article class="base"><img src="${IMGS[b.img]}" alt="">
+    <div><h2><span>Base</span>${esc(b.n)}</h2><p class="frase">${esc(b.frase)}</p>
+    <dl class="pir"><dt>Salida</dt><dd>${esc(lista(b.S))}</dd><dt>Corazón</dt><dd>${esc(lista(b.C))}</dd><dt>Fondo</dt><dd>${esc(lista(b.F))}</dd></dl></div></article>`).join('')}</section>` + pie;
+}
+function vNotas(){
+  const nota = n => `<div class="nota"><img src="${IMGS[n.id]}" alt=""><div><b>${esc(n.n)}</b>
+    ${n.apodo ? `<div class="ap">${esc(n.apodo)} <span class="fuerza" aria-label="Fuerza ${n.fuerza} de 9">${Array.from({length:9},(_,i)=>`<i class="${i<n.fuerza?'on':''}"></i>`).join('')}</span> ${n.fuerza}/9</div>` : ''}
+    <div class="pe">${esc(n.d)}</div></div></div>`;
+  return cab('Tablet 2', 'Las notas', 'notas') + `<section class="notas">
+    <div class="grupo"><h2>Notas de salida</h2>${DATOS.salida.map(nota).join('')}</div>
+    <div class="grupo"><h2>Notas de corazón</h2>${DATOS.corazon.map(nota).join('')}</div></section>` + pie;
+}
+const QR_SVG = `__QR__`;
+function mostrarQR(){ const d = document.createElement('div'); d.className='qrgrande'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','QR para el celular');
+  d.innerHTML = `<img src="${tema()==='claro' ? IMGS.logo_osc : IMGS.logo}" alt="" style="height:90px"><h2>Hacelo desde tu celular</h2><div class="cuadro">${QR_SVG}</div><p>Escaneá con la cámara y armá tu perfume.</p><button onclick="this.closest('.qrgrande').remove()">Cerrar</button>`;
+  document.body.appendChild(d); }
+function pintar(){ document.getElementById('app').innerHTML = location.hash==='#notas' ? vNotas() : vBases(); }
+window.addEventListener('hashchange', pintar); pintar();
+/* la pantalla no se apaga mientras se muestra el cartel (si el equipo lo permite) */
+if('wakeLock' in navigator){ const pedir = ()=>navigator.wakeLock.request('screen').catch(()=>{}); pedir(); document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) pedir(); }); }
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

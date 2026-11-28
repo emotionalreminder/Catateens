@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#151412">
+<title>Cata de perfumes · AlixPartners</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700&family=Lobster+Two:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+<style>
+:root{ --bg:#F6F1E7; --card:#FFFDF8; --ink:#151412; --dim:#6E665C; --gold:#B08A4E; --green:#2F4A3A; --line:#E4DACA; --soft:#EFE7D8;
+  --ok:#2F7A52; --warn:#B4562E; --sans:Montserrat, system-ui, -apple-system, sans-serif; --script:"Lobster Two", Georgia, serif; color-scheme:light; }
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.45;-webkit-text-size-adjust:100%;}
+body{padding:0 max(16px, env(safe-area-inset-left,0px)) 110px max(16px, env(safe-area-inset-right,0px));}
+button,input,select,textarea{font:inherit;color:inherit;}
+button{cursor:pointer;border:0;background:none;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.top{position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;gap:10px;padding:12px 0 10px;border-bottom:1px solid var(--line);margin:0 calc(-1 * max(16px, env(safe-area-inset-left,0px)));padding-inline:max(16px, env(safe-area-inset-left,0px));}
+.top .back{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);font-size:20px;flex:none;}
+.marca{flex:1;min-width:0;}
+.marca b{display:block;font-weight:400;letter-spacing:4px;font-size:15px;text-transform:uppercase;}
+.marca small{display:block;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prog{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);text-align:right;white-space:nowrap;}
+main{max-width:560px;margin:0 auto;padding-top:18px;}
+.eb{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:600;}
+h1{font-weight:300;font-size:30px;line-height:1.1;letter-spacing:.5px;margin:6px 0 8px;}
+h2{font-weight:500;font-size:13px;letter-spacing:3px;text-transform:uppercase;margin:22px 0 10px;color:var(--green);}
+.sub{color:var(--dim);font-size:16px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;}
+.btn{display:block;width:100%;padding:17px;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:600;letter-spacing:2.5px;text-transform:uppercase;font-size:14px;margin-top:12px;text-align:center;}
+.btn.gold{background:var(--gold);color:#fff;}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink);}
+.btn:disabled{opacity:.35;cursor:default;}
+.fijo{position:fixed;left:0;right:0;bottom:0;z-index:9;background:linear-gradient(transparent, var(--bg) 30%);padding:18px max(16px, env(safe-area-inset-left,0px)) calc(14px + env(safe-area-inset-bottom,0px));}
+.fijo .in{max-width:560px;margin:0 auto;display:flex;gap:10px;}
+.fijo .btn{margin-top:0;}
+.fijo .btn.ghost{flex:0 0 34%;}
+.fld{margin-top:16px;}
+.fld label{display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:6px;}
+.fld small{font-weight:400;color:var(--dim);letter-spacing:0;text-transform:none;font-size:12px;}
+.fld input,.fld textarea{width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:17px;}
+.fld input:focus,.fld textarea:focus{border-color:var(--gold);outline:none;}
+.ac{position:relative;margin-top:8px;}
+.acl{display:none;position:absolute;left:0;right:0;top:100%;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:4px;box-shadow:0 8px 24px rgba(0,0,0,.08);overflow:hidden;}
+.acl button{display:block;width:100%;text-align:left;padding:12px 14px;border-bottom:1px solid var(--soft);font-size:15px;}
+.acl button span{color:var(--dim);font-size:13px;}
+.tuyo{margin-top:10px;padding:12px 14px;border-radius:12px;background:var(--soft);font-size:15px;}
+.tuyo b{font-family:var(--script);font-weight:400;font-size:22px;}
+.aviso{margin-top:12px;padding:12px 14px;border-radius:12px;background:#FBEDE4;color:#7A3B1E;font-size:14px;}
+/* ficha de cata */
+.ficha .foto{width:100%;aspect-ratio:4/3;object-fit:contain;display:block;margin:0 auto 6px;max-height:34vh;}
+.ficha h1{margin:2px 0 2px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.chip{font-size:12px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);}
+.fuerza{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:var(--dim);}
+.fuerza .b{display:flex;gap:3px;}
+.fuerza i{width:14px;height:8px;border-radius:2px;background:var(--line);display:block;}
+.fuerza i.on{background:var(--green);}
+.apodo{font-style:italic;font-size:15px;color:var(--green);font-weight:500;margin-top:4px;}
+.perfil{font-size:18px;font-weight:300;margin-top:10px;}
+dl.tec{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:12px;font-size:14px;}
+dl.tec dt{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;padding-top:2px;}
+.pir-ac{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;}
+.pir-ac div{display:grid;grid-template-columns:78px 1fr;gap:8px;font-size:14px;}
+.pir-ac b{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding-top:2px;}
+.aporta{margin-top:12px;font-size:15px;border-left:3px solid var(--gold);padding-left:12px;}
+.votos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;}
+.votos button{border:1.5px solid var(--line);border-radius:14px;padding:12px 4px;background:var(--card);font-size:12.5px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:74px;justify-content:center;}
+.votos button b{font-size:20px;}
+.votos button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+.emos{display:flex;flex-wrap:wrap;gap:8px;}
+.emos button{padding:9px 13px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-size:14px;}
+.emos button[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green);}
+.cuenta{font-size:12px;color:var(--dim);text-align:right;margin-top:4px;}
+/* barras */
+.barras{display:flex;flex-direction:column;gap:8px;}
+.barra{display:grid;grid-template-columns:96px 1fr 40px;align-items:center;gap:10px;font-size:14px;}
+.barra .t{height:12px;border-radius:6px;background:var(--soft);overflow:hidden;}
+.barra .t i{display:block;height:100%;background:var(--green);border-radius:6px;}
+.barra span:last-child{text-align:right;color:var(--dim);font-size:13px;}
+/* bases */
+.bases{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.bopt{border:1.5px solid var(--line);border-radius:16px;padding:10px;background:var(--card);text-align:left;position:relative;}
+.bopt img{width:100%;aspect-ratio:1/1;object-fit:contain;}
+.bopt b{display:block;font-weight:600;font-size:14px;margin-top:4px;}
+.bopt small{display:block;color:var(--dim);font-size:12px;}
+.bopt.p{border-color:var(--ink);border-width:2.5px;}
+.bopt.s{border-color:var(--gold);border-width:2.5px;}
+.bopt .tag{position:absolute;top:8px;left:8px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:4px 8px;border-radius:999px;background:var(--ink);color:var(--bg);}
+.bopt.s .tag{background:var(--gold);}
+.bopt .rec2{display:block;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:var(--green);margin-top:4px;}
+.bopt .rec{position:absolute;top:8px;right:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:var(--green);}
+.seg{display:flex;gap:6px;margin-top:8px;}
+.seg button{flex:1;padding:9px 4px;border:1.5px solid var(--line);border-radius:10px;font-size:12px;font-weight:600;background:var(--card);}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+/* fórmula */
+.etapa{margin-top:14px;}
+.etapa h3{display:flex;justify-content:space-between;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-weight:600;color:var(--green);padding-bottom:6px;border-bottom:1px solid var(--line);}
+.fl{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--soft);}
+.fl img{width:42px;height:42px;object-fit:contain;flex:none;}
+.fl .n{flex:1;min-width:0;}
+.fl .n b{display:block;font-weight:500;font-size:15px;}
+.fl .n small{color:var(--dim);font-size:12px;}
+.fl .g{font-weight:600;font-variant-numeric:tabular-nums;font-size:17px;white-space:nowrap;}
+.fl.pesado{opacity:.5;}
+.fl .tick{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);font-size:20px;flex:none;}
+.fl.pesado .tick{background:var(--ok);color:#fff;border-color:var(--ok);}
+.total{display:flex;justify-content:space-between;font-weight:700;font-size:18px;padding:12px 0;border-top:2px solid var(--ink);margin-top:8px;}
+.viz{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;}
+.viz svg{width:100%;height:auto;display:block;}
+.frase{text-align:center;font-weight:300;font-size:22px;margin:6px 0 2px;}
+.evol{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+.evol div{display:flex;gap:10px;font-size:14px;}
+.evol b{flex:0 0 132px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding-top:2px;}
+/* laboratorio */
+.lab .fl{flex-wrap:wrap;}
+.lab .ctrl{display:flex;align-items:center;gap:4px;width:100%;}
+.lab .ctrl button{flex:1;padding:9px 0;border:1.5px solid var(--line);border-radius:10px;font-size:13px;font-weight:600;background:var(--card);}
+.lab .ctrl input{flex:1.3;min-width:0;text-align:center;padding:8px 4px;border:1.5px solid var(--ink);border-radius:10px;font-weight:700;font-size:16px;}
+.lab .quitar{font-size:12px;color:var(--warn);text-decoration:underline;}
+.warn{font-size:12.5px;color:var(--warn);width:100%;padding-left:52px;}
+.sumar{display:flex;gap:8px;margin-top:10px;}
+.sumar select{flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);}
+.libre{display:flex;align-items:center;gap:10px;font-size:14px;margin-top:10px;}
+.libre input{width:22px;height:22px;}
+.stick{position:sticky;top:64px;z-index:5;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line);}
+.stick .viz{grid-template-columns:110px 1fr;}
+.anal{padding-top:2vh;}
+.orbita{position:relative;width:240px;height:240px;margin:18px auto 10px;}
+.orbita img{position:absolute;left:50%;top:50%;width:84px;height:84px;object-fit:contain;margin:-42px 0 0 -42px;animation:orbita 6s linear infinite;animation-delay:calc(var(--i) * -6s / var(--n));}
+@keyframes orbita{from{transform:rotate(0deg) translateX(96px) rotate(0deg);}to{transform:rotate(360deg) translateX(96px) rotate(-360deg);}}
+.orbita .gota{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:radial-gradient(circle at 35% 35%, #E9D6AE, var(--gold));animation:late 1.4s ease-in-out infinite;}
+@keyframes late{0%,100%{transform:rotate(-45deg) scale(1);}50%{transform:rotate(-45deg) scale(1.15);}}
+.pasos-an{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+.pasos-an li{opacity:0;transform:translateY(8px);animation:entra .5s ease forwards;animation-delay:var(--d);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;}
+.pasos-an li b{display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--green);}
+.pasos-an li span{font-size:15px;}
+@keyframes entra{to{opacity:1;transform:none;}}
+.barra-an{height:6px;border-radius:3px;background:var(--soft);margin-top:16px;overflow:hidden;}
+.barra-an i{display:block;height:100%;width:0;background:var(--gold);animation:llena var(--t) linear forwards;}
+@keyframes llena{to{width:100%;}}
+@media (prefers-reduced-motion: reduce){ .orbita img,.orbita .gota{animation:none;} .pasos-an li{animation-duration:.01s;} }
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:999px;font-size:14px;z-index:50;max-width:calc(100% - 32px);text-align:center;}
+.modal{position:fixed;inset:0;z-index:40;background:rgba(21,20,18,.55);display:flex;align-items:flex-end;justify-content:center;}
+.modal .caja{background:var(--bg);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));}
+.full{position:fixed;inset:0;z-index:60;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;color:#fff;text-align:center;}
+.full img{max-width:100%;max-height:78vh;}
+canvas#cv,canvas#cv2{width:100%;height:auto;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.12);display:block;}
+.pie{text-align:center;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-top:30px;}
+</style>
+</head>
+<body>
+<header class="top" id="top"></header>
+<main id="app"></main>
+<div class="fijo" id="fijo" hidden><div class="in" id="fijo-in"></div></div>
+<script>
+/* ======================= CONFIGURACIÓN DEL EVENTO ======================= */
+const CONFIG = {
+  EMPRESA: 'AlixPartners',
+  FECHA: '25.11.2026',
+  MARCA: 'Breena',
+  WEB: 'www.breena.com.ar',
+  PERFUMISTA: 'Perfumista · Lic. Agustín Melazo Díaz',
+  MATRICULA: 'MP 240.297',
+  PIN: '2730',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwkMzVVILGvF1Ctx53JR3hvndsLlbkjoLsSwF9MDSjhcGSp2gZfTo6hd_Cx3UoI_aV3AA/exec',
+  CLAVE: 'ER-ninas-2026',
+  HOJA: 'Corporativo AlixPartners 25-11-2026',
+  TOTAL_G: 80, DENSIDAD: 0.8, LS: 'er_alix_25'
+};
+const IMGS = __IMGS__;
+const FRA = __FRA__;
+/* invitados precargados: [nombre, nombre del perfume (igual a la etiqueta)] */
+const INVITADOS = __INVITADOS__;
+
+/* familias de la personalidad (10) */
+const FAM = [['citrico','Cítrico'],['frutal','Frutal'],['marino','Marino'],['especiado','Especiado'],['floral','Floral'],['verde','Verde'],['aromatico','Aromático'],['amaderado','Amaderado'],['almizclado','Almizclado'],['gourmand','Gourmand']];
+const FAMN = Object.fromEntries(FAM);
+const ADJ = {citrico:'luminoso', frutal:'jugoso', marino:'fresco', especiado:'especiado', floral:'floral', verde:'verde', aromatico:'aromático', amaderado:'amaderado', almizclado:'sedoso', gourmand:'goloso'};
+
+/* los 16 componentes, en el orden de la cata. "Detrás" (producto real) no se muestra nunca. */
+const C = [
+ {id:'bergamota', n:'Bergamota', et:'sal', fam:'Cítrico', ap:'La Diplomática', fu:5, img:'p_bergamota', w:{citrico:1},
+  perfil:'Chispa · efervescente · luminoso', tipo:'Recreación natural', evap:'Muy alta (15 a 45 min)', comp:'Acetato de linalilo, limoneno, linalol',
+  aporta:'Es el cítrico universal: se siente cítrico pero no se identifica cuál. La única salida que tolera ser protagonista absoluta sin saturar a nadie.'},
+ {id:'citrico', n:'Acorde Cítrico', et:'sal', fam:'Cítrico aromático', ap:'La Golosa', fu:6, img:'p_citrico', w:{citrico:.7, aromatico:.3},
+  perfil:'Naranja confitada · cáscara melada · navideño', tipo:'Acorde compuesto', evap:'Alta, con cola especiada', pir:'Salida: naranja, bergamota, mandarina y limón · Corazón: petit grain, cardamomo y gálbano · Fondo: neroli, ylang-ylang y almizcle',
+  aporta:'Un acorde ya construido, con más cuerpo que un cítrico suelto. Es el mejor puente cuando el fondo va a ser amaderado o especiado.'},
+ {id:'grosellas', n:'Grosellas', et:'sal', fam:'Frutal', ap:'La Ácida', fu:8, img:'p_grosellas', w:{frutal:1},
+  perfil:'Caipirinha · ácido · jugoso', tipo:'Natural + síntesis', evap:'Alta', comp:'Tioles (4-MMP), absoluto de yema de cassis',
+  aporta:'Compuestos azufrados de umbral bajísimo. Da una acidez jugosa que corta el dulzor; es clave cuando el fondo va a ser gourmand.'},
+ {id:'pera', n:'Pera', et:'sal', fam:'Frutal', ap:'La Almohada', fu:7, img:'p_pera', w:{frutal:1},
+  perfil:'Jugoso · suave · veraniego', tipo:'Esencia sintética (nota fantasía)', evap:'Alta-media', comp:'Acetato de isoamilo, ésteres frutales',
+  aporta:'Ninguna fruta jugosa rinde aceite esencial, así que se reconstruye con ésteres. Suaviza aperturas muy ácidas o filosas.'},
+ {id:'bruma', n:'Bruma de mar', et:'sal', fam:'Marino · ozónico', ap:'El Espacio', fu:8, img:'p_bruma', w:{marino:1},
+  perfil:'Brisa salada · acuático · mineral', tipo:'Esencia sintética', evap:'Media, persiste hasta el corazón', comp:'Calone y moléculas acuáticas afines',
+  aporta:'El mar no se puede destilar: el aroma acuático es una invención del siglo XX. Aporta espacio y aire; con mucho almizcle puede virar a jabonoso.'},
+ {id:'especias', n:'Especias', et:'sal', fam:'Especiado', ap:'La Sensual', fu:8, img:'especias', w:{especiado:.7, amaderado:.3},
+  perfil:'Pimienta rosa · canela · azafrán', tipo:'Acorde compuesto', pir:'Salida: pimienta rosa, elemí, bergamota y pomelo · Corazón: canela, paprika y azafrán · Fondo: tabaco, cuero y vetiver',
+  aporta:'Es la chispa que enciende el perfume. Pica como la pimienta en la salida y deja una estela cálida de canela. Con muy poco cambia la temperatura de todo el perfume.'},
+ {id:'jazmin', n:'Jazmín', et:'cor', fam:'Floral blanco', ap:'La Adolescente', fu:7, img:'p_jazmin', w:{floral:.8, gourmand:.2},
+  perfil:'Flor blanca · empuje · cálido', tipo:'Acorde oriental (entrada tipo sahumerio que después se abre)', evap:'Media', comp:'Acetato de bencilo, indol, jasmona, linalol',
+  aporta:'El indol le da una tenacidad inusual y un lado casi animal que lo vuelve adulto. Es el corazón que se hace notar.'},
+ {id:'peonia', n:'Peonía', et:'cor', fam:'Floral limpio', ap:'La Muda', fu:3, img:'p_peonia', w:{floral:1},
+  perfil:'Lino blanco · limpio · delicado', tipo:'Esencia sintética ("flor muda")', evap:'Media-alta', comp:'Alcohol feniletílico, ésteres rosados',
+  aporta:'La peonía es una "flor muda": ni la destilación ni los solventes capturan su aroma. Sin molécula de alto impacto, construye por volumen; ideal para perfiles limpios.'},
+ {id:'rosa', n:'Rosa y Especias', et:'cor', fam:'Floral rosa', ap:'La Reina', fu:7, img:'p_rosas', w:{floral:.8, especiado:.2},
+  perfil:'Jardín · lluvia · pétalo', tipo:'Acorde de pétalos de rosa', evap:'Media', comp:'Citronelol, geraniol, feniletanol',
+  aporta:'La nota más versátil del corazón: funciona en registros joviales o profundos según la dosis.'},
+ {id:'higo', n:'Flor de Higo', et:'cor', fam:'Verde · frutal', ap:'El Puente de Abajo', fu:5, img:'p_higo', w:{verde:.6, frutal:.4},
+  perfil:'Higuera · sombra fresca · hoja de té', tipo:'Esencia sintética', evap:'Media', comp:'Lactonas (gamma-octalactona), moléculas verdes',
+  aporta:'Existió un absoluto real de hoja, prohibido por fototoxicidad. Sus lactonas dejan una cola cremosa que baja al fondo: es el puente entre corazón y base.'},
+ {id:'salvia', n:'Salvia y Maderas', et:'cor', fam:'Aromático', ap:'El Navegante', fu:6, img:'salvia', w:{aromatico:.6, marino:.2, amaderado:.2},
+  perfil:'Lavanda · brisa de mar · madera limpia', tipo:'Acorde compuesto', pir:'Salida: notas marinas, lavanda y pimienta rosa · Corazón: jabón, cachemira y canela · Fondo: ámbar, sándalo, haba tonka y cedro',
+  aporta:'Frescura herbal y salada sobre un fondo de maderas suaves. Es el aromático de la paleta: limpio, elegante, de camisa recién planchada.'},
+ {id:'amaderada', n:'Base Amaderada', et:'fon', base:true, fam:'Amaderado', ap:'El Noble', fu:6, img:'caro_woody', w:{amaderado:1},
+  perfil:'Cremosa · seca · elegante', pir:'Salida: especias suaves · Corazón: orquídea · Fondo: sándalo cremoso',
+  aporta:'Un sándalo cremoso que acompaña sin gritar. Da cuerpo y elegancia a cualquier corazón.'},
+ {id:'musky', n:'Base Musky', et:'fon', base:true, fam:'Almizclado', ap:'La Piel Limpia', fu:5, img:'caro_musky', w:{almizclado:.7, frutal:.3},
+  perfil:'Limpia · luminosa · afrutada', pir:'Salida: bergamota de Calabria · Corazón: durazno · Fondo: cedro y almizcles',
+  aporta:'La sensación de piel recién bañada. Es la base más liviana: deja que se luzcan las notas elegidas.'},
+ {id:'tonka', n:'Haba Tonka y Oud', et:'fon', base:true, fam:'Gourmand floral', ap:'La Seda', fu:7, img:'x_gourmand_caro', w:{floral:.4, gourmand:.4, almizclado:.2},
+  perfil:'Floral blanco · cremoso · almizclado', pir:'Salida: durazno, alcaravea, mandarina y naranja · Corazón: jazmín egipcio, fresia, magnolia e ylang-ylang · Fondo: almizcle, cachemira, ambrarome, haba tonka y maderas',
+  aporta:'Un jazmín cremoso sobre haba tonka y maderas. Sensual y envolvente, sin llegar a ser empalagoso.'},
+ {id:'tabaco', n:'Tabaco y Pimienta', et:'fon', base:true, fam:'Especiado · tabaco', ap:'Humo de Hoja', fu:8, img:'caro_tabaco', w:{especiado:.5, amaderado:.5},
+  perfil:'Biblioteca · ahumado · especiado', pir:'Salida: bergamota, elemí y pomelo · Corazón: cedro, palisandro y nuez moscada · Fondo: tabaco, bálsamo del Perú y cuero',
+  aporta:'Los absolutos de tabaco están entre los materiales más tenaces. Con poco ya cambia la identidad de todo el fondo.'},
+ {id:'chipre', n:'Base Chipre Floral', et:'fon', base:true, fam:'Chipre floral', ap:'La Atrevida', fu:8, img:'caro_gourmand', w:{floral:.35, gourmand:.3, frutal:.15, amaderado:.2},
+  perfil:'Miel · flor blanca · pachulí', pir:'Salida: naranja sanguina y mandarina · Corazón: miel, gardenia, azahar, jazmín y durazno · Fondo: caramelo, cera de abeja, pachulí y regaliz',
+  aporta:'La familia chipre une una salida cítrica con flores y un fondo de pachulí. Esta versión es floral y amielada, sin vainilla: la más gustada, luminosa y con mucha presencia.'},
+ {id:'vainilla', n:'Vainilla y Praliné', et:'fon', fam:'Gourmand', ap:'La Gourmand', fu:7, img:'e_vainilla_praline', w:{gourmand:1},
+  perfil:'Helado de crema · dulce · envolvente', tipo:'Acorde recreado en laboratorio (vainilla crema)', evap:'Muy baja: fijador clásico', comp:'Vainillina, acetovainillona',
+  aporta:'Fijador de manual: su sustantividad se mide en semanas. Impacto medio que crece con el tiempo y ayuda a que todo el resto dure más. Recrea la vainilla natural, que viene de una orquídea que se abre un solo día al año.'}
+];
+const X = Object.fromEntries(C.map(c=>[c.id,c]));
+const BASES = C.filter(c=>c.base).map(c=>c.id);
+const ETN = {sal:'Salida', cor:'Corazón', fon:'Fondo'};
+/* toque del perfumista: no se votan, no salen en la imagen */
+const TOQUE = [['hedione','Hedione (Base Floral)'],['isoe','Iso E Super (Base Amaderada)'],['galaxolide','Galaxolide (Base Musky)']];
+/* topes en g sobre 80: [general, con Musky, con Haba Tonka y Oud, con Tabaco y Pimienta, con Amaderada, con Chipre] */
+const TOPES = {bergamota:[10,10,10,10,10,10], citrico:[10,10,10,10,10,10], grosellas:[8,8,8,6,8,8], pera:[4,4,4,3,4,3], bruma:[4,4,3,3,4,3], especias:[4,2,3,3,4,3],
+  jazmin:[10,10,5,8,10,6], peonia:[14,14,12,10,14,12], rosa:[9,9,9,9,9,9], higo:[12,12,10,12,12,10], salvia:[8,8,4,8,8,4], vainilla:[8,8,7,8,8,6]};
+const COLB = {musky:1, tonka:2, tabaco:3, amaderada:4, chipre:5};
+const TOPE_BASE = 22;   /* g de una misma base por perfume: 25 perfumes × 22 g ≈ 550 g, dentro de los ~600 g de cada frasco */
+const REDONDEO = {chipre:{cor:'rosa', sal:'bergamota'}, amaderada:{cor:'higo', sal:'bergamota'}, musky:{cor:'peonia', sal:'bergamota'}, tonka:{cor:'rosa', sal:'grosellas'}, tabaco:{cor:'higo', sal:'citrico'}};
+const UNIVERSAL = {sal:'bergamota', cor:'peonia'};
+const POTENCIAN = [['bergamota','citrico','Los dos cítricos se potencian'],['grosellas','bergamota','La bergamota levanta a la grosella'],['peonia','musky','El almizcle resalta el lado rosado de la peonía'],
+  ['higo','amaderada','Las lactonas del higo y el sándalo se potencian'],['rosa','tabaco','Clásico rosa-tabaco'],['jazmin','grosellas','Efecto maracuyá']];
+const VOTOS = [[3,'♥','Me encanta'],[2,'✦','Me gusta'],[1,'◦','Un poquito'],[0,'✕','No me gusta']];
+const EMOCIONES = ['Alegría','Calma','Energía','Nostalgia','Sensualidad','Elegancia','Infancia','Hogar','Viaje','Naturaleza','Limpieza','Misterio'];
+
+/* ======================= utilidades ======================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nz = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+const r2 = x => Math.round(x*100)/100;
+const fg = x => r2(x).toFixed(2).replace('.',',');
+const LS = {get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const foto = k => IMGS[k] || '';
+function aviso(t){ const d=document.createElement('div'); d.className='toast'; d.setAttribute('role','status'); d.textContent=t; document.body.appendChild(d); setTimeout(()=>d.remove(),2200); }
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now().toString(36)+Math.random().toString(36).slice(2,8));
+const dispositivo = () => { const u = navigator.userAgent||''; return /iPhone|iPad|iPod/i.test(u) || (/Macintosh/.test(u) && navigator.maxTouchPoints>1) ? 'iOS' : /Android/i.test(u) ? 'Android' : 'otro'; };
+const embebido = () => /Instagram|FBAN|FBAV|Line\/|; wv\)|WhatsApp/i.test(navigator.userAgent||'');
+
+function nuevo(){ return {id:uid(), creado:new Date().toLocaleString('es-AR'), nom:'', wa:'', perf:['','','','',''], v:{}, emo:{}, rec:{}, paso:'datos', i:0,
+  principal:null, extras:[], guiada:null, f:null, modo:'guiado', libre:false, toque:{}, pesado:{}, pn:'', pnLista:'', ml:false, dev:dispositivo(), env:{}}; }
+let P = Object.assign(nuevo(), LS.get(CONFIG.LS, {})); P.ml = false;
+while(P.perf.length < 5) P.perf.push('');
+const guardar = () => LS.set(CONFIG.LS, P);
+
+/* ======================= perfumes favoritos ======================= */
+const FK = ['citrica','frutal','verde','floral','aromatica','ambar','gourmand','amaderada','oriental','cuero','especiada','almizclada'];
+const FRAX = FRA.map(([n,b,v])=>({n,b,v,k:nz(n+' '+b),kn:nz(n)}));
+function buscar(q){ q = nz(q); if(q.length<2) return []; const ws = q.split(' ');
+  return FRAX.filter(f=>ws.every(w=>f.k.includes(w))).sort((a,b)=>(b.kn.startsWith(q)-a.kn.startsWith(q)) || a.n.length-b.n.length).slice(0,6); }
+function encontrar(t){ const q = nz(t); if(!q) return null;
+  return FRAX.find(f=>f.k===q) || FRAX.find(f=>f.kn===q) || FRAX.find(f=>q.startsWith(f.kn) && f.kn.length>3) || null; }
+/* base recomendada por los perfumes que usa (5.2.1) */
+function baseDeFavoritos(){
+  const S = {}; FK.forEach(k=>S[k]=0); let n = 0;
+  P.perf.forEach(t=>{ const f = encontrar(t); if(!f || !/[1-9]/.test(f.v)) return; n++; FK.forEach((k,i)=>S[k] += +f.v[i]); });
+  if(!n) return null;
+  const top = FK.slice().sort((a,b)=>S[b]-S[a])[0];
+  if(S[top] <= 0) return null;
+  if(top==='gourmand') return 'tonka';
+  if(P.perf.some(t=>/scandal|miss dior|chance|coco mademoiselle|burberry her|si passione/.test(nz(t)))) return 'chipre';
+  if(top==='floral') return (S.gourmand + S.oriental) > (S.citrica + S.almizclada) ? (S.frutal > S.gourmand*0.6 ? 'chipre' : 'tonka') : 'musky';
+  if(top==='oriental') return S.floral > S.amaderada ? 'tonka' : 'tabaco';
+  if(['citrica','frutal','verde','almizclada'].includes(top)) return 'musky';
+  if(['amaderada','aromatica'].includes(top)) return 'amaderada';
+  return 'tabaco'; /* especiada, cuero, ambar */
+}
+/* perfil aromático según la cata */
+/* afinidad 0..1 de cada componente con los perfumes que usa (familias de Fragrantica llevadas a las 10 de la app) */
+const FK2 = {citrica:{citrico:1}, frutal:{frutal:1}, verde:{verde:1}, floral:{floral:1}, aromatica:{aromatico:1}, ambar:{especiado:.5, gourmand:.5},
+  gourmand:{gourmand:1}, amaderada:{amaderado:1}, oriental:{especiado:.5, gourmand:.5}, cuero:{especiado:1}, especiada:{especiado:1}, almizclada:{almizclado:1}};
+function perfilFavoritos(){
+  const S = {}; FAM.forEach(([k])=>S[k]=0); let n = 0;
+  P.perf.forEach(t=>{ const f = encontrar(t); if(!f || !/[1-9]/.test(f.v)) return; n++; FK.forEach((k,i)=>Object.entries(FK2[k]).forEach(([fa,w])=>S[fa] += (+f.v[i])*w)); });
+  const mx = Math.max(...Object.values(S)); if(!n || !mx) return null; FAM.forEach(([k])=>S[k] /= mx); return S;
+}
+function afinidad(id){ const S = perfilFavoritos(); return S ? Object.entries(X[id].w).reduce((s,[k,w])=>s + w*S[k], 0) : 0; }
+/* refuerzo: hasta +35 % por coincidir con sus perfumes y hasta +25 % si le despertó emociones */
+/* ---------- capa emocional: recrear una emoción y un recuerdo en el perfume ----------
+   Cada emoción se asocia a familias olfativas. Se suman todas las emociones que eligió en la cata
+   (pesan más las de los aromas que más le gustaron) y eso arma su "perfil emocional".
+   Los recuerdos que escribió se leen buscando palabras que remiten a aromas concretos. */
+const EMO_FAM = {
+  'Alegría':{citrico:1, frutal:.8}, 'Calma':{aromatico:.8, almizclado:.8, verde:.5}, 'Energía':{citrico:.9, especiado:.7},
+  'Nostalgia':{gourmand:.7, floral:.6, amaderado:.4}, 'Sensualidad':{gourmand:.7, especiado:.6, floral:.5}, 'Elegancia':{amaderado:.8, floral:.6, almizclado:.5},
+  'Infancia':{gourmand:.9, frutal:.6}, 'Hogar':{gourmand:.7, amaderado:.6, almizclado:.5}, 'Viaje':{marino:.9, especiado:.5, citrico:.5},
+  'Naturaleza':{verde:1, aromatico:.6, amaderado:.5}, 'Limpieza':{almizclado:.9, marino:.6, floral:.4}, 'Misterio':{especiado:.8, amaderado:.7, gourmand:.4}};
+const RECUERDO = [
+  [/mar|playa|costa|olas?|verano|vacaciones|barco|brisa|arena|sal\b/, ['bruma','bergamota','citrico','salvia']],
+  [/abuel|infancia|niñ|chic[oa]|torta|postre|dulce|helado|cocina|caramelo|chocolate|navidad/, ['vainilla','tonka','citrico','pera']],
+  [/jard[ií]n|flor|rosa|primavera|novi|casamiento|boda|ramo/, ['rosa','peonia','jazmin']],
+  [/bosque|madera|campo|monte|caba[ñn]a|chimenea|fuego|le[ñn]a|montaña|sur\b/, ['amaderada','higo','salvia','tabaco']],
+  [/libro|biblioteca|caf[eé]|pipa|cigarr|tabaco|whisky|cuero|pap[aá]|padre/, ['tabaco','especias','amaderada']],
+  [/limpi|ropa|s[aá]bana|ba[ñn]o|duch|beb[eé]|jab[oó]n|spa|algod[oó]n/, ['musky','peonia','bruma']],
+  [/fruta|frutilla|uva|pera|manzana|fresa|grosella|caipi|trago|fiesta|noche|baile/, ['grosellas','pera','jazmin','especias']],
+  [/t[eé]\b|higo|higuera|hoja|pasto|verde|lluvia|tierra/, ['higo','salvia','peonia']],
+  [/viaje|india|oriente|especia|mercado|marruecos|canela/, ['especias','jazmin','tabaco']]];
+function perfilEmocional(){
+  const S = {}; FAM.forEach(([k])=>S[k]=0); const cuenta = {};
+  C.forEach(c=>{ const peso = 0.5 + (P.v[c.id]||0)/3; (P.emo[c.id]||[]).forEach(e=>{ cuenta[e] = (cuenta[e]||0) + peso; Object.entries(EMO_FAM[e]||{}).forEach(([k,w])=>S[k] += w*peso); }); });
+  const mx = Math.max(...Object.values(S)); if(mx) FAM.forEach(([k])=>S[k] /= mx);
+  const top = Object.entries(cuenta).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]);
+  return {S: mx ? S : null, top};
+}
+function recuerdos(){
+  const txt = nz(Object.values(P.rec||{}).join(' ')), out = {}, pal = [];
+  if(!txt) return {ids:out, pal};
+  RECUERDO.forEach(([re0, ids])=>{ const re = new RegExp(re0.source.normalize('NFD').replace(/[\u0300-\u036f]/g,'')), m = txt.match(re); if(m){ const i0 = txt.lastIndexOf(' ', m.index) + 1, i1 = txt.indexOf(' ', m.index + m[0].length); pal.push(txt.slice(i0, i1 < 0 ? undefined : i1)); ids.forEach((id,i)=>out[id] = Math.max(out[id]||0, 1 - i*0.15)); } });
+  return {ids:out, pal};
+}
+function afinidadEmo(id){ const E = perfilEmocional().S; return E ? Object.entries(X[id].w).reduce((s,[k,w])=>s + w*E[k], 0) : 0; }
+/* refuerzo de cada nota: sus perfumes (hasta +30 %), lo que le despertó esa nota (+25 %),
+   su perfil emocional general (+35 %) y sus recuerdos (+25 %) */
+const refuerzo = id => 1 + 0.30*afinidad(id) + 0.125*Math.min(2, (P.emo[id]||[]).length) + 0.35*afinidadEmo(id) + 0.25*(recuerdos().ids[id]||0);
+function perfilCata(){
+  const S = {}; FAM.forEach(([k])=>S[k]=0);
+  C.forEach(c=>{ const v = P.v[c.id]; if(v==null) return; Object.entries(c.w).forEach(([k,w])=>S[k] += v*w); });
+  return S;
+}
+const ordenFam = S => FAM.map(f=>f[0]).sort((a,b)=>S[b]-S[a]);
+function baseRecomendada(){
+  const fav = baseDeFavoritos(); if(fav) return {b:fav, por:'por los perfumes que usás'};
+  const v = id => P.v[id] ?? 0, mejor = Math.max(...BASES.map(v));
+  let cand = BASES.filter(b=>v(b)===mejor);
+  if(cand.length > 1){
+    const S = {}; FAM.forEach(([k])=>S[k]=0);
+    C.filter(c=>c.et!=='fon' && P.v[c.id]===3).forEach(c=>Object.entries(c.w).forEach(([k,w])=>S[k]+=w));
+    const afin = b => Object.entries(X[b].w).reduce((s,[k,w])=>s+S[k]*w, 0);
+    cand.sort((a,b)=>afin(b)-afin(a));
+  }
+  return {b:cand[0], por:'por tus votos en la cata'};
+}
+
+/* ======================= motor de formulación (punto 5) ======================= */
+function tope(id, f){ const t = TOPES[id]; if(!t) return Infinity; let x = t[COLB[P.principal]||0];
+  if(id==='especias' && (f||{}).tabaco > 0) x = Math.min(x, 3);
+  /* Chipre y Haba Tonka ya traen jazmín: si están las dos, el Jazmín va con cuidado salvo que le encante */
+  if(id==='jazmin' && ((f||{}).chipre > 0 || P.principal==='chipre' || P.extras.includes('chipre')) && ((f||{}).tonka > 0 || P.principal==='tonka' || P.extras.includes('tonka'))) x = Math.min(x, P.v.jazmin===3 ? 5 : 3);
+  return x; }
+function reparto(S){
+  const o = ordenFam(S), top = o[0], tot = Object.values(S).reduce((a,b)=>a+b,0);
+  if(!tot || S[top] - S[o[1]] < S[top]*0.08) return {sal:.225, cor:.375, fon:.40, perfil:null};
+  if(['citrico','frutal'].includes(top)) return {sal:.25, cor:.35, fon:.40, perfil:top};
+  if(top==='floral') return {sal:.20, cor:.40, fon:.40, perfil:top};
+  if(['amaderado','especiado','aromatico','gourmand'].includes(top)) return {sal:.20, cor:.35, fon:.45, perfil:top};
+  return {sal:.225, cor:.375, fon:.40, perfil:top};
+}
+function armarFondo(F, f){
+  const v = id => P.v[id] ?? 0, p = P.principal;
+  let vain = Math.min(tope('vainilla', f), v('vainilla')===3 ? 6 : v('vainilla')===2 ? 4 : 0);
+  const extras = P.extras.filter(b=>b!==p).slice(0,2);
+  const libre = Math.max(0, 0.4*F - vain);           /* la principal lleva al menos el 60 % del fondo */
+  let resto = F - vain, sec = {};
+  if(extras.length===1) sec[extras[0]] = Math.min(0.3*F, libre);
+  if(extras.length===2){ sec[extras[0]] = libre*0.6; sec[extras[1]] = libre*0.4; }
+  const sumSec = Object.values(sec).reduce((a,b)=>a+b,0);
+  let gp = resto - sumSec;
+  f[p] = 0; Object.entries(sec).forEach(([b,g])=>f[b]=(f[b]||0)+g); if(vain) f.vainilla = vain;
+  sumarAlFondo(f, gp);
+}
+function armarEtapa(et, total, f, prop){
+  /* devuelve los gramos que no entran respetando los topes (pasan a otra etapa) */
+  const v = id => P.v[id] ?? 0;
+  let notas = C.filter(c=>c.et===et && v(c.id)>0).map(c=>c.id).sort((a,b)=>v(b)-v(a));
+  if(!notas.length) notas = [REDONDEO[P.principal][et]];
+  const w = {}, rol = {};
+  notas.forEach(id=>{ const x = v(id) || 3;
+    if(x===3){ w[id]=3; rol[id]='Principal'; } else if(x>=2){ w[id]=2; rol[id]='Secundaria'; } else { w[id]=1; rol[id]='Soporte'; }
+    w[id] *= refuerzo(id); });
+  let soporteLibre = false; const fuera = [];
+  const cap = id => Math.min(tope(id, f), rol[id]==='Soporte' && !soporteLibre ? 3 : Infinity, id==='salvia' ? Math.max(0, 8 - (f.bruma||0)) : Infinity);
+  const g = {}; const sw = notas.reduce((s,id)=>s+w[id],0); notas.forEach(id=>g[id] = total*w[id]/sw);
+  const agregar = (id, r) => { if(!notas.includes(id)){ notas.push(id); g[id]=0; w[id]=1; rol[id]=r; } };
+  const libres = () => notas.filter(id=>g[id] < cap(id) - 0.005 && (rol[id]!=='Soporte' || soporteLibre));
+  /* reparte "x" gramos entre las que tienen lugar; devuelve lo que no entra */
+  const colocar = x => {
+    for(let it=0; it<20 && x > 0.004; it++){
+      let lib = libres();
+      if(!lib.length){ const u = UNIVERSAL[et]; if(!notas.includes(u) && v(u)!==0) agregar(u, 'Redondeo'); lib = libres(); }
+      if(!lib.length && !soporteLibre){ soporteLibre = true; lib = libres(); }
+      if(!lib.length){ const otra = C.find(c=>c.et===et && !notas.includes(c.id) && !fuera.includes(c.id) && v(c.id)>0); if(otra){ agregar(otra.id, 'Redondeo'); lib = libres(); } }
+      if(!lib.length) return x;
+      const lw = lib.reduce((s,id)=>s+w[id],0); let resto = 0;
+      lib.forEach(id=>{ const quiere = x*w[id]/lw, entra = Math.min(quiere, cap(id) - g[id]); g[id] += entra; resto += quiere - entra; });
+      x = resto;
+    }
+    return Math.max(0, x);
+  };
+  let sob = 0; notas.forEach(id=>{ const c = cap(id); if(g[id] > c){ sob += g[id]-c; g[id] = c; } });
+  let sobra = colocar(sob);
+  notas.forEach(id=>{ if(rol[id]==='Soporte' && g[id] < 1) g[id] = 1; });
+  if(et==='sal'){
+    /* los dos cítricos: hasta 18 g entre los dos */
+    const cit = (g.bergamota||0) + (g.citrico||0);
+    if(cit > 18){ const k = 18/cit; ['bergamota','citrico'].forEach(id=>{ if(g[id]) g[id]*=k; }); sobra += colocar(cit - 18); }
+    /* Bruma de mar con soporte cítrico del doble */
+    if(g.bruma){
+      let sop = ['bergamota','citrico'].find(id=>notas.includes(id) && v(id)!==0) || (v('bergamota')!==0 ? 'bergamota' : v('citrico')!==0 ? 'citrico' : null);
+      if(!sop && notas.some(id=>id!=='bruma' && g[id] > 0.004)){ const x = g.bruma; g.bruma = 0; notas = notas.filter(id=>id!=='bruma'); fuera.push('bruma'); sobra += colocar(x); }   /* sin cítrico que la sostenga, la Bruma no entra */
+      else {
+        sop = sop || 'bergamota';
+        agregar(sop, 'Soporte de la Bruma');
+        const falta = 2*g.bruma - ((g.bergamota||0) + (g.citrico||0));
+        if(falta > 0){
+          const lugar = cap(sop) - g[sop], pasa = Math.min(falta, Math.max(0, lugar));
+          const otros = notas.filter(id=>!['bruma','bergamota','citrico'].includes(id) && g[id] > 1), disp = otros.reduce((s,id)=>s+g[id]-1,0);
+          const quita = Math.min(pasa, disp); otros.forEach(id=>g[id] -= disp ? quita*(g[id]-1)/disp : 0); g[sop] += quita;
+          const aun = 2*g.bruma - ((g.bergamota||0) + (g.citrico||0));
+          if(aun > 0.005){ const nb = ((g.bergamota||0) + (g.citrico||0))/2; sobra += colocar(g.bruma - nb); g.bruma = nb; }
+        }
+      }
+    }
+  }
+  /* cerrar la etapa: lo que sobra por mínimos de soporte se descuenta de la más grande */
+  let suma = notas.reduce((s,id)=>s+(g[id]||0),0), objetivo = total - sobra;
+  if(suma > objetivo + 0.001){ const k = notas.filter(id=>g[id]>1).sort((a,b)=>g[b]-g[a])[0]; if(k) g[k] -= suma - objetivo; }
+  else if(suma < objetivo - 0.001){ sobra += colocar(objetivo - suma); }
+  notas.forEach(id=>{ if(g[id] > 0.004){ f[id] = (f[id]||0) + g[id]; prop.rol[id] = rol[id]==='Soporte' && soporteLibre ? 'Secundaria' : rol[id]; } });
+  return sobra;
+}
+function sumarAlFondo(f, x){
+  if(x <= 0.004) return;
+  const p = P.principal, v = id => P.v[id] ?? 0;
+  const otras = Object.keys(f).filter(k=>X[k].base && k!==p);
+  const tp = TOPE_BASE;   /* por stock: ninguna base pasa de 22 g por perfume (Tabaco y Pimienta, además, es la más tenaz) */
+  if((f[p]||0) + x <= tp){ f[p] = (f[p]||0) + x; return; }
+  const entra = Math.max(0, tp - (f[p]||0)); f[p] = (f[p]||0) + entra; x -= entra;
+  /* lo que falta va a Vainilla Crema (si la votó) o a otra base */
+  if(v('vainilla') > 0){ const add = Math.min(x, tope('vainilla', f) - (f.vainilla||0)); if(add > 0){ f.vainilla = (f.vainilla||0) + add; x -= add; } }
+  if(x <= 0.004) return;
+  if(otras.length){ otras.forEach(k=>f[k] += x/otras.length); return; }
+  const otra = BASES.filter(b=>b!==p && v(b) > 0).sort((a,b)=>v(b)-v(a))[0];
+  if(otra){ f[otra] = (f[otra]||0) + x; return; }
+  f[p] += x;   /* no le gustó ninguna otra base: queda en la principal (el perfumista decide) */
+}
+function proponer(){
+  const S = perfilCata(), R = reparto(S), T = CONFIG.TOTAL_G, f = {}, prop = {rol:{}, perfil:R.perfil, rep:R};
+  armarFondo(T*R.fon, f);
+  const s1 = armarEtapa('sal', T*R.sal, f, prop);
+  const s2 = armarEtapa('cor', T*R.cor + s1, f, prop);
+  sumarAlFondo(f, s2);
+  return {f:redondear(f, T), rol:prop.rol, rep:R};
+}
+function redondear(f, T){
+  const o = {}; Object.entries(f).forEach(([k,g])=>{ if(g > 0.004) o[k] = r2(g); });
+  if(T){ const s = r2(Object.values(o).reduce((a,b)=>a+b,0)); if(s !== T){ const k = Object.keys(o).sort((a,b)=>o[b]-o[a])[0]; o[k] = r2(o[k] + T - s); } }
+  return o;
+}
+const sumaEt = (f, et) => r2(Object.entries(f).filter(([k])=>X[k].et===et).reduce((s,[,g])=>s+g,0));
+const sumaT = f => r2(Object.values(f).reduce((a,b)=>a+b,0));
+function personalidad(f){
+  const S = {}; FAM.forEach(([k])=>S[k]=0);
+  Object.entries(f).forEach(([id,g])=>Object.entries(X[id].w).forEach(([k,w])=>S[k] += g*w));
+  const o = ordenFam(S), frase = S[o[0]] ? FAMN[o[0]] + (S[o[1]] ? ' ' + ADJ[o[1]] : '') : '';
+  return {S, o, frase};
+}
+function avisos(f){
+  const a = {}, T = sumaT(f) || 1;
+  Object.entries(f).forEach(([id,g])=>{ if(g > tope(id,f) + 0.001) a[id] = 'Esta nota es muy potente: puede tapar al resto.';
+    if(X[id].base && g > TOPE_BASE + 0.001) a[id] = 'Mucha cantidad de una sola base: hablá con el perfumista antes de pesarla, o sumá otra base.'; });
+  if(f.bruma && ((f.bergamota||0)+(f.citrico||0)) < 2*f.bruma) a.bruma = 'Sumá Bergamota o Acorde Cítrico para darle soporte.';
+  if(f.bruma && f.salvia && f.bruma + f.salvia > 8) a.salvia = 'Bruma de mar y Salvia y Maderas juntas no deberían pasar de 8 g.';
+  const et = [];
+  [['fon',.40,.45,'el fondo','más pesado','más liviano y menos duradero'],['cor',.35,.40,'el corazón','más intenso en el centro','con menos cuerpo'],['sal',.20,.25,'la salida','muy chispeante al principio','con una entrada más suave']].forEach(([k,mi,ma,t,mas,menos])=>{
+    const p = sumaEt(f,k)/T; if(p > ma + .005) et.push(`${t[0].toUpperCase()+t.slice(1)} quedó en ${Math.round(p*100)} %: tu perfume va a ser ${mas}.`);
+    else if(p < mi - .005) et.push(`${t[0].toUpperCase()+t.slice(1)} quedó en ${Math.round(p*100)} %: tu perfume va a ser ${menos}.`); });
+  return {notas:a, etapas:et};
+}
+
+/* ======================= gráficos ======================= */
+function svgPiramide(f, alto){
+  const T = sumaT(f) || 1, p = {sal:sumaEt(f,'sal')/T, cor:sumaEt(f,'cor')/T, fon:sumaEt(f,'fon')/T};
+  const W = 200, H = alto || 170, xAt = y => (W/2) * (y/H);
+  let y = 0, out = '';
+  [['sal','#C9B48A'],['cor','#8FA58F'],['fon','#2F4A3A']].forEach(([k,col])=>{
+    const h = H*p[k], y2 = y + h, x1 = xAt(y), x2 = xAt(y2);
+    out += `<path d="M${W/2-x1},${y} L${W/2+x1},${y} L${W/2+x2},${y2} L${W/2-x2},${y2} Z" fill="${col}" stroke="#F6F1E7" stroke-width="2"/>`;
+    if(h > 14) out += `<text x="${W/2}" y="${y + h/2 + (k==='sal'?h*0.18:0) + 4}" text-anchor="middle" font-size="${k==='sal'?10:12}" font-family="Montserrat" font-weight="600" fill="${k==='fon'?'#fff':'#151412'}">${ETN[k]} ${Math.round(p[k]*100)} %</text>`;
+    y = y2; });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pirámide: salida ${Math.round(p.sal*100)} %, corazón ${Math.round(p.cor*100)} %, fondo ${Math.round(p.fon*100)} %">${out}</svg>`;
+}
+function svgRadar(S){
+  const R = 70, cx = 100, cy = 92, n = FAM.length, max = Math.max(...Object.values(S), 0.0001);
+  const pt = (i, r) => [cx + r*Math.sin(2*Math.PI*i/n), cy - r*Math.cos(2*Math.PI*i/n)];
+  let g = '';
+  [0.33,0.66,1].forEach(k=>g += `<polygon points="${FAM.map((_,i)=>pt(i,R*k).join(',')).join(' ')}" fill="none" stroke="#E4DACA"/>`);
+  FAM.forEach(([k,t],i)=>{ const [x,y] = pt(i,R), [lx,ly] = pt(i,R+14); g += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E4DACA"/><text x="${lx}" y="${ly+3}" text-anchor="middle" font-size="8.5" font-family="Montserrat" fill="#6E665C">${t}</text>`; });
+  g += `<polygon points="${FAM.map(([k],i)=>pt(i, R*S[k]/max).join(',')).join(' ')}" fill="rgba(176,138,78,.35)" stroke="#B08A4E" stroke-width="2"/>`;
+  return `<svg viewBox="-24 0 248 184" role="img" aria-label="Personalidad del perfume">${g}</svg>`;
+}
+function bloqueViz(f, compacto){
+  const pe = personalidad(f), ev = ['sal','cor','fon'].map(et=>Object.entries(f).filter(([k])=>X[k].et===et).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k])=>X[k].n).join(' y ') || '—');
+  if(compacto) return `<div class="viz">${svgPiramide(f,120)}<div><div class="eb">Personalidad</div><div class="frase" style="text-align:left;font-size:19px">${esc(pe.frase)}</div><div style="font-size:13px;color:var(--dim)">Total ${fg(sumaT(f))} g</div></div></div>`;
+  return `<div class="card"><div class="frase">${esc(pe.frase)}</div><div class="viz">${svgPiramide(f)}${svgRadar(pe.S)}</div>
+    <div class="evol"><div><b>Al ponértelo</b><span>${esc(ev[0])}</span></div><div><b>A la hora</b><span>${esc(ev[1])}</span></div><div><b>Al final del día</b><span>${esc(ev[2])}</span></div></div></div>`;
+}
+
+/* ======================= planilla ======================= */
+function fila(){
+  const voto = id => { const v = P.v[id]; return v==null ? '' : VOTOS.find(x=>x[0]===v)[2]; };
+  const S = perfilCata(), top3 = ordenFam(S).slice(0,3).filter(k=>S[k]>0).map(k=>FAMN[k]).join(', ');
+  const f = P.f || {}, txt = o => Object.entries(o||{}).map(([k,g])=>`${X[k]?X[k].n:k}: ${fg(g)} g`).join('; ');
+  const pe = P.f ? personalidad(P.f) : null, rec = baseRecomendada();
+  const cols = [['ID',P.id],['Fecha y hora',P.creado],['Última actualización',new Date().toLocaleString('es-AR')],['Estado',P.est||''],['Nombre',P.nom.trim()],['WhatsApp',P.wa.trim()],
+    ['Perfumes favoritos',P.perf.filter(x=>x&&x.trim()).join(' | ')]];
+  C.forEach(c=>cols.push(['Voto · '+c.n, voto(c.id)]));
+  C.forEach(c=>cols.push(['Emociones · '+c.n, (P.emo[c.id]||[]).join(', ')]));
+  C.forEach(c=>cols.push(['Recuerdo · '+c.n, P.rec[c.id]||'']));
+  cols.push(['Perfil aromático (top 3)', top3], ['Base recomendada', X[rec.b].n], ['Base elegida', P.principal ? X[P.principal].n : ''],
+    ['Segunda base', P.extras[0] ? X[P.extras[0]].n : ''], ['Tercera base', P.extras[1] ? X[P.extras[1]].n : ''],
+    ['Fórmula completa', txt(f)], ['Gramos fondo', P.f ? fg(sumaEt(f,'fon')) : ''], ['Gramos corazón', P.f ? fg(sumaEt(f,'cor')) : ''], ['Gramos salida', P.f ? fg(sumaEt(f,'sal')) : ''],
+    ['Nombre del perfume', P.pn.trim()], ['Modo final', P.f ? P.modo : ''], ['Fórmula propuesta por la app', txt(P.guiada)],
+    ['Toque del perfumista', Object.entries(P.toque).filter(([,g])=>g>0).map(([k,g])=>`${TOQUE.find(t=>t[0]===k)[1]}: ${fg(g)} g`).join('; ')],
+    ['Emociones principales', perfilEmocional().top.join(', ')], ['Palabras de sus recuerdos', recuerdos().pal.join(', ')],
+    ...C.map(c=>['Gramos · '+c.n, P.f ? r2(P.f[c.id]||0) : '']),
+    ...TOQUE.map(([k,t])=>['Gramos · '+t, P.toque && P.toque[k] ? r2(P.toque[k]) : '']),
+    ['Personalidad', pe ? pe.frase + ' · ' + pe.o.slice(0,3).filter(k=>pe.S[k]>0).map(k=>FAMN[k]).join(', ') : ''], ['Dispositivo', P.dev]);
+  return {clave:CONFIG.CLAVE, hoja:CONFIG.HOJA, id:P.id, t:Date.now(), columnas:cols};
+}
+function registrar(estado){ P.est = estado; guardar();
+  const cola = LS.get(CONFIG.LS+'_cola',[]).filter(r=>r.id!==P.id); cola.push(fila()); LS.set(CONFIG.LS+'_cola', cola); vaciar(); }
+let enviando = false;
+/* un envío solo sale de la cola cuando llegó: con respuesta del script, o al menos con el pedido entregado (no-cors) */
+async function vaciar(){
+  if(enviando) return; enviando = true;
+  try{
+    for(const r of LS.get(CONFIG.LS+'_cola',[])){
+      let ok = false; const body = JSON.stringify(r);
+      try{ const resp = await fetch(CONFIG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body}); const j = await resp.json(); ok = !!j.ok; }catch(e){}
+      if(!ok){ try{ await fetch(CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body}); ok = true; }catch(e){} }
+      if(ok) LS.set(CONFIG.LS+'_cola', LS.get(CONFIG.LS+'_cola',[]).filter(x=>!(x.id===r.id && x.t===r.t)));
+      else break;
+    }
+  } finally { enviando = false; }
+}
+setInterval(vaciar, 20000); window.addEventListener('online', vaciar);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) vaciar(); });
+
+/* ======================= navegación ======================= */
+const PASOS = ['analisis','inicio','datos','intro','cata','perfil','pausa','base','guiado','lab','pesar','nombre','final','gracias'];
+function ir(p){ P.paso = p; guardar(); pintar(); window.scrollTo(0,0); vaciar(); }
+function atras(){
+  if(P.paso==='cata' && P.i > 0){ P.i--; guardar(); pintar(); window.scrollTo(0,0); return; }
+  const m = {analisis:'base', intro:'datos', cata:'intro', perfil:'cata', pausa:'perfil', base:'pausa', guiado:'base', lab:'guiado', pesar: P.modo==='lab' ? 'lab' : 'guiado', nombre:'pesar', final:'nombre', gracias:'final'};
+  if(m[P.paso]){ if(P.paso==='perfil') P.i = C.length-1; ir(m[P.paso]); }
+}
+function barraTop(){
+  const prog = P.paso==='cata' ? `${ETN[C[P.i].et]} · ${P.i+1} de ${C.length}` : '';
+  $('#top').innerHTML = (P.paso!=='datos' ? `<button class="back" onclick="atras()" aria-label="Volver">←</button>` : '') +
+    `<div class="marca"><b>${esc(CONFIG.EMPRESA)}</b><small>${esc(CONFIG.FECHA)}</small></div><div class="prog">${prog}</div>`;
+}
+function fijo(html){ const f = $('#fijo'); if(!html){ f.hidden = true; return; } f.hidden = false; $('#fijo-in').innerHTML = html; }
+
+/* ---------- pantallas ---------- */
+function vDatos(){
+  const ok = P.nom.trim() && P.wa.replace(/\D/g,'').length >= 8;
+  fijo(`<button class="btn" id="go" ${ok?'':'disabled'} onclick="ir('intro')">Seguir</button>`);
+  return `<div class="eb">Tus datos</div><h1>¿Quién sos?</h1>
+    <datalist id="lista-inv">${INVITADOS.map(([n])=>`<option value="${esc(n)}">`).join('')}</datalist>
+    <div class="fld"><label for="nom">Nombre y apellido</label><input id="nom" list="lista-inv" autocomplete="off" value="${esc(P.nom)}" placeholder="Empezá a escribir tu nombre" oninput="setNom(this.value)"></div>
+    <div id="tuyo">${tuyoHtml()}</div><p class="sub" style="font-size:13px;margin-top:6px">Si no aparecés en la lista, escribí tu nombre igual.</p>
+    <div class="fld"><label for="wa">WhatsApp</label><input id="wa" type="tel" inputmode="tel" autocomplete="tel" value="${esc(P.wa)}" placeholder="11 5555 5555" oninput="P.wa=this.value;guardar();chkDatos()"></div>
+    <div class="fld"><label>Tus perfumes favoritos <small>(de 3 a 5, opcional)</small></label>
+      ${P.perf.map((v,i)=>`<div class="ac"><input id="pf${i}" value="${esc(v)}" autocomplete="off" placeholder="Perfume ${i+1}" aria-label="Perfume favorito ${i+1}" oninput="tipear(${i},this.value)" onblur="setTimeout(()=>cerrarAc(${i}),200)"><div class="acl" id="acl${i}"></div></div>`).join('')}</div>`;
+}
+function tuyoHtml(){ return P.pnLista ? `<div class="tuyo">Tu perfume se va a llamar <b>${esc(P.pnLista)}</b></div>` : ''; }
+function setNom(v){ P.nom = v; const m = INVITADOS.find(([n])=>nz(n)===nz(v)); P.pnLista = m ? m[1] : ''; if(m && !P.pnEditado) P.pn = m[1]; guardar(); $('#tuyo').innerHTML = tuyoHtml(); chkDatos(); }
+function chkDatos(){ const b = $('#go'); if(b) b.disabled = !(P.nom.trim() && P.wa.replace(/\D/g,'').length >= 8); }
+function tipear(i, val){ P.perf[i] = val; guardar(); const l = $('#acl'+i), r = buscar(val);
+  l.innerHTML = r.map(f=>`<button type="button" onmousedown="event.preventDefault()" onclick="elegirPerf(${i},this.dataset.v)" data-v="${esc(f.n+' · '+f.b)}"><b>${esc(f.n)}</b> <span>${esc(f.b)}</span></button>`).join('');
+  l.style.display = r.length ? 'block' : 'none'; }
+function elegirPerf(i, v){ P.perf[i] = v; guardar(); const inp = $('#pf'+i); if(inp) inp.value = v; cerrarAc(i); }
+function cerrarAc(i){ const l = $('#acl'+i); if(l) l.style.display = 'none'; }
+
+function vIntro(){
+  fijo(`<button class="btn" onclick="empezarCata()">Empezar la cata</button>`);
+  return `<div class="eb">La cata</div><h1>Cómo se vota</h1>
+    <div class="card" style="margin-top:14px;display:flex;flex-direction:column;gap:12px;font-size:16px">
+      <div>1 · Vas a oler <b>${C.length} aromas</b>, de a uno: primero las <b>salidas</b>, después el <b>corazón</b> y al final el <b>fondo</b>.</div>
+      <div>2 · Oleé la tira, leé la ficha y votá: <b>Me encanta, Me gusta, Un poquito o No me gusta</b>.</div>
+      <div>3 · Si querés, elegí qué emociones te despierta y contanos qué te recuerda.</div></div>
+    <p class="sub" style="margin-top:14px">Entre aroma y aroma, respirá en tu muñeca o en la manga para limpiar la nariz.</p>`;
+}
+function empezarCata(){ if(!P.enviadoReg){ P.enviadoReg = true; registrar('Registrado'); } P.i = 0; ir('cata'); }
+function vCata(){
+  const c = C[P.i], v = P.v[c.id], emo = P.emo[c.id] || [];
+  fijo(`<button class="btn ghost" onclick="atras()">Atrás</button><button class="btn" ${v==null?'disabled':''} onclick="sigCata()">${P.i < C.length-1 ? 'Siguiente' : 'Ver mi perfil'}</button>`);
+  const tec = [c.tipo && ['Tipo', c.tipo], c.org && ['Origen', c.org], c.evap && ['Evaporación', c.evap], c.comp && ['Componentes', c.comp]].filter(Boolean);
+  const pir = c.pir ? c.pir.split(' · ').map(x=>x.split(': ')) : [];
+  return `<div class="ficha"><img class="foto" src="${foto(c.img)}" alt="">
+    <div class="eb">${ETN[c.et]}${c.base?' · Base':''} · ${esc(c.fam)}</div><h1>${esc(c.n)}</h1>
+    <div class="apodo">${esc(c.ap)}</div><div class="fuerza"><span>Fuerza</span><span class="b" aria-label="Fuerza ${c.fu} de 9">${Array.from({length:9},(_,k)=>`<i class="${k<c.fu?'on':''}"></i>`).join('')}</span><span>${c.fu}/9</span></div>
+    <div class="perfil">${esc(c.perfil)}</div>
+    ${tec.length ? `<dl class="tec">${tec.map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('')}</dl>` : ''}
+    ${pir.length ? `<div class="pir-ac"><div class="eb">Pirámide de este acorde</div>${pir.map(([e,n])=>`<div><b>${esc(e)}</b><span>${esc(n)}</span></div>`).join('')}</div>` : ''}
+    <p class="aporta"><b>Qué aporta.</b> ${esc(c.aporta)}</p></div>
+    <h2>Tu voto</h2>
+    <div class="votos" role="group" aria-label="¿Qué te pareció ${esc(c.n)}?">${VOTOS.map(([k,s,t])=>`<button aria-pressed="${v===k}" onclick="votar(${k})"><b>${s}</b>${t}</button>`).join('')}</div>
+    <h2>¿Qué emociones te despierta? <small style="text-transform:none;letter-spacing:0;color:var(--dim);font-weight:400">(opcional)</small></h2>
+    <div class="emos">${EMOCIONES.map(e=>`<button aria-pressed="${emo.includes(e)}" onclick="emocion('${e}')">${e}</button>`).join('')}</div>
+    <div class="fld"><label for="rec">¿Qué te recuerda? <small>(opcional)</small></label>
+      <textarea id="rec" rows="2" maxlength="120" placeholder="Un lugar, una persona, un momento…" oninput="P.rec['${c.id}']=this.value;guardar();$('#cnt').textContent=this.value.length+'/120'">${esc(P.rec[c.id]||'')}</textarea>
+      <div class="cuenta" id="cnt">${(P.rec[c.id]||'').length}/120</div></div>`;
+}
+function votar(k){ P.v[C[P.i].id] = k; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
+function emocion(e){ const id = C[P.i].id, l = P.emo[id] || (P.emo[id] = []); const i = l.indexOf(e); if(i<0) l.push(e); else l.splice(i,1); guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
+function sigCata(){ if(P.v[C[P.i].id]==null) return; if(P.i < C.length-1){ P.i++; guardar(); pintar(); window.scrollTo(0,0); vaciar(); } else { registrar('Terminó la cata'); ir('perfil'); } }
+
+function vPerfil(){
+  const S = perfilCata(), o = ordenFam(S), max = S[o[0]] || 1, fav = C.filter(c=>P.v[c.id]===3).slice(0,3);
+  const fav3 = fav.length ? fav : C.filter(c=>P.v[c.id]===2).slice(0,3);
+  fijo(`<button class="btn" onclick="ir('pausa')">Seguir</button>`);
+  return `<div class="eb">Tu perfil aromático</div><h1>${S[o[0]] ? esc(FAMN[o[0]]) + (S[o[1]] ? ' y ' + esc(FAMN[o[1]]).toLowerCase() : '') : 'Tu perfil'}</h1>
+    <div class="card" style="margin-top:12px"><div class="barras">${o.map(k=>`<div class="barra"><span>${FAMN[k]}</span><span class="t"><i style="width:${Math.round(100*S[k]/max)}%"></i></span><span>${Math.round(100*S[k]/max)}</span></div>`).join('')}</div></div>
+    <h2>Tus favoritas</h2>
+    <div style="display:flex;gap:10px">${fav3.map(c=>`<div class="card" style="flex:1;text-align:center;padding:10px"><img src="${foto(c.img)}" alt="" style="width:100%;aspect-ratio:1;object-fit:contain"><div style="font-size:13px;font-weight:600">${esc(c.n)}</div></div>`).join('') || '<p class="sub">Todavía no marcaste ninguna con "Me encanta".</p>'}</div>`;
+}
+function vPausa(){
+  fijo(`<button class="btn" onclick="prepararBase(); ir('base')">Pasar a formular</button>`);
+  return `<div style="text-align:center;padding-top:6vh"><div class="eb">Pausa</div><h1>El perfumista te va a contar cómo se crea un perfume</h1>
+    <p class="sub" style="margin-top:12px">Historia, composición, familias olfativas y concentraciones. Cuando terminemos, tocá el botón y armamos tu fórmula.</p></div>`;
+}
+function pedirPin(ok){
+  const d = document.createElement('div'); d.className = 'modal'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','Clave');
+  d.innerHTML = `<div class="caja"><div class="eb">Clave del perfumista</div><div class="fld"><input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="Clave" style="font-size:24px;text-align:center;letter-spacing:8px"></div>
+    <button class="btn" id="pinok">Entrar</button><button class="btn ghost" onclick="this.closest('.modal').remove()">Cancelar</button></div>`;
+  document.body.appendChild(d); const i = d.querySelector('#pin'); setTimeout(()=>i.focus(), 50);
+  const probar = () => { if(i.value.trim() === CONFIG.PIN){ d.remove(); ok(); } else { i.value=''; aviso('Clave incorrecta'); } };
+  d.querySelector('#pinok').onclick = probar; i.onkeydown = e => { if(e.key==='Enter') probar(); };
+}
+function prepararBase(){
+  if(!P.principal){ P.principal = baseRecomendada().b;
+    const pts = b => (P.v[b]||0) + 0.5*afinidad(b);
+    const choca = b => ['chipre','tonka'].includes(P.principal) && ['chipre','tonka'].includes(b) && (P.v[b]||0) < 3;   /* Chipre + Haba Tonka: mucho jazmín junto */
+    P.extras = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 2 && !choca(b)).sort((a,b)=>pts(b)-pts(a)).slice(0,2);
+    /* con una sola base es mucho volumen de la misma: se suma la mejor votada como soporte */
+    /* Chipre y Haba Tonka juntas solo si le encantan las dos */
+    const todas = [P.principal, ...P.extras];
+    if(todas.includes('chipre') && todas.includes('tonka') && !(P.v.chipre===3 && P.v.tonka===3)){ const sale = P.principal==='chipre' ? 'tonka' : P.principal==='tonka' ? 'chipre' : (pts('chipre') >= pts('tonka') ? 'tonka' : 'chipre'); P.extras = P.extras.filter(b=>b!==sale); }
+    if(!P.extras.length){ const s = BASES.filter(b=>b!==P.principal && (P.v[b]||0) >= 1 && !choca(b)).sort((a,b)=>pts(b)-pts(a))[0]; if(s) P.extras = [s]; } }
+  recalcular();
+}
+function recalcular(){ const pr = proponer(); P.guiada = pr.f; P.rol = pr.rol; guardar(); }
+function vBase(){
+  const rec = baseRecomendada();
+  fijo(`<button class="btn" onclick="ir('analisis')">Ver mi fórmula</button>`);
+  return `<div class="eb">Paso 1 · El fondo</div><h1>Elegí tu base</h1>
+    <p class="sub">Te recomendamos <b>${esc(X[rec.b].n)}</b> ${esc(rec.por)}. Podés cambiarla o combinarla con una o dos bases más.</p>
+    <div class="bases" style="margin-top:14px">${BASES.map(b=>{ const cls = b===P.principal ? 'p' : P.extras.includes(b) ? 's' : '';
+      return `<div class="bopt ${cls}">${cls==='p'?'<span class="tag">Principal</span>':cls==='s'?'<span class="tag">Suma</span>':''}
+        <img src="${foto(X[b].img)}" alt="">${b===rec.b?'<span class="rec2">★ Recomendada</span>':''}<b>${esc(X[b].n)}</b><small>${esc(X[b].perfil)}</small>
+        <div class="seg"><button aria-pressed="${b===P.principal}" onclick="setBase('${b}','p')">Principal</button><button aria-pressed="${P.extras.includes(b)}" ${b===P.principal?'disabled':''} onclick="setBase('${b}','s')">Sumar</button></div></div>`; }).join('')}</div>
+    <p class="sub" style="margin-top:12px;font-size:14px">La principal lleva al menos el 60 % del fondo. Podés sumar hasta 2 bases más.</p>`;
+}
+function setBase(b, modo){
+  if(modo==='p'){ P.principal = b; P.extras = P.extras.filter(x=>x!==b); }
+  else { if(P.extras.includes(b)) P.extras = P.extras.filter(x=>x!==b); else { if(P.extras.length>=2){ aviso('Hasta 3 bases en total'); return; } P.extras.push(b); } }
+  recalcular(); const y = window.scrollY; pintar(); window.scrollTo(0,y);
+}
+function listaFormula(f, opts){
+  opts = opts || {};
+  return ['fon','cor','sal'].map(et=>{ const l = Object.entries(f).filter(([k])=>X[k].et===et).sort((a,b)=>(X[b[0]].base?1:0)-(X[a[0]].base?1:0) || b[1]-a[1]);
+    if(!l.length) return '';
+    return `<div class="etapa"><h3><span>${ETN[et]}</span><span>${fg(sumaEt(f,et))} g</span></h3>${l.map(([k,g])=>`<div class="fl ${opts.pesar && P.pesado[k]?'pesado':''}"><img src="${foto(X[k].img)}" alt=""><div class="n"><b>${esc(X[k].n)}</b><small>${opts.rol && P.rol && P.rol[k] ? esc(P.rol[k]) : ''}</small></div>
+      <span class="g">${P.ml && opts.pesar ? fg(g/CONFIG.DENSIDAD)+' ml' : fg(g)+' g'}</span>${opts.pesar ? `<button class="tick" aria-pressed="${!!P.pesado[k]}" aria-label="Marcar ${esc(X[k].n)} como pesado" onclick="tick('${k}')">✓</button>` : ''}</div>`).join('')}</div>`; }).join('');
+}
+/* ---------- analizando: la gente ve cómo se calcula su perfume ---------- */
+function vAnalisis(){
+  fijo('');
+  const pe = perfilEmocional(), rc = recuerdos(), favs = P.perf.filter(t=>t && t.trim()).map(t=>t.split(' · ')[0]).slice(0,3);
+  const enc = C.filter(c=>P.v[c.id]===3).length, gu = C.filter(c=>P.v[c.id]===2).length;
+  const pasos = [
+    ['Leyendo tus votos', `${enc} te encantaron y ${gu} te gustaron`],
+    ['Sintiendo tus emociones', pe.top.length ? pe.top.join(' · ') : 'Tu forma de reaccionar a cada aroma'],
+    ['Buscando tus recuerdos', rc.pal.length ? rc.pal.slice(0,3).map(p=>'"'+p+'"').join(', ') : 'Lo que cada aroma te despertó'],
+    ['Cruzando con tus perfumes', favs.length ? favs.join(', ') : 'Tu familia olfativa'],
+    ['Mezclando tus bases', [P.principal, ...P.extras].filter(Boolean).map(b=>X[b].n).join(' + ')],
+    ['Equilibrando salida, corazón y fondo', 'Cada nota en su gramo justo, sobre 80 g']];
+  const fav = C.filter(c=>P.v[c.id]===3).slice(0,6);
+  setTimeout(()=>{ if(P.paso==='analisis'){ recalcular(); ir('guiado'); } }, 1100*pasos.length + 900);
+  return `<div class="anal"><div class="eb" style="text-align:center">Creando tu perfume</div><h1 style="text-align:center">Estamos armando tu fórmula</h1>
+    <div class="orbita">${fav.map((c,i)=>`<img src="${foto(c.img)}" alt="" style="--i:${i};--n:${fav.length}">`).join('')}<div class="gota"></div></div>
+    <ol class="pasos-an">${pasos.map(([t,d],i)=>`<li style="--d:${i*1.1}s"><b>${esc(t)}</b><span>${esc(d)}</span></li>`).join('')}</ol>
+    <div class="barra-an"><i style="--t:${1.1*pasos.length+0.6}s"></i></div></div>`;
+}
+function vGuiado(){
+  if(!P.guiada) recalcular();
+  const f = P.guiada, pot = POTENCIAN.filter(([a,b])=>f[a] && f[b]);
+  fijo(`<button class="btn ghost" onclick="jugar()">Quiero jugar</button><button class="btn" onclick="usarGuiada()">Me gusta así</button>`);
+  return `<div class="eb">Paso 2 · Modo guiado</div><h1>Tu fórmula propuesta</h1><p class="sub">Armada con tus votos, tus emociones y tus recuerdos, para 100 ml (80 g).</p>
+    ${tarjetaEmocional(f)}
+    <div style="margin-top:12px">${bloqueViz(f)}</div>
+    ${pot.length ? `<div class="chips" style="margin-top:12px">${pot.map(p=>`<span class="chip">✦ ${esc(X[p[0]].n)} + ${esc(X[p[1]].n)}: ${esc(p[2].toLowerCase())}</span>`).join('')}</div>` : ''}
+    ${listaFormula(f,{rol:true})}<div class="total"><span>Total</span><span>${fg(sumaT(f))} g</span></div>`;
+}
+function tarjetaEmocional(f){
+  const pe = perfilEmocional(), rc = recuerdos();
+  if(!pe.top.length && !rc.pal.length) return '';
+  /* las notas de la fórmula que mejor llevan esas emociones */
+  const notas = Object.keys(f).filter(k=>!X[k].base || true).map(k=>[k, afinidadEmo(k) + (rc.ids[k]||0)]).sort((a,b)=>b[1]-a[1]).slice(0,3).filter(x=>x[1]>0).map(x=>X[x[0]].n);
+  return `<div class="card" style="margin-top:12px;border-color:var(--gold)"><div class="eb">Tu recuerdo emocional</div>
+    ${pe.top.length ? `<div class="frase" style="text-align:left;font-size:20px;margin-top:6px">${pe.top.map(esc).join(' · ')}</div>` : ''}
+    ${rc.pal.length ? `<p class="sub" style="font-size:14px">En tus recuerdos aparecen: ${rc.pal.slice(0,4).map(p=>'"'+esc(p)+'"').join(', ')}.</p>` : ''}
+    ${notas.length ? `<p style="font-size:14px;margin-top:6px">Lo llevan a tu perfume: <b>${notas.map(esc).join(', ')}</b>.</p>` : ''}</div>`;
+}
+function usarGuiada(){ P.modo = 'guiado'; P.f = Object.assign({}, P.guiada); registrar('Fórmula'); ir('pesar'); }
+function jugar(){ P.modo = 'lab'; if(!P.f || P.labDe !== JSON.stringify(P.guiada)){ P.f = Object.assign({}, P.guiada); P.labDe = JSON.stringify(P.guiada); } ir('lab'); }
+
+/* ---------- laboratorio ---------- */
+function vLab(){
+  const f = P.f, av = avisos(f), T = sumaT(f), dif = r2(CONFIG.TOTAL_G - T);
+  const faltan = C.filter(c=>!(c.id in f));
+  fijo(`<button class="btn ghost" onclick="volverPropuesta()">Propuesta</button><button class="btn" ${P.libre && Math.abs(dif)>0.001 ? 'disabled' : ''} onclick="labListo()">Listo, a pesar</button>`);
+  const fila = ([k,g]) => `<div class="fl"><img src="${foto(X[k].img)}" alt=""><div class="n"><b>${esc(X[k].n)}</b><small>${X[k].base?'Base':''} <button class="quitar" onclick="quitar('${k}')">quitar</button></small></div>
+    <div class="ctrl"><button onclick="mover('${k}',-0.5)" aria-label="Restar 0,50 g">−0,50</button><button onclick="mover('${k}',-0.1)" aria-label="Restar 0,10 g">−0,10</button>
+      <input type="text" inputmode="decimal" value="${fg(g)}" aria-label="Gramos de ${esc(X[k].n)}" onchange="escribir('${k}',this.value)"><button onclick="mover('${k}',0.1)" aria-label="Sumar 0,10 g">+0,10</button><button onclick="mover('${k}',0.5)" aria-label="Sumar 0,50 g">+0,50</button></div>
+    ${av.notas[k] ? `<div class="warn">⚠ ${esc(av.notas[k])}</div>` : ''}</div>`;
+  return `<div class="lab"><div class="eb">Paso 2 · Modo laboratorio</div><h1>Jugá con tu fórmula</h1>
+    <div class="stick">${bloqueViz(f,true)}</div>
+    ${av.etapas.map(t=>`<div class="aviso">${esc(t)}</div>`).join('')}
+    ${['fon','cor','sal'].map(et=>{ const l = Object.entries(f).filter(([k])=>X[k].et===et).sort((a,b)=>b[1]-a[1]);
+      return `<div class="etapa"><h3><span>${ETN[et]}</span><span>${fg(sumaEt(f,et))} g · ${Math.round(100*sumaEt(f,et)/(T||1))} %</span></h3>${l.map(fila).join('') || '<p class="sub" style="padding:8px 0">Sin componentes</p>'}</div>`; }).join('')}
+    ${faltan.length ? `<div class="sumar"><select id="sumar" aria-label="Agregar componente"><option value="">Agregar un componente…</option>${['sal','cor','fon'].map(et=>`<optgroup label="${ETN[et]}">${faltan.filter(c=>c.et===et).map(c=>`<option value="${c.id}">${esc(c.n)}${P.v[c.id]===0?' (no te gustó)':''}</option>`).join('')}</optgroup>`).join('')}</select>
+      <button class="btn" style="margin:0;width:auto;padding:12px 18px" onclick="sumarComp()">Sumar</button></div>` : ''}
+    <label class="libre"><input type="checkbox" ${P.libre?'checked':''} onchange="P.libre=this.checked;guardar();pintar()"> Total libre (no compensa automáticamente)</label>
+    <div class="total"><span>Total</span><span>${fg(T)} g ${P.libre && Math.abs(dif)>0.001 ? `<small style="color:var(--warn)">(${dif>0?'faltan':'sobran'} ${fg(Math.abs(dif))} g)</small>` : ''}</span></div></div>`;
+}
+function ajustar(k, nuevoG){
+  const f = P.f, viejo = f[k] || 0; nuevoG = Math.max(0, r2(nuevoG)); let d = r2(nuevoG - viejo);
+  if(!d) return;
+  if(!P.libre){
+    let otros = Object.keys(f).filter(x=>x!==k && X[x].et===X[k].et && f[x]>0);
+    if(!otros.length) otros = Object.keys(f).filter(x=>x!==k && f[x]>0);
+    const disp = otros.reduce((s,x)=>s+f[x],0);
+    if(d > disp){ d = disp; nuevoG = r2(viejo + d); }
+    otros.forEach(x=>{ f[x] = r2(f[x] - d * f[x]/disp); if(f[x] < 0) f[x] = 0; });
+  }
+  f[k] = nuevoG;
+  if(!P.libre){ const s = r2(sumaT(f) - CONFIG.TOTAL_G); if(s){ const big = Object.keys(f).filter(x=>x!==k).sort((a,b)=>f[b]-f[a])[0] || k; f[big] = r2(f[big] - s); } }
+  Object.keys(f).forEach(x=>{ if(f[x] <= 0 && x!==k) delete f[x]; });
+  guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y);
+}
+const mover = (k,d) => ajustar(k, (P.f[k]||0) + d);
+const escribir = (k,v) => { const n = parseFloat(String(v).replace(',','.')); if(isNaN(n)){ pintar(); return; } ajustar(k, n); };
+function quitar(k){ const g = P.f[k]; delete P.f[k];
+  if(!P.libre && g){ let otros = Object.keys(P.f).filter(x=>X[x].et===X[k].et); if(!otros.length) otros = Object.keys(P.f); const s = otros.reduce((a,x)=>a+P.f[x],0) || 1; otros.forEach(x=>P.f[x] = r2(P.f[x] + g*P.f[x]/s)); const dd = r2(sumaT(P.f)-CONFIG.TOTAL_G); if(dd && otros.length){ const b = otros.sort((a,b)=>P.f[b]-P.f[a])[0]; P.f[b] = r2(P.f[b]-dd); } }
+  guardar(); pintar(); }
+function sumarComp(){ const id = $('#sumar').value; if(!id) return; P.f[id] = 0; ajustar(id, X[id].base ? 4 : 1); }
+function volverPropuesta(){ if(!confirm('¿Volver a la fórmula que te propuso la app? Se pierden tus cambios.')) return; P.f = Object.assign({}, P.guiada); P.modo='guiado'; guardar(); ir('guiado'); }
+function labListo(){ P.modo = 'lab'; registrar('Fórmula'); ir('pesar'); }
+
+/* ---------- pesar ---------- */
+function vPesar(){
+  const f = P.f, toque = Object.entries(P.toque).filter(([,g])=>g>0);
+  fijo(`<button class="btn" onclick="ir('nombre')">Seguir</button>`);
+  return `<div class="eb">Paso 3 · Pesá tu perfume</div><h1>Tu fórmula para pesar</h1>
+    <p class="sub">En este orden: fondo, corazón y salida. Tocá ✓ cuando termines cada uno.</p>
+    ${Object.entries(f).some(([k,g])=>X[k].base && g > TOPE_BASE + 0.001) ? `<div class="aviso">✋ Tu fórmula lleva mucha cantidad de una base. <b>Hablá con el perfumista</b> antes de pesarla.</div>` : ''}
+    ${listaFormula(f,{pesar:true})}<div class="total"><span>Total</span><span>${P.ml ? fg(sumaT(f)/CONFIG.DENSIDAD)+' ml' : fg(sumaT(f))+' g'}</span></div>
+    ${toque.length ? `<div class="etapa"><h3><span>Toque del perfumista</span></h3>${toque.map(([k,g])=>`<div class="fl"><div class="n"><b>${esc(TOQUE.find(t=>t[0]===k)[1])}</b></div><span class="g">${fg(g)} g</span></div>`).join('')}</div>` : ''}
+    <button class="btn ghost" style="margin-top:20px" onclick="pedirPin(abrirToque)">Toque del perfumista</button>`;
+}
+function tick(k){ P.pesado[k] = !P.pesado[k]; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
+function abrirToque(){
+  const d = document.createElement('div'); d.className = 'modal'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','Toque del perfumista');
+  d.innerHTML = `<div class="caja"><div class="eb">Toque del perfumista</div><p class="sub" style="font-size:14px">Hasta 3,00 g en total. No sale en la imagen final.</p>
+    ${TOQUE.map(([k,t])=>`<div class="fld"><label for="t_${k}">${t}</label><input id="t_${k}" inputmode="decimal" value="${P.toque[k] ? fg(P.toque[k]) : ''}" placeholder="0,00"></div>`).join('')}
+    <button class="btn" id="tok">Guardar</button><button class="btn ghost" onclick="this.closest('.modal').remove()">Cancelar</button></div>`;
+  document.body.appendChild(d);
+  d.querySelector('#tok').onclick = () => { const t = {}; let s = 0;
+    TOQUE.forEach(([k])=>{ const n = parseFloat(d.querySelector('#t_'+k).value.replace(',','.')) || 0; t[k] = r2(Math.max(0,n)); s += t[k]; });
+    if(s > 3.001){ aviso('El total no puede pasar de 3,00 g'); return; }
+    P.toque = t; d.remove(); registrar('Fórmula'); pintar(); };
+}
+
+/* ---------- nombre ---------- */
+function vNombre(){
+  fijo(`<button class="btn" id="go" ${P.pn.trim()?'':'disabled'} onclick="terminar()">Crear mi imagen</button>`);
+  return `<div class="eb">Paso 4</div><h1>Nombrá tu perfume</h1>
+    ${P.pnLista ? `<p class="sub">Es el nombre que va en la etiqueta de tu frasco.</p>` : ''}
+    <div class="fld"><input id="pn" maxlength="24" value="${esc(P.pn)}" placeholder="Nombre del perfume" style="font-family:var(--script);font-size:28px;text-align:center" oninput="P.pn=this.value;P.pnEditado=true;guardar();$('#go').disabled=!this.value.trim();$('#cpn').textContent=this.value.length+'/24'"><div class="cuenta" id="cpn">${P.pn.length}/24</div></div>`;
+}
+function terminar(){ registrar('Terminó'); ir('final'); }
+
+/* ---------- imagen final ---------- */
+const IMGOBJ = {};
+function img(k){ if(IMGOBJ[k]) return IMGOBJ[k]; IMGOBJ[k] = new Promise(r=>{ const i = new Image(); i.onload = ()=>r(i); i.onerror = ()=>r(null); i.src = foto(k); }); return IMGOBJ[k]; }
+/* notas que se ven en la imagen: las simples por su nombre y los acordes/bases desarmados en su pirámide (como en Caro Cuomo) */
+const NOMBRE_NOTA = {rosa:'Rosa', vainilla:'Vainilla', bruma:'Bruma de mar'};
+function piramideNotas(f){
+  const o = {sal:[], cor:[], fon:[]}, vistos = [];
+  const add = (et, t, g) => { t = t.trim(); if(!t) return; const k = nz(t); if(vistos.some(v=>v===k || v.startsWith(k+' ') || k.startsWith(v+' '))) return; vistos.push(k); o[et].push([t.charAt(0).toUpperCase()+t.slice(1), g]); };
+  const parte = txt => txt.split(/,| y | e /).map(x=>x.trim()).filter(Boolean);
+  Object.entries(f).sort((a,b)=>b[1]-a[1]).forEach(([id,g])=>{
+    const c = X[id];
+    if(c.pir){ c.pir.split(' · ').forEach(seg=>{ const m = seg.match(/^(Salida|Corazón|Fondo):\s*(.*)$/); if(!m) return;
+        const et = {Salida:'sal', 'Corazón':'cor', Fondo:'fon'}[m[1]]; parte(m[2]).forEach(t=>add(et, t, g)); }); }
+    else add(c.et, NOMBRE_NOTA[id] || c.n, g + 1000);   /* las notas que eligió van primero */
+  });
+  ['sal','cor','fon'].forEach(et=>{ o[et] = o[et].sort((a,b)=>b[1]-a[1]).slice(0,7).map(x=>x[0]); });
+  return o;
+}
+async function dibujar(cv){
+  try{ await Promise.all(['300 40px Montserrat','400 40px Montserrat','500 40px Montserrat','600 40px Montserrat','italic 400 40px "Lobster Two"'].map(f=>document.fonts.load(f))); }catch(e){}
+  const c = cv.getContext('2d'), W = 1080, H = 1528, f = P.f, pe = personalidad(f);
+  c.fillStyle = '#F7F1E6'; c.fillRect(0,0,W,H);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 2; c.strokeRect(36,36,W-72,H-72);
+  c.strokeStyle = 'rgba(176,138,78,.4)'; c.lineWidth = 1; c.strokeRect(50,50,W-100,H-100);
+  const sp = (t, x, y, px, wt, col, track, al) => { c.font = `${wt} ${px}px Montserrat`; c.fillStyle = col; c.textAlign = al||'center';
+    try{ c.letterSpacing = track+'px'; }catch(e){} c.fillText(t, x, y); try{ c.letterSpacing = '0px'; }catch(e){} };
+  /* encabezado como la etiqueta: empresa, nombre del perfume, línea, creado por */
+  sp(CONFIG.EMPRESA.toUpperCase(), W/2, 116, 24, 400, '#B08A4E', 12);
+  let px = 112; c.font = `italic 400 ${px}px "Lobster Two"`; while(c.measureText(P.pn.trim()).width > W-200 && px > 56){ px -= 4; c.font = `italic 400 ${px}px "Lobster Two"`; }
+  c.fillStyle = '#151412'; c.textAlign = 'center'; c.fillText(P.pn.trim(), W/2, 236);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 3; c.beginPath(); c.moveTo(W/2-140,272); c.lineTo(W/2+140,272); c.stroke();
+  sp('creado por ' + P.nom.trim(), W/2, 320, 25, 400, '#151412', 1);
+  sp((pe.frase || '').toUpperCase(), W/2, 362, 19, 600, '#2F4A3A', 6);
+  /* los aromas en pirámide: salida arriba, corazón al medio, fondo abajo; más grande cuanto más gramos */
+  const filas = ['sal','cor','fon'].map(et=>Object.entries(f).filter(([k])=>X[k].et===et).sort((a,b)=>b[1]-a[1]).slice(0, et==='fon' ? 4 : 5));
+  const ims = await Promise.all(filas.flat().map(([k])=>img(X[k].img))); let n = 0;
+  const filasIm = filas.map(l=>l.map(([k,g])=>({k, g, im: ims[n++]})));
+  const gmax = Math.max(...Object.values(f)), Y0 = 400, Y1 = 1060, filasCon = filasIm.filter(l=>l.length), FH = (Y1-Y0)/Math.max(1,filasCon.length);
+  const dibujos = [];
+  filasCon.forEach((l, fi)=>{
+    const alto = FH*1.55, base = l.map(x=>{ const t = alto*(0.58 + 0.42*Math.sqrt(x.g/gmax)); const im = x.im; if(!im) return {x, w:0, h:0};
+      const k = Math.min(t/im.height, t*1.15/im.width); return {x, w:im.width*k, h:im.height*k}; });
+    /* la más grande al centro, las demás a los costados */
+    const ord = []; base.forEach((b,i)=>{ if(i%2) ord.unshift(b); else ord.push(b); });
+    let solape = 0.26, total = ord.reduce((s,b)=>s+b.w,0) - solape*ord.slice(1).reduce((s,b)=>s+b.w,0);
+    const maxW = W - 110; let esc = total > maxW ? maxW/total : 1;
+    const cy = Y0 + FH*fi + FH/2; let x = W/2 - total*esc/2;
+    ord.forEach((b,i)=>{ const w = b.w*esc, h = b.h*esc; dibujos.push({im:b.x.im, x, y:cy-h/2, w, h, g:b.x.g, fi}); x += w*(1-solape); });
+  });
+  /* primero el fondo, después corazón y salida; dentro de cada fila, las chicas atrás */
+  dibujos.forEach(d=>{ if(d.y + d.h > 1080) d.y = 1080 - d.h; if(d.y < 372) d.y = 372; });
+  dibujos.sort((a,b)=>b.fi-a.fi || a.g-b.g).forEach(d=>{ if(d.im) c.drawImage(d.im, d.x, d.y, d.w, d.h); });
+  /* las notas, como en Fragrantica: salida, corazón y fondo */
+  const pr = piramideNotas(f), cw = (W-140)/3, top = 1110, TIT = {sal:'Notas de salida', cor:'Notas de corazón', fon:'Notas de fondo'};
+  ['sal','cor','fon'].forEach((et,i)=>{
+    const x = 70 + cw*i + cw/2;
+    sp(TIT[et].toUpperCase(), x, top, 16, 600, '#B08A4E', 3);
+    c.strokeStyle = '#B08A4E'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(x-24, top+14); c.lineTo(x+24, top+14); c.stroke();
+    pr[et].forEach((t,j)=>{ let s = 21; c.font = `400 ${s}px Montserrat`; while(c.measureText(t).width > cw-20 && s > 15){ s--; c.font = `400 ${s}px Montserrat`; } sp(t, x, top + 48 + j*31, s, 400, '#151412', .3); });
+    if(i>0){ c.strokeStyle = 'rgba(176,138,78,.35)'; c.lineWidth = 1; c.beginPath(); c.moveTo(70+cw*i, top-20); c.lineTo(70+cw*i, top+250); c.stroke(); }
+  });
+  /* pie: evento, web y firma */
+  sp(`Evento ${CONFIG.EMPRESA} · ${CONFIG.FECHA} · ${CONFIG.WEB}`.toUpperCase(), W/2, 1400, 15, 400, '#6E665C', 3);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W/2-70,1424); c.lineTo(W/2+70,1424); c.stroke();
+  sp(`${CONFIG.PERFUMISTA} · ${CONFIG.MATRICULA}`.toUpperCase(), W/2, 1456, 15, 500, '#151412', 3);
+}
+/* ---------- segunda imagen: su perfil olfativo (sin gramos) ---------- */
+async function dibujarPerfil(cv){
+  try{ await Promise.all(['300 40px Montserrat','400 40px Montserrat','600 40px Montserrat','italic 400 40px "Lobster Two"'].map(f=>document.fonts.load(f))); }catch(e){}
+  const c = cv.getContext('2d'), W = 1080, H = 1528, pe = perfilEmocional(), rc = recuerdos(), S = perfilCata(), o = ordenFam(S).filter(k=>S[k]>0).slice(0,5);
+  const fav = C.filter(c=>P.v[c.id]===3).slice(0,4), fav4 = fav.length ? fav : C.filter(c=>P.v[c.id]===2).slice(0,4);
+  const ims = await Promise.all(fav4.map(x=>img(x.img)));
+  c.fillStyle = '#F7F1E6'; c.fillRect(0,0,W,H);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 2; c.strokeRect(36,36,W-72,H-72); c.strokeStyle = 'rgba(176,138,78,.4)'; c.lineWidth = 1; c.strokeRect(50,50,W-100,H-100);
+  const sp = (t, x, y, px, wt, col, track, al) => { c.font = `${wt} ${px}px Montserrat`; c.fillStyle = col; c.textAlign = al||'center';
+    try{ c.letterSpacing = track+'px'; }catch(e){} c.fillText(t, x, y); try{ c.letterSpacing = '0px'; }catch(e){} };
+  const titulo = (t, y) => { sp(t.toUpperCase(), W/2, y, 18, 600, '#B08A4E', 6); c.strokeStyle = '#B08A4E'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(W/2-30, y+16); c.lineTo(W/2+30, y+16); c.stroke(); };
+  sp(CONFIG.EMPRESA.toUpperCase(), W/2, 116, 24, 400, '#B08A4E', 12);
+  sp('Perfil olfativo de', W/2, 180, 26, 300, '#151412', 1);
+  let px = 92; c.font = `italic 400 ${px}px "Lobster Two"`; const nom = P.nom.trim(); while(c.measureText(nom).width > W-200 && px > 50){ px -= 4; c.font = `italic 400 ${px}px "Lobster Two"`; }
+  c.fillStyle = '#151412'; c.textAlign = 'center'; c.fillText(nom, W/2, 280);
+  /* sus aromas favoritos */
+  titulo('Tus aromas favoritos', 360);
+  const n = fav4.length, cw = n ? (W-160)/n : 0;
+  fav4.forEach((x,i)=>{ const im = ims[i], cx = 80 + cw*i + cw/2; if(im){ const t = Math.min(cw-20, 210), k = Math.min(t/im.width, t/im.height); c.drawImage(im, cx-im.width*k/2, 520-im.height*k/2, im.width*k, im.height*k); }
+    let s = 22; c.font = `600 ${s}px Montserrat`; while(c.measureText(x.n).width > cw-16 && s > 15){ s--; c.font = `600 ${s}px Montserrat`; }
+    sp(x.n, cx, 660, s, 600, '#151412', .5); sp(x.perfil.split(' · ')[0], cx, 690, 16, 400, '#6E665C', .5); });
+  /* emociones */
+  titulo('Lo que te hicieron sentir', 770);
+  sp(pe.top.length ? pe.top.join('  ·  ') : '—', W/2, 840, 40, 300, '#2F4A3A', 2);
+  if(rc.pal.length) sp('Tus recuerdos: ' + rc.pal.slice(0,4).join(', '), W/2, 890, 22, 400, '#6E665C', .5);
+  /* familias */
+  titulo('Tus familias olfativas', 970);
+  const mx = o.length ? S[o[0]] : 1;
+  o.forEach((k,i)=>{ const y = 1040 + i*54, w = 520*S[k]/mx;
+    sp(FAMN[k], 330, y+8, 22, 400, '#151412', .5, 'right');
+    c.fillStyle = '#EFE7D8'; c.fillRect(360, y-12, 520, 22); c.fillStyle = i===0 ? '#2F4A3A' : '#8FA58F'; c.fillRect(360, y-12, w, 22); });
+  const pf = P.f ? personalidad(P.f).frase : '';
+  if(pf) sp(`Tu perfume ${P.pn.trim()} es ${pf.toLowerCase()}`, W/2, 1350, 24, 400, '#151412', .5);
+  sp(`Evento ${CONFIG.EMPRESA} · ${CONFIG.FECHA} · ${CONFIG.WEB}`.toUpperCase(), W/2, 1400, 15, 400, '#6E665C', 3);
+  c.strokeStyle = '#B08A4E'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(W/2-70,1424); c.lineTo(W/2+70,1424); c.stroke();
+  sp(`${CONFIG.PERFUMISTA} · ${CONFIG.MATRICULA}`.toUpperCase(), W/2, 1456, 15, 500, '#151412', 3);
+}
+/* las dos imágenes se preparan apenas se abre la pantalla, así al tocar el botón se comparten al instante (iPhone lo exige) */
+let BLOBS = {};
+async function prepararImagenes(){
+  const a = $('#cv'), b = $('#cv2'); if(!a || !b) return;
+  await dibujar(a); await dibujarPerfil(b);
+  const blob = cv => new Promise(r=>cv.toBlob(r,'image/png'));
+  BLOBS = {perfume: await blob(a), perfil: await blob(b)};
+}
+function vFinal(){
+  const dev = P.devElegido || (P.dev==='iOS' ? 'iOS' : P.dev==='Android' ? 'Android' : 'iOS');
+  fijo(`<button class="btn gold" onclick="descargar()">Descargar mis 2 imágenes</button>`);
+  BLOBS = {}; setTimeout(prepararImagenes, 0);
+  return `<div class="eb">Tu perfume</div><h1>${esc(P.pn.trim())}</h1>
+    ${embebido() ? `<div class="aviso">Estás dentro de otra app. Para guardar las imágenes, abrí este link en ${P.dev==='Android'?'Chrome':'Safari'} (menú ⋯ → "Abrir en el navegador").</div>` : ''}
+    <canvas id="cv" width="1080" height="1528" style="margin-top:12px" aria-label="Imagen de tu perfume"></canvas>
+    <h2>Y tu perfil olfativo</h2>
+    <canvas id="cv2" width="1080" height="1528" aria-label="Imagen de tu perfil olfativo"></canvas>
+    <h2>¿Tu celular es iPhone o Android?</h2>
+    <div class="seg"><button aria-pressed="${dev==='iOS'}" onclick="P.devElegido='iOS';guardar();pintar()">iPhone</button><button aria-pressed="${dev==='Android'}" onclick="P.devElegido='Android';guardar();pintar()">Android</button></div>
+    <p class="sub" style="font-size:14px;margin-top:10px">${dev==='iOS' ? 'Se abre el menú de compartir: tocá <b>Guardar 2 imágenes</b>.' : 'Las dos imágenes se descargan y quedan en tu galería (carpeta Descargas).'}</p>
+    <button class="btn ghost" onclick="ir('gracias')">Terminar</button>`;
+}
+async function descargar(){
+  if(!BLOBS.perfume || !BLOBS.perfil){ aviso('Preparando tus imágenes…'); await prepararImagenes(); }
+  const dev = P.devElegido || P.dev, base = (nz(P.pn)||'mi_perfume').replace(/ /g,'_');
+  const arch = [['perfume_'+base+'.png', BLOBS.perfume], ['perfil_olfativo_'+base+'.png', BLOBS.perfil]];
+  const bajar = ([nom, blob], i) => setTimeout(()=>{ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nom; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000); }, i*700);
+  if(dev==='Android'){ arch.forEach(bajar); aviso('Imágenes descargadas'); setTimeout(()=>ir('gracias'), 2000); return; }
+  const files = arch.map(([n,b])=>new File([b], n, {type:'image/png'}));
+  try{ if(navigator.canShare && navigator.canShare({files})){ await navigator.share({files, title:P.pn}); ir('gracias'); return; } }
+  catch(e){ if(e && e.name==='AbortError') return; }
+  /* iPhone sin compartir: las dos imágenes a pantalla completa para mantener presionado */
+  const d = document.createElement('div'); d.className = 'full'; d.style.overflowY = 'auto'; d.style.justifyContent = 'flex-start';
+  d.innerHTML = `<p style="margin-top:8px">Mantené presionada cada imagen y tocá <b>"Guardar en Fotos"</b>.</p>${arch.map(([n,b])=>`<img src="${URL.createObjectURL(b)}" alt="" style="max-height:none;width:100%;max-width:420px">`).join('')}<button class="btn gold" style="max-width:320px;margin-bottom:20px" onclick="this.closest('.full').remove();ir('gracias')">Listo</button>`;
+  document.body.appendChild(d);
+}
+function vGracias(){
+  fijo('');
+  return `<div style="text-align:center;padding-top:8vh"><div class="eb">Gracias</div><h1 style="font-family:var(--script);font-size:44px;font-weight:400">${esc(P.pn.trim())}</h1>
+    <p class="sub" style="margin-top:12px">Gracias por crear tu perfume con nosotros, ${esc(P.nom.trim().split(' ')[0])}.</p>
+    <p class="sub" style="margin-top:8px">Llevate tu frasco con su etiqueta y la imagen de tu perfume en el celular.</p>
+    <p style="margin-top:28px;font-size:13px;letter-spacing:4px;text-transform:uppercase">${esc(CONFIG.EMPRESA)} · ${esc(CONFIG.FECHA)}</p>
+    <p style="margin-top:6px;font-size:13px;letter-spacing:2px;color:var(--gold)">${esc(CONFIG.WEB)}</p>
+    <button class="btn ghost" style="margin-top:40px" onclick="ir('final')">Volver a mi imagen</button>
+    <button class="btn ghost" style="margin-top:10px;border-color:var(--line);color:var(--dim)" onclick="reiniciar()">Empezar de nuevo (otra persona)</button></div>`;
+}
+function reiniciar(){ if(!confirm('¿Empezar de cero? Lo de esta persona ya quedó guardado en la planilla.')) return; vaciar(); P = nuevo(); guardar(); pintar(); window.scrollTo(0,0); }
+
+function pintar(){
+  if(!PASOS.includes(P.paso) || P.paso==='inicio') P.paso = 'datos';
+  if(['intro','cata','perfil','pausa','base','guiado','lab','pesar','nombre','final','gracias'].includes(P.paso) && !(P.nom.trim())) P.paso = 'datos';
+  if(['analisis','guiado','lab'].includes(P.paso) && !P.principal) prepararBase();
+  if(['pesar','nombre','final','gracias'].includes(P.paso) && !P.f) P.paso = P.principal ? 'guiado' : 'base';
+  if(['final','gracias'].includes(P.paso) && !P.pn.trim()) P.paso = 'nombre';
+  barraTop();
+  const V = {analisis:vAnalisis, datos:vDatos, intro:vIntro, cata:vCata, perfil:vPerfil, pausa:vPausa, base:vBase, guiado:vGuiado, lab:vLab, pesar:vPesar, nombre:vNombre, final:vFinal, gracias:vGracias};
+  $('#app').innerHTML = V[P.paso]();
+}
+/* ======================= PANEL DEL PERFUMISTA (link + #admin) =======================
+   Lee la pestaña del evento desde el script de la planilla (doGet con accion=leer).
+   La clave la verifica el script: no está en esta página. Los WhatsApp no se traen. */
+const STOCK_G = 750 * 0.8;          /* 750 ml de cada componente al 20 % p/p → 600 g */
+const PERSONAS = 25;
+let ADM = {datos:null, error:'', hora:'', abierto:null, timer:null};
+const claveAdm = () => { try{ return sessionStorage.getItem('er_alix_admin') || ''; }catch(e){ return ''; } };
+function vPanelLogin(msg){
+  $('#top').innerHTML = `<div class="marca"><b>Panel del perfumista</b><small>${esc(CONFIG.EMPRESA)} · ${esc(CONFIG.FECHA)}</small></div>`; fijo('');
+  $('#app').innerHTML = `<div style="padding-top:6vh"><div class="eb">Acceso</div><h1>Panel del perfumista</h1>
+    <div class="fld"><input id="admk" type="password" autocomplete="off" placeholder="Clave del panel" style="font-size:22px;text-align:center"></div>
+    ${msg ? `<div class="aviso">${esc(msg)}</div>` : ''}<button class="btn" onclick="entrarPanel()">Entrar</button>
+    <button class="btn ghost" onclick="location.hash='';location.reload()">Volver a la app</button></div>`;
+  const i = $('#admk'); i.onkeydown = e => { if(e.key==='Enter') entrarPanel(); }; setTimeout(()=>i.focus(), 50);
+}
+function entrarPanel(){ const k = $('#admk').value.trim(); if(!k) return; try{ sessionStorage.setItem('er_alix_admin', k); }catch(e){} cargarPanel(true); }
+async function cargarPanel(primera){
+  const k = claveAdm(); if(!k){ vPanelLogin(); return; }
+  try{
+    const u = `${CONFIG.SCRIPT_URL}?accion=leer&hoja=${encodeURIComponent(CONFIG.HOJA)}&clave=${encodeURIComponent(k)}&t=${Date.now()}`;
+    const j = await (await fetch(u)).json();
+    if(!j.ok){ if(j.error==='clave'){ try{ sessionStorage.removeItem('er_alix_admin'); }catch(e){} vPanelLogin('Clave incorrecta.'); return; }
+      if(!j.enc){ ADM.error = 'El script de la planilla todavía no tiene la función de lectura (ver instrucciones).'; } else ADM.error = j.error || 'Error'; }
+    else { ADM.datos = j; ADM.error = ''; ADM.hora = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+  }catch(e){ ADM.error = 'Sin conexión con la planilla. Reintento en 30 s.'; }
+  pintarPanel();
+  clearTimeout(ADM.timer); ADM.timer = setTimeout(()=>cargarPanel(), 30000);
+}
+const porNombre = {}; C.forEach(c=>porNombre[nz(c.n)] = c.id);
+function leerFormula(t){ const f = {}; String(t||'').split(';').forEach(p=>{ const m = p.match(/^\s*(.+?):\s*([\d.,]+)\s*g/); if(m){ const id = porNombre[nz(m[1])]; if(id) f[id] = parseFloat(m[2].replace(/\./g,'').replace(',','.')); } }); return f; }
+function filasPanel(){
+  const d = ADM.datos; if(!d || !d.enc) return [];
+  return d.filas.map(r=>{ const o = {}; d.enc.forEach((h,i)=>o[h] = r[i]); o.f = leerFormula(o['Fórmula completa']); return o; }).filter(o=>String(o['Nombre']||'').trim());
+}
+function pintarPanel(){
+  fijo('');
+  $('#top').innerHTML = `<div class="marca"><b>Panel del perfumista</b><small>${ADM.hora ? 'Actualizado ' + ADM.hora + ' · cada 30 s' : 'Cargando…'}</small></div>
+    <button class="back" style="width:auto;padding:0 14px;border-radius:999px;font-size:13px" onclick="cargarPanel()">↻</button>`;
+  const F = filasPanel(), conF = F.filter(o=>Object.keys(o.f).length);
+  const est = k => F.filter(o=>String(o['Estado']||'')===k).length;
+  /* votos */
+  const pts = {'Me encanta':3,'Me gusta':2,'Un poquito':1,'No me gusta':0};
+  const rank = et => C.filter(c=>c.et===et).map(c=>{ const vs = F.map(o=>pts[o['Voto · '+c.n]]).filter(x=>x!=null);
+    return {c, n:vs.length, prom: vs.length ? vs.reduce((a,b)=>a+b,0)/vs.length : 0, enc: vs.filter(x=>x===3).length}; }).sort((a,b)=>b.prom-a.prom || b.enc-a.enc);
+  const barrasV = l => `<div class="barras">${l.map(x=>`<div class="barra" style="grid-template-columns:120px 1fr 74px"><span>${esc(x.c.n)}</span><span class="t"><i style="width:${Math.round(100*x.prom/3)}%"></i></span><span>${x.prom.toFixed(1)} · ♥${x.enc}</span></div>`).join('')}</div>`;
+  /* emociones */
+  const emo = {}; F.forEach(o=>C.forEach(c=>String(o['Emociones · '+c.n]||'').split(',').map(x=>x.trim()).filter(Boolean).forEach(e=>emo[e]=(emo[e]||0)+1)));
+  const emoL = Object.entries(emo).sort((a,b)=>b[1]-a[1]), emoMax = emoL.length ? emoL[0][1] : 1;
+  /* stock */
+  const usado = {}; conF.forEach(o=>Object.entries(o.f).forEach(([k,g])=>usado[k]=(usado[k]||0)+g));
+  const prom = k => conF.length ? (usado[k]||0)/conF.length : 0;
+  const stock = C.map(c=>{ const u = usado[c.id]||0, proy = u + prom(c.id)*Math.max(0, PERSONAS - conF.length); return {c, u, proy, queda: STOCK_G - u}; })
+    .sort((a,b)=>b.proy/STOCK_G - a.proy/STOCK_G);
+  const semaforo = x => x.proy > STOCK_G ? ['#B4562E','Falta'] : x.proy > STOCK_G*0.8 ? ['#C9922E','Atención'] : ['#2F7A52','OK'];
+  /* avisos: fórmulas para revisar */
+  const avisosP = [];
+  conF.forEach(o=>{ const f = o.f, nom = o['Nombre'], m = [];
+    Object.entries(f).forEach(([k,g])=>{ if(X[k].base && g > TOPE_BASE + 0.01) m.push(`${X[k].n} ${fg(g)} g`); else if(TOPES[k] && g > TOPES[k][0] + 0.01) m.push(`${X[k].n} ${fg(g)} g (muy alta)`); });
+    if(String(o['Toque del perfumista']||'').trim()) m.push('Ya tiene toque: ' + o['Toque del perfumista']);
+    /* sugerencias de soporte del perfumista (hasta 3 g en total) */
+    const T = sumaT(f) || 80, pc = et => sumaEt(f, et)/T, medio = x => Math.max(0.5, Math.min(3, Math.round(x*2)/2));
+    if(pc('cor') < 0.35) m.push(`Sugerencia: +${fg(medio(0.35*T - sumaEt(f,'cor')))} g de Hedione (el corazón quedó en ${Math.round(pc('cor')*100)} %)`);
+    if(pc('fon') < 0.40) m.push(`Sugerencia: +${fg(medio(0.40*T - sumaEt(f,'fon')))} g de Iso E Super (el fondo quedó en ${Math.round(pc('fon')*100)} %)`);
+    Object.entries(f).forEach(([k,g])=>{ if(X[k].base && g > TOPE_BASE + 0.01) m.push(`Sugerencia: bajar ${X[k].n} a ${TOPE_BASE} g y completar con ${fg(medio(g - TOPE_BASE))} g de ${k==='musky' ? 'Galaxolide' : 'Iso E Super'}`); });
+    if(m.length) avisosP.push({nom, m}); });
+  stock.filter(x=>x.proy > STOCK_G).forEach(x=>avisosP.unshift({nom:'Stock', m:[`${x.c.n}: proyectado ${Math.round(x.proy)} g de ${STOCK_G} g`]}));
+  const fila = o => { const ab = ADM.abierto === o['ID'];
+    return `<div class="card" style="padding:10px 12px;margin-top:8px"><button style="width:100%;text-align:left;display:flex;gap:10px;align-items:center" onclick="ADM.abierto=${ab?'null':`'${esc(o['ID'])}'`};pintarPanel()">
+      <span style="flex:1"><b>${esc(o['Nombre'])}</b><br><small style="color:var(--dim)">${esc(o['Estado']||'')} · ${esc(o['Base elegida']||'—')}${o['Nombre del perfume'] ? ' · ' + esc(o['Nombre del perfume']) : ''}</small></span><span>${ab?'▲':'▼'}</span></button>
+      ${ab ? `<div style="margin-top:8px;font-size:14px">${Object.keys(o.f).length ? listaFormula(o.f) : '<p class="sub">Todavía sin fórmula.</p>'}
+        ${o['Emociones principales'] ? `<p style="margin-top:8px"><b>Emociones:</b> ${esc(o['Emociones principales'])}</p>` : ''}
+        ${o['Palabras de sus recuerdos'] ? `<p><b>Recuerdos:</b> ${esc(o['Palabras de sus recuerdos'])}</p>` : ''}
+        ${o['Perfumes favoritos'] ? `<p><b>Usa:</b> ${esc(o['Perfumes favoritos'])}</p>` : ''}
+        <p style="color:var(--dim)">Modo: ${esc(o['Modo final']||'—')} · ${esc(String(o['Última actualización']||''))}</p></div>` : ''}</div>`; };
+  $('#app').innerHTML = `
+    ${ADM.error ? `<div class="aviso">${esc(ADM.error)}</div>` : ''}
+    <div class="eb" style="margin-top:4px">Participantes</div>
+    <div class="bases" style="grid-template-columns:repeat(4,1fr);margin-top:8px">${[['Total',F.length],['En cata',est('Registrado')],['Cata lista',est('Terminó la cata')],['Con fórmula',conF.length]].map(([t,n])=>`<div class="card" style="text-align:center;padding:10px"><div style="font-size:26px;font-weight:300">${n}</div><div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">${t}</div></div>`).join('')}</div>
+    <h2>⚠ Para revisar (${avisosP.length})</h2>
+    ${avisosP.length ? avisosP.map(a=>`<div class="aviso" style="margin-top:6px"><b>${esc(a.nom)}:</b> ${a.m.map(esc).join(' · ')}</div>`).join('') : '<p class="sub">Nada por ahora.</p>'}
+    <h2>Stock (${STOCK_G} g de cada uno · proyección a ${PERSONAS} personas)</h2>
+    <div class="card"><div class="barras">${stock.map(x=>{ const [col,t] = semaforo(x); return `<div class="barra" style="grid-template-columns:120px 1fr 104px"><span>${esc(x.c.n)}</span><span class="t"><i style="width:${Math.min(100,Math.round(100*x.proy/STOCK_G))}%;background:${col}"></i></span><span style="color:${col}">${Math.round(x.u)} g · ${t}</span></div>`; }).join('')}</div>
+      <p class="sub" style="font-size:12px;margin-top:8px">La barra muestra lo proyectado si las ${PERSONAS} personas usan en promedio lo mismo. El número es lo ya usado.</p></div>
+    <h2>Notas de salida más votadas</h2><div class="card">${barrasV(rank('sal'))}</div>
+    <h2>Notas de corazón más votadas</h2><div class="card">${barrasV(rank('cor'))}</div>
+    <h2>Fondo: bases y vainillas</h2><div class="card">${barrasV(rank('fon'))}</div>
+    <h2>Emociones más elegidas</h2><div class="card">${emoL.length ? `<div class="barras">${emoL.map(([e,n])=>`<div class="barra"><span>${esc(e)}</span><span class="t"><i style="width:${Math.round(100*n/emoMax)}%;background:var(--gold)"></i></span><span>${n}</span></div>`).join('')}</div>` : '<p class="sub">Todavía no hay.</p>'}</div>
+    <h2>Personas (${F.length})</h2>${F.slice().reverse().map(fila).join('')}
+    <button class="btn ghost" style="margin-top:20px" onclick="try{sessionStorage.removeItem('er_alix_admin')}catch(e){};location.hash='';location.reload()">Salir del panel</button>`;
+}
+function arrancar(){ if(location.hash === '#admin'){ cargarPanel(true); } else { pintar(); vaciar(); } }
+window.addEventListener('hashchange', ()=>location.reload());
+arrancar();
+</script>
+</body>
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Perfume Bar">
+<meta name="theme-color" content="#2E2420">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icono.png">
+<title>Perfume Bar · Tablet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F0E6; --card:#FFFDF9; --ink:#2E2420; --dim:#857467; --line:#E7DBCB; --soft:#F1E7DA;
+  --terra:#A4553A; --gold:#B8925A;
+  --l-base:#9C5A3C; --l-cor:#C7808F; --l-sal:#E0B860; --l-mag:#7E8FA6;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.35;}
+button,input{font:inherit;color:inherit;}
+button{cursor:pointer;border:0;background:none;}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+
+.top{position:sticky;top:0;z-index:20;background:var(--ink);color:#F5ECE0;}
+.top-in{display:flex;align-items:center;gap:14px;padding:10px 16px;min-height:56px;}
+.top .wm{flex:1;font-size:11px;letter-spacing:3.5px;text-transform:uppercase;color:#E0CBA8;}
+.top .tab{font-weight:700;letter-spacing:1px;background:rgba(255,255,255,.12);padding:6px 12px;border-radius:999px;font-size:13px;}
+.top .pend{font-size:12px;color:#E0CBA8;}
+.pasos{display:flex;gap:6px;}
+.pasos span{font-size:12px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.1);color:#E0CBA8;}
+.pasos span.on{background:#F5ECE0;color:var(--ink);font-weight:700;}
+
+main{padding:14px 16px 120px;}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:30px;line-height:1.1;}
+.sub{color:var(--dim);font-size:14px;}
+.cab{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+
+/* grilla de cata: filas = aromas, columnas = personas */
+.grilla{display:grid;grid-template-columns:minmax(110px,.9fr) repeat(4, minmax(138px,1.15fr));gap:0;background:var(--card);border:1.5px solid var(--line);border-radius:16px;}
+.grilla > div{border-bottom:1px solid var(--line);padding:8px;display:flex;align-items:center;}
+.grilla .hd{position:sticky;top:var(--alto-top,56px);z-index:5;background:var(--card);border-bottom:2px solid var(--ink);padding:10px 8px;align-self:stretch;}
+.grilla .hd:first-child{border-top-left-radius:15px;} .grilla .hd:nth-child(5){border-top-right-radius:15px;}
+.grilla .col-a, .grilla .col-c{background:#FCF8F2;}
+.persona{width:100%;display:flex;flex-direction:column;gap:4px;}
+.persona .letra{font-size:11px;letter-spacing:2px;font-weight:700;color:var(--terra);}
+.persona input{width:100%;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;font-weight:600;border:1.5px solid var(--line);border-radius:10px;padding:6px 10px;background:#fff;}
+.persona small{color:var(--dim);font-size:11.5px;}
+.grupo-h{grid-column:1 / -1;background:var(--soft) !important;font-size:12px;letter-spacing:3px;text-transform:uppercase;font-weight:700;color:var(--dim);padding:6px 10px !important;}
+.aroma{gap:10px;}
+.aroma img{width:46px;height:46px;object-fit:contain;flex:0 0 auto;}
+.aroma b{font-family:"Cormorant Garamond",Georgia,serif;font-size:21px;font-weight:600;line-height:1.05;}
+@media (max-width:900px){.aroma img{width:34px;height:34px;} .aroma b{font-size:17px;} .votos button small{display:none;} .persona input{font-size:20px;}}
+.votos{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;}
+.votos button{border:1.5px solid var(--line);border-radius:10px;background:#fff;min-height:44px;font-size:17px;line-height:1;}
+.votos button small{display:block;font-size:9.5px;margin-top:2px;color:var(--dim);}
+.votos button.sel{background:var(--terra);border-color:var(--terra);color:#fff;}
+.votos button.sel small{color:#fff;}
+.votos button.sel.v0{background:#6b5d52;border-color:#6b5d52;}
+.votos.vacia{opacity:.35;pointer-events:none;}
+
+/* barra de acciones abajo */
+.acciones{position:fixed;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(to top,var(--bg) 75%,transparent);padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;justify-content:flex-end;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:56px;padding:14px 26px;border-radius:14px;background:var(--ink);color:#fff;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-size:14px;}
+.btn.terra{background:var(--terra);}
+.btn.ghost{background:var(--card);border:1.5px solid var(--line);color:var(--ink);}
+.btn:disabled{opacity:.35;}
+
+/* fórmulas: una tarjeta por persona */
+.cuatro{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+@media (max-width:900px){.cuatro{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.ficha{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0;}
+.ficha .letra{font-size:11px;letter-spacing:2px;font-weight:700;color:var(--terra);}
+.ficha .quien{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;font-weight:700;line-height:1;}
+.ficha .pn{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:6px 8px;font-size:14px;background:#fff;}
+.ficha .vacia{color:var(--dim);font-size:14px;padding:20px 0;text-align:center;}
+.paso-h{font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;color:var(--dim);margin-top:4px;}
+.item{display:flex;align-items:center;gap:8px;border-left:5px solid var(--c);background:#fff;border-radius:10px;padding:6px 8px;}
+.item img{width:44px;height:44px;object-fit:contain;flex:0 0 auto;}
+.item .n{flex:1;min-width:0;font-family:"Cormorant Garamond",Georgia,serif;font-size:19px;font-weight:600;line-height:1.05;}
+.item .n small{display:block;font-family:Inter,sans-serif;font-size:11px;font-weight:400;color:var(--dim);}
+.item .ml{font-size:22px;font-weight:700;white-space:nowrap;}
+.item .nro{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--c);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center;}
+.item img{width:38px !important;height:38px !important;}
+.item.base img{width:48px !important;height:48px !important;}
+.item.base img{width:58px;height:58px;}
+.item.base .ml{font-size:26px;}
+.marca{font-size:12px;color:var(--dim);padding:0 4px;}
+.cambia-base{display:flex;flex-wrap:wrap;gap:4px;}
+.cambia-base button{flex:1 1 auto;padding:6px 6px;border-radius:999px;border:1.5px solid var(--line);font-size:12px;font-weight:600;background:#fff;}
+.cambia-base button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.elegir-tab{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:6px;font-size:13px;color:var(--dim);}
+.elegir-tab button{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);font-weight:700;font-size:16px;}
+.elegir-tab button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.mapa{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:8px;}
+.mapa .est{border-radius:8px;padding:6px 2px;text-align:center;background:var(--soft);opacity:.45;min-width:0;}
+.mapa .est b{display:block;font-size:16px;}
+.mapa .est span{display:block;font-size:10.5px;line-height:1.1;overflow-wrap:anywhere;}
+.mapa .est.usa{opacity:1;color:#fff;}
+.mapa .est.usa.base{background:var(--l-base);} .mapa .est.usa.cor{background:var(--l-cor);} .mapa .est.usa.sal{background:#C79A2E;}
+
+/* imágenes */
+.ficha canvas{width:100%;height:auto;border-radius:10px;box-shadow:0 4px 16px rgba(46,36,32,.15);background:#fff;}
+.tel{display:flex;align-items:stretch;border:1.5px solid var(--line);border-radius:10px;background:#fff;overflow:hidden;}
+.tel span{display:flex;align-items:center;padding:0 2px 0 10px;color:var(--dim);font-size:16px;white-space:nowrap;}
+.tel input{border:0;padding:10px 8px;font-size:17px;min-width:0;width:100%;background:transparent;}
+.ficha label{font-size:12px;font-weight:600;}
+.aviso-tab{background:var(--card);border:1.5px dashed var(--gold);border-radius:14px;padding:12px 14px;font-size:14px;margin-bottom:12px;}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px;}
+.modal .in{background:#fff;border-radius:20px;padding:22px;width:min(100%,480px);max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:10px;}
+.modal input{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;font-size:16px;}
+.modal .chips{display:flex;gap:8px;flex-wrap:wrap;}
+.modal .chips button{padding:10px 18px;border-radius:999px;border:1.5px solid var(--line);font-weight:700;}
+.modal .chips button.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:15px;z-index:50;max-width:calc(100% - 32px);text-align:center;}
+.hint{color:var(--dim);font-size:13px;}
+/* QR para que el invitado lo haga desde su celular */
+.qrmini{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:8px 12px 8px 8px;text-align:left;}
+.qrmini svg{width:64px;height:64px;display:block;}
+.qrmini b{display:block;font-size:13px;}
+.qrmini small{color:var(--dim);font-size:12px;}
+.qrgrande{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;}
+.qrgrande .cuadro{background:#fff;padding:28px;border-radius:24px;border:3px solid var(--gold);width:min(62vh,80vw);aspect-ratio:1/1;}
+.qrgrande svg{width:100%;height:100%;display:block;}
+.qrgrande h1{font-size:44px;}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in" id="top"></div></header>
+<main id="app"></main>
+<div class="acciones" id="acc"></div>
+<script>
+/* Fotos de bases, notas y moléculas (webp embebidas) */
+const IMGS = __IMGS__;
+const FRA = [];
+const INVITADOS = __INVITADOS__;   /* la tablet no pregunta perfumes favoritos */
+</script>
+<script>
+__COMUN1__
+__COMUN2__
+/* ======================= TABLET =======================
+   Una tablet atiende grupos de 4 invitados (A, B, C, D).
+   1) Cata: el asistente anota el nombre y los votos de cada uno en una sola pantalla.
+   2) Fórmulas: la receta de los 4, lado a lado.
+   3) Imágenes: la imagen final de cada uno y su WhatsApp (opcional).
+   Todo queda guardado en la tablet. Sin internet, las filas de la planilla y las imágenes quedan en cola
+   y se suben solas cuando hay Wi-Fi (las imágenes, a la carpeta "CC Caro Cuomo" de Google Drive). */
+const TAB = {
+  DRIVE_URL: 'https://script.google.com/macros/s/AKfycbz2fjrctuaE2J69IEKKhgYiZKPjWpXWz-x-bloAuP70xctNpRBYjFntA6Ku62NvBaiMuQ/exec',  /* script de imágenes (Drive). También se puede cambiar desde el panel ⚙ */
+  CARPETA: 'CC Caro Cuomo',
+  PREFIJO_ARCHIVO: 'CC',
+  LETRAS: ['A','B','C','D']
+};
+const KT = 'er_tab_' + nz(EVENTO.nombre).replace(/ /g,'_');
+const tabletN = () => LS.get(KT+'_n', 1);
+const driveUrl = () => LS.get(KT+'_drive', '') || TAB.DRIVE_URL;
+const urlScript = () => LS.get('er_pb_url','') || EVENTO.SCRIPT_URL;
+const vacioP = () => ({nom:'', v:{}, perf:[], wa:'', pn:'', r:null});
+const nuevoGrupo = () => ({paso:'nombres', ps:[vacioP(), vacioP(), vacioP(), vacioP()], t0:Date.now()});
+let G = LS.get(KT+'_grupo', null) || nuevoGrupo();
+const guardar = () => LS.set(KT+'_grupo', G);
+const activos = () => G.ps.map((p,i)=>[p,i]).filter(([p])=>p.nom.trim());
+let P = {paso:''};   /* para el código compartido de la imagen */
+
+/* número de cliente corrido por tablet: T1-0001, T1-0002… */
+function proximoCodigo(){ const k = KT+'_cont_'+tabletN(), n = LS.get(k, 0) + 1; LS.set(k, n); return `T${tabletN()}-${String(n).padStart(4,'0')}`; }
+
+/* ---------- pantallas ---------- */
+const VOT = [[3,'♥','encanta'],[2,'✦','gusta'],[1,'◦','poquito'],[0,'✕','nada']];
+function barraTop(){
+  const pend = LS.get('er_pb_cola',[]).length;
+  $('#top').innerHTML = `<span class="wm">Emotional Reminder · Perfume Bar</span>
+    <div class="pasos">${[['nombres','1 · Nombres'],['cata','2 · Cata'],['formulas','3 · Fórmulas'],['imagenes','4 · Imágenes']].map(([k,t])=>`<span class="${G.paso===k?'on':''}">${t}</span>`).join('')}</div>
+    <span class="pend" id="pend">${pendTxt}</span>
+    <button class="tab" onclick="mostrarQR()" aria-label="Mostrar QR para el celular">▦ QR celular</button>
+    <a class="tab" href="carteles.html#bases" style="text-decoration:none;color:inherit">Carteles</a>
+    <a class="tab" href="entregas.html" style="text-decoration:none;color:inherit">Entrega</a>
+    <button class="tab" onclick="abrirPanel()" aria-label="Panel">Tablet ${tabletN()} ⚙</button>`;
+}
+let pendTxt = '';
+/* PASO 1 · nombres y WhatsApp (opcional). El código distingue a dos "Juan". */
+function vNombres(){
+  const card = (p,i) => `<div class="ficha"><span class="letra">${TAB.LETRAS[i]}${p.cod?' · '+esc(p.cod):''}</span>
+      <label for="nom${i}">Nombre</label><input id="nom${i}" list="lista-inv" class="pn" style="font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:600" value="${esc(p.nom)}" placeholder="Nombre" autocomplete="off" oninput="G.ps[${i}].nom=this.value;guardar();accionesNombres()">
+      <label for="wan${i}">WhatsApp <span class="hint">(opcional, para mandarle la foto)</span></label>
+      <div class="tel"><span>+${esc(EVENTO.WA_PREFIJO)}</span><input id="wan${i}" type="tel" inputmode="numeric" placeholder="11 5555 5555" value="${esc(waLocal(p.wa))}" oninput="G.ps[${i}].wa=this.value;guardar()"></div>
+    </div>`;
+  const elegirTab = `<div class="elegir-tab" role="group" aria-label="¿Qué tablet es esta?"><span>Esta tablet es la</span>
+      ${[1,2,3,4].map(n=>`<button class="${tabletN()===n?'on':''}" aria-pressed="${tabletN()===n}" onclick="cambiarTablet(${n})">${n}</button>`).join('')}</div>`;
+  return `${elegirTab}<div class="cab"><div><h1>Paso 1 · ¿Quiénes son?</h1><p class="sub">Anotá nombre y WhatsApp de cada uno. Pueden ser 1, 2, 3 o 4 personas.</p></div><button class="qrmini" onclick="mostrarQR()" aria-label="Mostrar QR para hacerlo desde el celular">${QR_SVG}<span><b>¿Prefieren su celular?</b><small>Tocá para mostrar el QR</small></span></button></div>
+    <div class="aviso-tab">Si lo hacen con la tablet, la foto de su perfume les llega por WhatsApp después de la fiesta. Si la quieren ya, que escaneen el QR con su celular.</div>
+    <div class="cuatro">${G.ps.map(card).join('')}</div>
+    <datalist id="lista-inv">${INVITADOS.map(([n])=>`<option value="${esc(n)}">`).join('')}</datalist>`;
+}
+/* el número de tablet se elige en la pantalla de inicio (no hace falta el PIN) */
+function cambiarTablet(n){
+  if(n===tabletN()) return;
+  if(activos().some(([p])=>p.cod) && !confirm('Este grupo ya tiene códigos de la Tablet '+tabletN()+'. ¿Cambiar igual? Los próximos grupos usan el número nuevo.')) return;
+  LS.set(KT+'_n', n); pintar(); aviso('Ahora es la Tablet '+n);
+}
+function accionesNombres(){
+  const n = activos().length;
+  $('#acc').innerHTML = `<button class="btn ghost" onclick="limpiar()">Empezar grupo nuevo</button>
+    <button class="btn terra" ${n?'':'disabled'} onclick="irCata()">Siguiente · cata${n?` (${n})`:''} →</button>`;
+}
+function irCata(){ activos().forEach(([p])=>{ if(!p.cod) p.cod = proximoCodigo(); }); G.paso = 'cata'; guardar(); pintar(); window.scrollTo(0,0); }
+function vCata(){
+  const fila = a => `<div class="aroma"><img src="${foto(a.img||a.id)}" alt=""><b>${esc((etapa(a.id)==='base'?'Base ':'')+a.n)}</b></div>` +
+    G.ps.map((p,i)=>`<div class="${i%2?'':'col-'+(i?'c':'a')}"><div class="votos ${p.nom.trim()?'':'vacia'}" role="group" aria-label="${esc(a.n)} para ${esc(p.nom||TAB.LETRAS[i])}">
+      ${VOT.map(([v,s,t])=>`<button class="${p.v[a.id]===v?'sel v'+v:''}" aria-pressed="${p.v[a.id]===v}" onclick="votarT(${i},'${a.id}',${v})">${s}<small>${t}</small></button>`).join('')}</div></div>`).join('');
+  const grupoH = t => `<div class="grupo-h">${t}</div>`;
+  const hechos = p => BASES.concat(CORAZON,SALIDA).filter(a=>p.v[a.id]!=null).length;
+  return `<div class="cab"><div><h1>Paso 2 · Cata</h1><p class="sub">Marcá cómo le cae cada aroma a cada uno, en el orden de la mesa. Sin marcar cuenta como "un poquito".</p></div></div>
+    <div class="grilla">
+      <div class="hd"><span class="sub">Aroma</span></div>
+      ${G.ps.map((p,i)=>`<div class="hd"><div class="persona"><span class="letra">${TAB.LETRAS[i]}</span>
+        <b style="font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;line-height:1.05">${esc(p.nom.trim()||'—')}</b><small id="cnt${i}">${p.nom.trim()?esc(p.cod||'')+' · '+hechos(p)+' de 12':'sin invitado'}</small></div></div>`).join('')}
+      ${grupoH('Bases')}${BASES.map(fila).join('')}
+      ${grupoH('Notas de corazón')}${CORAZON.map(fila).join('')}
+      ${grupoH('Notas de salida')}${SALIDA.map(fila).join('')}
+    </div>`;
+}
+function votarT(i, id, v){ const p = G.ps[i]; if(p.v[id]===v) delete p.v[id]; else p.v[id] = v; guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
+function accionesCata(){
+  $('#acc').innerHTML = `<button class="btn ghost" onclick="G.paso='nombres';guardar();pintar();window.scrollTo(0,0)">← Nombres</button>
+    <button class="btn terra" onclick="calcular()">Siguiente · fórmulas →</button>`;
+}
+function calcular(){
+  activos().forEach(([p])=>{
+    const nuevaBase = p.baseElegida || baseSugerida(p); p.sug = baseSugerida(p);
+    const igual = p.r && p.r.base===nuevaBase && JSON.stringify(p.r._v)===JSON.stringify(p.v);
+    if(!igual){ p.r = armar(p, nuevaBase); p.r._v = JSON.parse(JSON.stringify(p.v)); }
+    if(!p.pn.trim() || p._pnAuto){ p.pn = nombreSugerido(p.r, p.nom.trim()); p._pnAuto = true; }
+    if(!p.cod) p.cod = proximoCodigo();
+  });
+  G.paso = 'formulas'; guardar(); pintar(); window.scrollTo(0,0);
+}
+function cambiarBaseT(i, b){ const p = G.ps[i]; p.baseElegida = b; p.r = armar(p, b); p.r._v = JSON.parse(JSON.stringify(p.v));
+  if(p._pnAuto) p.pn = nombreSugerido(p.r, p.nom.trim()); guardar(); const y = window.scrollY; pintar(); window.scrollTo(0,y); }
+function vFormulas(){
+  const ficha = (p,i) => { if(!p.nom.trim() || !p.r) return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]}</span><div class="vacia">Sin invitado</div></div>`;
+    const r = p.r, B = X[r.base];
+    const item = (img, nom, sub, ml, col, cls, nro) => `<div class="item ${cls||''}" style="--c:${col}">${nro?`<span class="nro">${nro}</span>`:''}<img src="${foto(img)}" alt=""><div class="n">${esc(nom)}${sub?`<small>${esc(sub)}</small>`:''}</div><div class="ml">${ml}</div></div>`;
+    const notas = g => Object.entries(r.notas).filter(([id])=>grupo(id)===g).sort((a,b)=>b[1]-a[1] || porMesa(a[0],b[0]))
+      .map(([id,ml])=>item(id, X[id].n, dosis(ml), fmt(ml)+' ml', g==='cor'?'var(--l-cor)':'var(--l-sal)', '', estacion(id))).join('');
+    return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]} · ${esc(p.cod||'')}</span><div class="quien">${esc(p.nom.trim())}</div>
+      <input class="pn" value="${esc(p.pn)}" aria-label="Nombre del perfume de ${esc(p.nom)}" oninput="G.ps[${i}].pn=this.value;G.ps[${i}]._pnAuto=false;guardar()">
+      <div class="cambia-base">${BASES.map(b=>`<button class="${r.base===b.id?'on':''}" onclick="cambiarBaseT(${i},'${b.id}')">${esc(b.n)}${b.id===p.sug?' ★':''}</button>`).join('')}</div>
+      <div class="paso-h">1 · Base · jeringa</div>${item(B.img, 'Base '+B.n, dosis(r.baseMl), fmt(r.baseMl)+' ml', 'var(--l-base)', 'base', estacion(B.id))}
+      <div class="paso-h">2 · Corazón · jeringa</div>${notas('cor')}
+      <div class="paso-h">3 · Salida · jeringa</div>${notas('sal')}
+    </div>`; };
+  /* mapa de la mesa visto desde el lado del perfumista: la estación 1 queda a su derecha */
+  const usados = new Set(); activos().forEach(([p])=>{ if(p.r){ usados.add(p.r.base); Object.keys(p.r.notas).forEach(id=>usados.add(id)); } });
+  const mapa = `<div class="mapa" aria-label="Mesa vista desde el perfumista">${ORDEN_MESA.slice().reverse().map(id=>`<div class="est ${usados.has(id)?'usa':''} ${etapa(id)}"><b>${estacion(id)}</b><span>${esc(X[id].n)}</span></div>`).join('')}</div>
+    <p class="hint" style="text-align:center;margin:4px 0 12px">Tu mesa vista desde tu lado: empezás por la derecha (1) y vas hacia la izquierda.</p>`;
+  return `<div class="cab"><div><h1>Paso 3 · Fórmulas</h1><p class="sub">Base 10 ml + notas 8 ml = 18 ml, todo con jeringa de 1 ml. Se puede cambiar la base (★ = recomendada). Cargá en el orden de la mesa. El nombre del perfume se puede cambiar.</p></div></div>
+    ${mapa}<div class="cuatro">${G.ps.map(ficha).join('')}</div>`;
+}
+function accionesFormulas(){
+  $('#acc').innerHTML = `<button class="btn ghost" onclick="G.paso='cata';guardar();pintar();window.scrollTo(0,0)">← Cata</button>
+    <button class="btn terra" onclick="G.paso='imagenes';guardar();pintar();window.scrollTo(0,0)">Siguiente · imágenes →</button>`;
+}
+function vImagenes(){
+  const ficha = (p,i) => { if(!p.nom.trim() || !p.r) return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]}</span><div class="vacia">Sin invitado</div></div>`;
+    return `<div class="ficha"><span class="letra">${TAB.LETRAS[i]} · ${esc(p.cod||'')}</span><div class="quien" style="font-size:26px">${esc(p.nom.trim())}</div>
+      <canvas id="cv${i}" width="1080" height="1528" aria-label="Imagen del perfume de ${esc(p.nom)}"></canvas>
+      <label for="wa${i}">WhatsApp <span class="hint">(opcional)</span></label>
+      <div class="tel"><span>+${esc(EVENTO.WA_PREFIJO)}</span><input id="wa${i}" type="tel" inputmode="numeric" placeholder="11 5555 5555" value="${esc(waLocal(p.wa))}" oninput="G.ps[${i}].wa=this.value;guardar()"></div>
+    </div>`; };
+  return `<div class="cab"><div><h1>Paso 4 · Imágenes</h1><p class="sub">Revisá el WhatsApp y guardá. Las imágenes les llegan después de la fiesta.</p></div></div>
+    <div class="cuatro">${G.ps.map(ficha).join('')}</div>`;
+}
+function accionesImagenes(){
+  $('#acc').innerHTML = `<button class="btn ghost" onclick="G.paso='formulas';guardar();pintar();window.scrollTo(0,0)">← Fórmulas</button>
+    <button class="btn terra" onclick="terminarGrupo()">Guardar y empezar otro grupo</button>`;
+}
+function dibujarTodas(){ if(G.paso!=='imagenes') return; G.ps.forEach((p,i)=>{ const cv = $('#cv'+i); if(cv && p.r) dibujar(p, cv.getContext('2d')); }); }
+const alCargarImagen = () => dibujarTodas();
+
+/* ---------- guardar: fila para la planilla + imagen en cola para Drive ---------- */
+function fechaArchivo(){ const d = new Date(); return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); }
+function nombreArchivo(p){
+  const wa = waCompleto(p.wa), limpio = t => nz(t).replace(/ /g,'_').slice(0,30);
+  return [TAB.PREFIJO_ARCHIVO, fechaArchivo(), wa ? '00'+wa : 'sinWA', p.cod, limpio(p.nom)].join('_') + '.jpg';
+}
+function filaTablet(p, archivo){
+  const lbl = v => v==null ? '' : VOTOS.find(x=>x[0]===v)[2];
+  const cols = [['ID',p.cod],['Fecha',new Date().toLocaleString('es-AR')],['Última actualización',new Date().toLocaleString('es-AR')],['Estado','Terminó'],
+    ['Origen','Tablet '+tabletN()],['Nombre',p.nom.trim()],['WhatsApp',waCompleto(p.wa)?'+'+EVENTO.WA_PREFIJO+' '+waLocal(p.wa):''],['Código',p.cod]];
+  cols.push(...columnasAromas(p));
+  cols.push(['Base sugerida',X[p.sug||p.r.base].n],['Base',X[p.r.base].n],
+    ['Corazón',Object.keys(p.r.notas).filter(id=>grupo(id)==='cor').map(id=>X[id].n).join(' · ')],
+    ['Salida',Object.keys(p.r.notas).filter(id=>grupo(id)==='sal').map(id=>X[id].n).join(' · ')],
+    ['Receta (ml)',recetaTxt(p.r)],['Receta usada',p.r.receta||'libre'],['Base (producto real)',X[p.r.base].real],
+    ['Perfil',p.r.perfil],['Nombre del perfume',p.pn.trim()],['Archivo imagen',archivo]);
+  return {clave:EVENTO.CLAVE, hoja:EVENTO.HOJA, id:p.cod, columnas:cols, t:Date.now()};
+}
+async function terminarGrupo(){
+  const lista = activos(); if(!lista.length) return;
+  if(terminarGrupo.corriendo) return; terminarGrupo.corriendo = true;
+  const bt = document.querySelector('#acc .btn.terra'); if(bt){ bt.disabled = true; bt.textContent = 'Guardando…'; }
+  try{ await Promise.race([document.fonts.ready, new Promise(r=>setTimeout(r,1500))]); }catch(e){}
+  try{
+  for(const [p] of lista){
+    const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1528; dibujar(p, cv.getContext('2d'));
+    const blob = await new Promise(res=>cv.toBlob(res,'image/jpeg',.88));
+    const archivo = nombreArchivo(p);
+    await idbPut({nombre:archivo, blob, t:Date.now()});
+    await idbPut({nombre:archivo, blob, t:Date.now()}, 'respaldo');
+    const cola = LS.get('er_pb_cola',[]).filter(r=>r.id!==p.cod); cola.push(filaTablet(p, archivo)); LS.set('er_pb_cola', cola);
+    const hist = LS.get(KT+'_hist',[]); hist.push({cod:p.cod, nom:p.nom.trim(), pn:p.pn.trim(), archivo, t:Date.now()}); LS.set(KT+'_hist', hist);
+  }
+  aviso(`Guardados ${lista.length} perfume${lista.length>1?'s':''}`);
+  G = nuevoGrupo(); guardar(); pintar(); window.scrollTo(0,0); subir();
+  } catch(e){ aviso('No se pudo guardar: ' + e.message); pintar(); }
+  finally { terminarGrupo.corriendo = false; }
+}
+const QR_SVG = `__QR__`;
+function mostrarQR(){
+  const d = document.createElement('div'); d.className = 'qrgrande'; d.setAttribute('role','dialog'); d.setAttribute('aria-label','QR para el celular');
+  d.innerHTML = `${EVENTO.LOGO_EVENTO?`<img src="${foto(EVENTO.LOGO_EVENTO)}" alt="" style="height:70px">`:''}<h1>Hacelo desde tu celular</h1>
+    <div class="cuadro">${QR_SVG}</div>
+    <p class="sub" style="font-size:18px">Escaneá con la cámara y te llevás la imagen de tu perfume en el momento.</p>
+    <button class="btn" onclick="this.closest('.qrgrande').remove()">Cerrar</button>`;
+  document.body.appendChild(d);
+}
+function limpiar(){ if(activos().length && !confirm('¿Borrar este grupo y empezar otro? Lo que no guardaste se pierde.')) return; G = nuevoGrupo(); guardar(); pintar(); window.scrollTo(0,0); }
+
+/* ---------- cola de imágenes (IndexedDB) ---------- */
+/* dos depósitos: "fotos" = cola para subir a Drive (se vacía al subir) · "respaldo" = copia permanente de todo lo hecho */
+function idb(){ return new Promise((res,rej)=>{ const r = indexedDB.open('er_tablet_fotos_caro', 2);
+  r.onupgradeneeded = ()=>{ const db = r.result; ['fotos','respaldo'].forEach(n=>{ if(!db.objectStoreNames.contains(n)) db.createObjectStore(n, {keyPath:'nombre'}); }); };
+  r.onsuccess = ()=>res(r.result); r.onerror = ()=>rej(r.error); }); }
+async function idbPut(o, st='fotos'){ const db = await idb(); return new Promise((res,rej)=>{ const tx = db.transaction(st,'readwrite'); tx.objectStore(st).put(o); tx.oncomplete = res; tx.onerror = ()=>rej(tx.error); }); }
+async function idbTodas(st='fotos'){ const db = await idb(); return new Promise((res,rej)=>{ const q = db.transaction(st).objectStore(st).getAll(); q.onsuccess = ()=>res(q.result); q.onerror = ()=>rej(q.error); }); }
+async function idbBorrar(n){ const db = await idb(); return new Promise(res=>{ const tx = db.transaction('fotos','readwrite'); tx.objectStore('fotos').delete(n); tx.oncomplete = res; }); }
+
+/* ---------- copia de seguridad: todas las imágenes de esta tablet ---------- */
+async function respaldoArchivos(){ return (await idbTodas('respaldo')).sort((a,b)=>a.t-b.t).map(f=>new File([f.blob], f.nombre, {type:'image/jpeg'})); }
+/* 1) menú de compartir: en iPad "Guardar imágenes" las manda todas a Fotos de una vez */
+async function respaldoCompartir(){
+  const fs = await respaldoArchivos(); if(!fs.length){ aviso('Todavía no hay imágenes en esta tablet'); return; }
+  try{ if(navigator.canShare && navigator.canShare({files:fs})){ await navigator.share({files:fs, title:'Perfume Bar · Tablet '+tabletN()}); return; } }
+  catch(e){ if(e && e.name==='AbortError') return; }
+  aviso('Este equipo no deja compartir varias: se descarga un .zip'); respaldoZip();
+}
+/* 2) un solo archivo .zip con todas (queda en Archivos / Descargas) */
+async function respaldoZip(){
+  const fs = await respaldoArchivos(); if(!fs.length){ aviso('Todavía no hay imágenes en esta tablet'); return; }
+  const blob = await armarZip(fs), a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `CC_CaroCuomo_Tablet${tabletN()}_respaldo_${fechaArchivo()}.zip`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 60000);
+}
+/* zip sin compresión (las imágenes ya vienen comprimidas) */
+const CRC = (()=>{ const t = new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
+const crc32 = u => { let c = 0xFFFFFFFF; for(let i=0;i<u.length;i++) c = CRC[(c^u[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; };
+async function armarZip(files){
+  const partes = [], central = []; let off = 0; const enc = new TextEncoder();
+  for(const f of files){
+    const data = new Uint8Array(await f.arrayBuffer()), nom = enc.encode(f.name), crc = crc32(data);
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0,0x04034b50,true); h.setUint16(4,20,true); h.setUint16(6,0x0800,true); h.setUint16(8,0,true);
+    h.setUint32(14,crc,true); h.setUint32(18,data.length,true); h.setUint32(22,data.length,true); h.setUint16(26,nom.length,true);
+    partes.push(h.buffer, nom, data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0,0x02014b50,true); c.setUint16(4,20,true); c.setUint16(6,20,true); c.setUint16(8,0x0800,true);
+    c.setUint32(16,crc,true); c.setUint32(20,data.length,true); c.setUint32(24,data.length,true); c.setUint16(28,nom.length,true); c.setUint32(42,off,true);
+    central.push(c.buffer, nom); off += 30 + nom.length + data.length;
+  }
+  const tam = central.reduce((a,b)=>a+(b.byteLength||b.length),0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true); e.setUint16(8,files.length,true); e.setUint16(10,files.length,true); e.setUint32(12,tam,true); e.setUint32(16,off,true);
+  return new Blob([...partes, ...central, e.buffer], {type:'application/zip'});
+}
+const aBase64 = b => new Promise(res=>{ const f = new FileReader(); f.onload = ()=>res(String(f.result).split(',')[1]); f.readAsDataURL(b); });
+
+let subiendo = false;
+async function subir(){
+  if(subiendo) return; subiendo = true;
+  try{
+    if(navigator.onLine){
+      /* filas de la planilla */
+      for(const r of LS.get('er_pb_cola',[])){
+        try{ const resp = await fetch(urlScript(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(r)}); const j = await resp.json();
+          if(j.ok) LS.set('er_pb_cola', LS.get('er_pb_cola',[]).filter(x=>!(x.id===r.id && x.t===r.t))); }catch(e){}
+      }
+      /* imágenes a Drive */
+      if(driveUrl()){
+        for(const f of await idbTodas()){
+          try{ const resp = await fetch(driveUrl(),{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+                 body:JSON.stringify({clave:EVENTO.CLAVE, carpeta:TAB.CARPETA, nombre:f.nombre, mime:'image/jpeg', data:await aBase64(f.blob)})});
+               const j = await resp.json(); if(j.ok) await idbBorrar(f.nombre); }catch(e){}
+        }
+      }
+    }
+  } finally { subiendo = false; actualizarPend(); }
+}
+async function actualizarPend(){
+  let nf = 0; try{ nf = (await idbTodas()).length; }catch(e){}
+  const nr = LS.get('er_pb_cola',[]).length;
+  pendTxt = (nf || nr) ? `Por subir: ${nf} imágenes · ${nr} filas` : 'Todo subido ✓';
+  const el = $('#pend'); if(el) el.textContent = pendTxt;
+}
+setInterval(subir, 30000);
+window.addEventListener('online', subir);
+
+/* ---------- panel ---------- */
+let panelOk = false;
+function abrirPanel(){
+  const d = document.createElement('div'); d.className = 'modal'; d.onclick = e=>{ if(e.target===d) d.remove(); };
+  const hist = LS.get(KT+'_hist',[]);
+  d.innerHTML = panelOk ? `<div class="in"><h1 style="font-size:26px">Panel de la tablet</h1>
+      <label>¿Qué tablet es esta?</label>
+      <div class="chips">${[1,2,3,4].map(n=>`<button class="${tabletN()===n?'on':''}" onclick="LS.set(KT+'_n',${n});this.closest('.modal').remove();pintar();abrirPanel()">Tablet ${n}</button>`).join('')}</div>
+      <p class="hint">Perfumes hechos en esta tablet: <b>${hist.length}</b> · ${esc(pendTxt)}</p>
+      <label>Copia de seguridad de las imágenes</label>
+      <button class="btn terra" onclick="respaldoCompartir()">Guardar todas en Fotos</button>
+      <button class="btn ghost" onclick="respaldoZip()">Descargar todas en un .zip</button>
+      <p class="hint">La copia queda guardada en la tablet aunque ya se hayan subido a Drive.</p>
+      <label for="pdrive">Link del script de imágenes (Drive)</label><input id="pdrive" value="${esc(driveUrl())}" placeholder="https://script.google.com/macros/s/…/exec">
+      <label for="purl">Link del script de la planilla</label><input id="purl" value="${esc(urlScript())}">
+      <button class="btn" onclick="LS.set(KT+'_drive',$('#pdrive').value.trim());LS.set('er_pb_url',$('#purl').value.trim());this.closest('.modal').remove();subir();aviso('Guardado')">Guardar y subir ahora</button>
+      <button class="btn ghost" onclick="this.closest('.modal').remove()">Cerrar</button></div>`
+    : `<div class="in"><h1 style="font-size:26px">Panel</h1><label for="ppin">PIN</label><input id="ppin" type="password" inputmode="numeric">
+      <button class="btn" onclick="if($('#ppin').value===EVENTO.PIN){panelOk=true;this.closest('.modal').remove();abrirPanel()}else{aviso('PIN incorrecto')}">Entrar</button>
+      <button class="btn ghost" onclick="this.closest('.modal').remove()">Cancelar</button></div>`;
+  document.body.appendChild(d); const i = d.querySelector('input'); if(i && !panelOk) i.focus();
+}
+
+/* ---------- pintar ---------- */
+function medirTop(){ const t = document.querySelector('.top'); if(t) document.documentElement.style.setProperty('--alto-top', t.offsetHeight+'px'); }
+window.addEventListener('resize', medirTop);
+function pintar(){
+  if(G.paso!=='nombres' && !activos().length) G.paso = 'nombres';
+  if(['formulas','imagenes'].includes(G.paso) && !activos().some(([p])=>p.r)) G.paso = 'cata';
+  P.paso = G.paso==='imagenes' ? 'final' : '';
+  barraTop();
+  $('#app').innerHTML = {nombres:vNombres, cata:vCata, formulas:vFormulas, imagenes:vImagenes}[G.paso]();
+  ({nombres:accionesNombres, cata:accionesCata, formulas:accionesFormulas, imagenes:accionesImagenes})[G.paso]();
+  if(G.paso==='imagenes') dibujarTodas();
+  medirTop();
+}
+if(document.fonts){ Promise.all(['600 96px "Cormorant Garamond"','italic 500 42px "Cormorant Garamond"','600 24px Inter','400 24px Inter'].map(f=>document.fonts.load(f).catch(()=>{}))).then(dibujarTodas); }
+/* funciona sin internet: se guarda en la tablet la primera vez que se abre con Wi-Fi */
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+pintar(); actualizarPend(); subir();
+</script>
+</body>
+</html>
